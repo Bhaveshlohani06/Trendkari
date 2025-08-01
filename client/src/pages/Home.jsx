@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../axios';
 import Layout from '../Layout/Layout';
 import BlogCard from '../Components/BlogCard';
 import { FiTrendingUp, FiClock, FiZap, FiArrowRight } from 'react-icons/fi';
@@ -21,7 +21,7 @@ const Home = () => {
   const getAllPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/api/v1/post/get-posts");
+      const { data } = await API.get("/api/v1/post/get-posts");
       if (data?.success) {
         setBlogs(data.posts);
       }
