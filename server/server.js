@@ -39,6 +39,11 @@ app.use('/api/v1/auth', authrouter);
 app.use('/api/v1/category', categoryroutes);
 app.use('/api/v1/post', postRoutes); 
 
+app.get("/api/ping", (req, res) => {
+  res.json({ message: "Backend working" });
+});
+
+
 // Server setup
 const PORT = process.env.PORT || 5000;
 
