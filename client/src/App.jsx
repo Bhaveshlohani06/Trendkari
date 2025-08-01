@@ -16,7 +16,6 @@ import CreateCategory from './pages/Admin/CreateCategory'
 import CreatePost from './pages/Admin/CreatePost'
 import Posts from './pages/Admin/Posts'
 import UpdatePost from './pages/Admin/UpdatePost'
-import Testing from './pages/Admin/testing'
 import BlogDetail from './pages/BlogDetail'
 import AllBlogs from './pages/AllBlog'
 import PrivacyPolicy from './Components/PrivacyPolicy'
@@ -33,7 +32,6 @@ const App = () => {
 
         <Route path='/' element={<Home />} />
         <Route path='/blog' element={<Blog />} />
-        <Route path='/testing' element={<Testing />} />
 
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
