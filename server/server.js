@@ -15,6 +15,14 @@ dotenv.config(); // Load environment variables
 const app = express();
 
 connectDB(); // Connect to MongoDB
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://trendkari.vercel.app", // Your Vercel frontend URL
+  credentials: true,
+}));
+
+
 
 // Middleware
 app.use(cors());
