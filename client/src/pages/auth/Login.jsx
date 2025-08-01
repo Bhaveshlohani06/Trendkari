@@ -1,0 +1,115 @@
+import React, { useState } from 'react';
+import Layout from '../../Layout/Layout';
+import axios from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useAuth } from '../../context/auth';
+
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [, setAuth] = useAuth(); // We only need setAuth here
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  try {
+    const res = await axios.post('/api/v1/auth/login', { email, password });
+
+    const { user, message } = res.data;
+
+    if (user?.token) {
+      toast.success(message || 'Login successful');
+
+      // ✅ Update auth context
+      setAuth({
+        user,
+        token: user.token,
+      });
+
+      // ✅ navigate to intended page or default
+      navigate(location.state?.from || '/');
+    } else {
+      toast.error('Invalid login response (missing token)');
+    }
+  } catch (error) {
+    toast.error('Login failed');
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:8080/api/v1/auth/google';
+  };
+
+  return (
+    <Layout>
+      <div className="min-vh-100 d-flex justify-content-center align-items-center bg-light">
+        <div className="card shadow p-4 border-0" style={{ maxWidth: '450px', width: '100%', borderRadius: '1rem' }}>
+          <h2 className="text-center fw-bold mb-4 text-primary">Welcome Back!</h2>
+          <p className="text-center text-muted mb-4">
+            Login to continue exploring <strong>Trendkari</strong>
+          </p>
+
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="email" className="form-label fw-semibold">Email address</label>
+              <input
+                type="email"
+                className="form-control form-control-lg"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="mb-3">
+              <label htmlFor="password" className="form-label fw-semibold">Password</label>
+              <input
+                type="password"
+                className="form-control form-control-lg"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <a href='/forgotpassword' className='m-2 pb-2 style={"text-decoration": "none";}'>Forgot Password</a>
+
+            <button
+              type="submit"
+              className="btn btn-primary btn-lg w-100 mb-3"
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+
+          <button
+            type="button"
+            className="btn btn-outline-dark btn-lg w-100 mb-2"
+            onClick={handleGoogleLogin}
+          >
+            <img
+              src="https://img.icons8.com/color/16/000000/google-logo.png"
+              alt="Google"
+              className="me-2"
+            />
+            Continue with Google
+          </button>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default Login;

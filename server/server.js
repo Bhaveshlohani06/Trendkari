@@ -1,0 +1,49 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { connectDB } from './config/db.js';
+import authrouter from './routes/authRoutes.js';
+import categoryroutes from './routes/categoryRoutes.js';
+import postRoutes from './routes/postRoutes.js';
+import passport from 'passport';
+import './config/passport.js'; // import the strategy config
+import session from 'express-session';
+
+
+dotenv.config(); // Load environment variables
+
+const app = express();
+
+connectDB(); // Connect to MongoDB
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Passport middleware
+app.use(session({
+      secret: process.env.SESSION_SECRET, // required
+
+  name: 'trend-oauth',
+  keys: ['your_secret_key'],
+  maxAge: 24 * 60 * 60 * 1000,
+}));
+
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Routes
+app.use('/api/v1/auth', authrouter); 
+app.use('/api/v1/category', categoryroutes);
+app.use('/api/v1/post', postRoutes); 
+
+// Server setup
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+});
+
+export default app;
