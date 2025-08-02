@@ -14,7 +14,7 @@ const AllBlogs = () => {
   const getAllPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('/api/v1/post/get-posts');
+      const { data } = await axios.get('https://trendkari.onrender.com/api/v1/post/get-posts');
       if (data?.success) {
         setPosts(data.posts);
       }
