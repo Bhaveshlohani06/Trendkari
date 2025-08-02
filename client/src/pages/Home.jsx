@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import API from '../axios';
 import Layout from '../Layout/Layout';
+import axios from 'axios';
 import BlogCard from '../Components/BlogCard';
 import { FiTrendingUp, FiClock, FiZap, FiArrowRight } from 'react-icons/fi';
 import { BsLightningFill, BsNewspaper, BsGraphUp } from 'react-icons/bs';
@@ -12,6 +12,7 @@ import Carousel from 'react-bootstrap/Carousel';
 import CategoryCarousel from '../Components/CategoryCarousel';
 
 
+
 const Home = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,7 +22,7 @@ const Home = () => {
   const getAllPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await API.get("/api/v1/post/get-posts");
+      const { data } = await axios.get("/post/get-posts");
       if (data?.success) {
         setBlogs(data.posts);
       }

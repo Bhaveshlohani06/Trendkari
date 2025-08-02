@@ -25,7 +25,7 @@ app.use(cors({
 
 
 // Middleware
-app.use(cors());
+// app.use(cors());
 app.use(express.json());
 
 // Passport middleware
