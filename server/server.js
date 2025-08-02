@@ -18,7 +18,9 @@ connectDB(); // Connect to MongoDB
 
 const allowedOrigins = [
   'http://localhost:5173', // Vite default dev port
-  'https://trendkari.vercel.app' // Your live frontend
+  'https://trendkari.vercel.app',
+  'https://www.trendkari.in',
+  'https://trendkari.in', // Your live frontend
 ];
 
 app.use(cors({

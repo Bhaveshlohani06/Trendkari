@@ -18,7 +18,7 @@ const Home = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  
+
 
   const getAllPosts = async () => {
     try {
