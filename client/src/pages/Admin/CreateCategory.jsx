@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../Layout/Layout";
 import AdminMenu from "../../Layout/AdminMenu";
 import toast from "react-hot-toast";
-import axios from "axios";
 import CategoryForm from "../../Components/forms/Categoryform";
 import { Modal } from "antd";
 import { useAuth } from "../../context/auth";
+import API from "../../../utils/api";
 
 const CreateCategory = () => {
   const [auth] = useAuth();
@@ -21,7 +21,7 @@ const handleSubmit = async (e) => {
   try {
     // console.log("Token being sent:", auth?.token); // ✅ For debugging
 
-    const { data } = await axios.post(
+    const { data } = await API.post(
       "/api/v1/category/create-category",
       { name },
       {
@@ -49,7 +49,7 @@ const handleSubmit = async (e) => {
   // Get All Categories
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-categories");
+      const { data } = await API.get("/category/get-categories");
           console.log("API response:", data); // ✅ For debugging
 
       if (data?.success) {
@@ -71,8 +71,8 @@ const handleSubmit = async (e) => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.put(  
-        `/api/v1/category/update-category/${selected._id}`,
+      const { data } = await API.put(  
+        `/category/update-category/${selected._id}`,
         { name: updatedName }
       );
       if (data?.success) {
@@ -93,8 +93,8 @@ const handleSubmit = async (e) => {
   // Delete Category
   const handleDelete = async (pId) => {
     try {
-      const { data } = await axios.delete(
-        `/api/v1/category/delete-category/${pId}`
+      const { data } = await API.delete(
+        `/category/delete-category/${pId}`
       );
       if (data.success) {
         toast.success(`Category deleted successfully`);

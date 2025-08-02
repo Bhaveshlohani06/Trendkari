@@ -137,7 +137,7 @@ const Header = () => {
                   {auth?.user?.name?.split(' ')[0] || 'User'}
                 </span>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                  {/* <li><NavLink className="dropdown-item" to="/dashboard">Dashboard</NavLink></li> */}
+                  <li><NavLink className="dropdown-item" to="/dashboard">Dashboard</NavLink></li>
                   <li><button className="dropdown-item text-danger" onClick={handleLogout}>Logout</button></li>
                 </ul>
               </li>

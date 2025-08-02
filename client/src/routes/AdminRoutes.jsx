@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import axios from 'axios';
 import { useAuth } from '../context/auth';
+import API from '../../utils/api';
 
 const AdminRoute = () => {
   const [ok, setOk] = useState(null); // null = loading, true/false = result
@@ -10,7 +10,7 @@ const AdminRoute = () => {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await axios.get('/api/v1/auth/admin-auth', {
+        const res = await API.get('/auth/admin-auth', {
           headers: {
           Authorization: `Bearer ${auth?.token}`
           },

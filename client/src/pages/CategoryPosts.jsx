@@ -1,8 +1,8 @@
 // pages/CategoryPosts.jsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import Layout from '../Layout/Layout';
+import API from '../../utils/api';
 
 const CategoryPosts = () => {
   const { slug } = useParams();
@@ -17,7 +17,7 @@ const CategoryPosts = () => {
 
   const fetchCategoryPosts = async () => {
     try {
-      const { data } = await axios.get(`/api/v1/category/get-category/${slug}`);
+      const { data } = await API.get(`/category/get-category/${slug}`);
       setPosts(data?.posts || []);
       setCategory(data?.category || null);
     } catch (err) {

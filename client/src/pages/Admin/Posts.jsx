@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import AdminMenu from '../../Layout/AdminMenu';
 import Layout from '../../Layout/Layout';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
+import API from '../../../utils/api';
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -11,7 +11,7 @@ const Posts = () => {
   // Fetch all posts
   const getAllPosts = async () => {
     try {
-      const { data } = await axios.get('/api/v1/post/get-posts');
+      const { data } = await API.get('/post/get-posts');
       if (data?.success) {
         setPosts(data.posts);
       } else {

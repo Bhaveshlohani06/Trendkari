@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Select } from 'antd';
+import API from '../../../utils/api';
 
 const { Option } = Select;
 
@@ -23,7 +24,7 @@ const UpdatePost = () => {
   // Fetch all categories
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get('/api/v1/category/get-categories');
+      const { data } = await API.get('/category/get-categories');
       if (data?.success) {
         setCategories(data.categories);
       }
@@ -36,7 +37,7 @@ const UpdatePost = () => {
   // Fetch single post by slug
   const getSinglePost = async () => {
     try {
-      const { data } = await axios.get(`/api/v1/post/get-post/${params.slug}`);
+      const { data } = await API.get(`/post/get-post/${params.slug}`);
       if (data?.post) {
         setId(data.post._id);
         setTitle(data.post.title);
@@ -66,8 +67,8 @@ const UpdatePost = () => {
       formData.append('isPublished', isPublished);
       if (image) formData.append('image', image);
 
-      const { data } = await axios.put(
-        `/api/v1/post/update-post/${id}`,
+      const { data } = await API.put(
+        `/post/update-post/${id}`,
         formData
       );
 
@@ -89,7 +90,7 @@ const UpdatePost = () => {
       const confirmDelete = window.confirm('Are you sure you want to delete this post?');
       if (!confirmDelete) return;
 
-      const { data } = await axios.delete(`/api/v1/post/delete-post/${id}`);
+      const { data } = await API.delete(`/post/delete-post/${id}`);
       if (data.success) {
         toast.success('Post deleted');
         navigate('/dashboard/admin/posts');

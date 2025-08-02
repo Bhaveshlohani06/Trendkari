@@ -3,9 +3,9 @@ import { Editor } from '@tinymce/tinymce-react';
 import Layout from '../../Layout/Layout';
 import AdminMenu from '../../Layout/AdminMenu';
 import toast from 'react-hot-toast';
-import axios from 'axios';
 import { Select } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import API from '../../../utils/api';
 
 const { Option } = Select;
 const BACKEND_URL = "http://localhost:8080/api/v1/post";
@@ -27,7 +27,7 @@ const CreatePost = () => {
   // Load categories
   const getAllCategories = async () => {
     try {
-      const { data } = await axios.get('/api/v1/category/get-categories');
+      const { data } = await API.get('/category/get-categories');
       if (data?.success) {
         setCategories(data?.categories);
       }
@@ -52,7 +52,7 @@ const CreatePost = () => {
 
   try {
     // Step 1: Generate raw AI content
-    const genRes = await axios.post(`${BACKEND_URL}/generate`, {
+    const genRes = await API.post(`${BACKEND_URL}/generate`, {
       prompt: title
     });
 
@@ -64,7 +64,7 @@ const CreatePost = () => {
     }
 
     // Step 2: Send raw content to backend to humanize it
-    const humRes = await axios.post(`${BACKEND_URL}/humanize`, {
+    const humRes = await API.post(`${BACKEND_URL}/humanize`, {
       htmlContent: generated  // ✅ Match backend key
     });
 
@@ -103,7 +103,7 @@ const CreatePost = () => {
       postData.append('image', image);
       postData.append('tags', tags);
 
-      const { data } = await axios.post('/api/v1/post/create-post', postData);
+      const { data } = await API.post('/post/create-post', postData);
 
       if (data?.success) {
         toast.success('Post created successfully');

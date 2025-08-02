@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/auth";
 import { Outlet } from "react-router-dom";
-import axios from "axios";
+import API from "../../utils/api";
 
 const PrivateRoute = () => {
   const [ok, setOk] = useState(false);
@@ -10,7 +10,7 @@ const PrivateRoute = () => {
   useEffect(() => {
     const authCheck = async () => {
       try {
-        const res = await axios.get("/api/v1/auth/user-auth", {
+        const res = await API.get("/auth/user-auth", {
   headers: {
     Authorization: auth?.token
   }

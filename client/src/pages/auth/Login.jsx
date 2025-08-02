@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Layout from '../../Layout/Layout';
-import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/auth';
+import API from '../../../utils/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -17,7 +17,7 @@ const Login = () => {
   e.preventDefault();
   setLoading(true);
   try {
-    const res = await axios.post('/api/v1/auth/login', { email, password });
+    const res = await API.post('/auth/login', { email, password });
 
     const { user, message } = res.data;
 

@@ -16,9 +16,19 @@ const app = express();
 
 connectDB(); // Connect to MongoDB
 
+const allowedOrigins = [
+  'http://localhost:5173', // Vite default dev port
+  'https://trendkari.vercel.app' // Your live frontend
+];
 
 app.use(cors({
-  origin: "https://trendkari.vercel.app", // Your Vercel frontend URL
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS: ' + origin));
+    }
+  },
   credentials: true,
 }));
 

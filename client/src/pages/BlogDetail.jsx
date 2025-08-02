@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
 import Layout from '../Layout/Layout';
 import MiniCard from '../Components/MiniCard';
+import API from '../../utils/api';
 
 const BlogDetail = () => {
   const { slug } = useParams();
@@ -14,7 +14,7 @@ const BlogDetail = () => {
 
   const fetchPost = async () => {
     try {
-      const { data } = await axios.get(`/api/v1/post/get-post/${slug}`);
+      const { data } = await API.get(`/post/get-post/${slug}`);
       if (data?.success) {
         setPost(data?.post);
         fetchRelatedPosts(data.post.category._id);
@@ -26,7 +26,7 @@ const BlogDetail = () => {
 
   const fetchRelatedPosts = async () => {
   try {
-    const { data } = await axios.get('/api/v1/post/get-posts');
+    const { data } = await API.get('/post/get-posts');
     if (data?.success) {
       const posts = data.posts;
 

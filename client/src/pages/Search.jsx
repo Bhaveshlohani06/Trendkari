@@ -1,7 +1,7 @@
 // pages/Search.jsx
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from 'axios';
+import API from '../../utils/api';
 
 const Search = () => {
   const location = useLocation();
@@ -16,7 +16,7 @@ const Search = () => {
 
   const fetchResults = async () => {
     try {
-      const { data } = await axios.get(`/api/v1/posts/search?q=${query}`);
+      const { data } = await API.get(`/posts/search?q=${query}`);
       setResults(data?.posts || []);
     } catch (err) {
       console.error(err);

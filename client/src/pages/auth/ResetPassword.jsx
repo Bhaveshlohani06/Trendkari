@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Layout from '../../Layout/Layout';
+import API from '../../../utils/api';
 
 const ResetPassword = () => {
   const { token } = useParams();
@@ -17,7 +17,7 @@ const ResetPassword = () => {
     setError(''); 
 
     try {
-    const { data } = await axios.post(`/api/v1/auth/reset-password/${token}`, {
+    const { data } = await API.post(`/auth/reset-password/${token}`, {
         token,
         password,
       });

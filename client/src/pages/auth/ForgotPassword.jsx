@@ -1,6 +1,6 @@
 import { Layout } from 'lucide-react';
 import React, { useState } from 'react';
-import axios from 'axios';
+import API from '../../../utils/api';
 
 
 
@@ -20,7 +20,7 @@ const ForgotPassword = () => {
   setLoading(true);
 
   try {
-    const { data } = await axios.post('/api/v1/auth/forgot-password', { email });
+    const { data } = await API.post('/auth/forgot-password', { email });
 
     setStatus(data.message || 'OTP has been sent to your email. Please check your inbox.');
   } catch (error) {

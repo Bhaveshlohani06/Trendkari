@@ -10,6 +10,7 @@ import QuoteCard from '../Components/Quotes';
 import MiniCard from '../Components/MiniCard';
 import Carousel from 'react-bootstrap/Carousel';
 import CategoryCarousel from '../Components/CategoryCarousel';
+import API from '../../utils/api';
 
 
 
@@ -22,7 +23,7 @@ const Home = () => {
   const getAllPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/api/v1/post/get-posts");
+      const { data } = await API.get("/post/get-posts");
       if (data?.success) {
         setBlogs(data.posts);
       }

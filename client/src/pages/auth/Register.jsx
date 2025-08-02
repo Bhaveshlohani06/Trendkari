@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import API from '../../../utils/api';
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -18,7 +18,7 @@ const Register = () => {
     e.preventDefault();
   
     try {
-      const res = await axios.post("/api/v1/auth/register", {
+      const res = await API.post("/auth/register", {
         name,
         email,
         password,

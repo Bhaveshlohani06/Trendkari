@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import { FiCalendar, FiArrowRight } from 'react-icons/fi';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import API from '../../utils/api';
 
 const AllBlogs = () => {
   const [posts, setPosts] = useState([]);
@@ -14,7 +14,7 @@ const AllBlogs = () => {
   const getAllPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('https://trendkari.onrender.com/api/v1/post/get-posts');
+      const { data } = await API.get('/post/get-posts');
       if (data?.success) {
         setPosts(data.posts);
       }

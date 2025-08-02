@@ -1,8 +1,8 @@
 // pages/Contact.jsx
 import React, { useState } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import Layout from '../Layout/Layout';
+import API from '../../utils/api';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -21,7 +21,7 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post('/api/v1/contact', formData);
+      const { data } = await API.post('/api/v1/contact', formData);
       if (data.success) {
         toast.success('Message sent successfully!');
         setFormData({ name: '', email: '', message: '' });
