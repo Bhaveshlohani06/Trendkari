@@ -1,11 +1,11 @@
 // components/CategoryCarousel.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { Spinner } from 'react-bootstrap';
 import {
   FaNewspaper, FaLaptop, FaLaughBeam, FaTshirt, FaRobot, FaRocket,
   FaFire, FaBriefcase, FaGamepad, FaBook, FaChartLine, FaGlobe
 } from 'react-icons/fa';
+import API from '../../utils/api';
 
 const CategoryCarousel = () => {
   const [categories, setCategories] = useState([]);
@@ -28,7 +28,7 @@ const CategoryCarousel = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data } = await axios.get('/api/v1/category/get-categories');
+      const { data } = await API.get('/category/get-categories');
       if (data?.success) {
         let categoriesWithExtras = [...data.categories];
 
