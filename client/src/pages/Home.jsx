@@ -22,7 +22,7 @@ const Home = () => {
   const getAllPosts = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/post/get-posts");
+      const { data } = await axios.get("/api/v1/post/get-posts");
       if (data?.success) {
         setBlogs(data.posts);
       }
