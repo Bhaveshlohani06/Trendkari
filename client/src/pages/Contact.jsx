@@ -21,7 +21,7 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await API.post('/api/v1/contact', formData);
+      const { data } = await API.post(' ', formData);
       if (data.success) {
         toast.success('Message sent successfully!');
         setFormData({ name: '', email: '', message: '' });

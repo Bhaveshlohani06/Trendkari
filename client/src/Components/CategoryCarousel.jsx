@@ -1,6 +1,7 @@
 // components/CategoryCarousel.jsx
 import React, { useEffect, useState } from 'react';
 import { Spinner } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import {
   FaNewspaper, FaLaptop, FaLaughBeam, FaTshirt, FaRobot, FaRocket,
   FaFire, FaBriefcase, FaGamepad, FaBook, FaChartLine, FaGlobe
@@ -28,7 +29,7 @@ const CategoryCarousel = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data } = await API.get('/category/get-categories');
+      const { data } = await API.get(`/category/categories`);
       if (data?.success) {
         let categoriesWithExtras = [...data.categories];
 
@@ -118,14 +119,14 @@ const CategoryCarousel = () => {
                         <div className="card-body py-2 px-3">
                           <h6 className="card-title fw-bold">{cat.name}</h6>
                           <p className="card-text text-muted small mb-2">
-                            {cat.description ? `${cat.description.slice(0, 60)}...` : 'No description'}
+                            {cat.description ? `${cat.description.slice(  0, 60)}...` : 'Trendkari'}
                           </p>
-                          <a
-                            href={`/category/${cat.slug}`}
+                          <Link
+                            to={`/category/${cat.slug}`}
                             className="btn btn-outline-warning btn-sm"
                           >
                             Explore
-                          </a>
+                          </Link>
                         </div>
                       </div>
                     </div>

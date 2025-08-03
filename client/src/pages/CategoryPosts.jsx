@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import API from '../../utils/api';
 
-const CategoryPosts = () => {
+const   CategoryPosts = () => {
   const { slug } = useParams();
   const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState(null);
@@ -32,7 +32,7 @@ const CategoryPosts = () => {
         {category ? category.name : 'Category'} Blogs
       </h3>
       {posts.length === 0 ? (
-        <p>No posts found in this category.</p>
+        <p>No posts in this category.</p>
       ) : (
         <div className="row">
           {posts.map((post) => (
