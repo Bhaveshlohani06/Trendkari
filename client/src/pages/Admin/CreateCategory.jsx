@@ -49,7 +49,7 @@ const handleSubmit = async (e) => {
   // Get All Categories
   const getAllCategory = async () => {
     try {
-      const { data } = await API.get("/category/get-categories");
+      const { data } = await API.get("/category/categories");
           console.log("API response:", data); // ✅ For debugging
 
       if (data?.success) {

@@ -27,7 +27,7 @@ const CreatePost = () => {
   // Load categories
   const getAllCategories = async () => {
     try {
-      const { data } = await API.get('/category/get-categories');
+      const { data } = await API.get('/category/categories');
       if (data?.success) {
         setCategories(data?.categories);
       }

@@ -24,7 +24,7 @@ const UpdatePost = () => {
   // Fetch all categories
   const getAllCategory = async () => {
     try {
-      const { data } = await API.get('/category/get-categories');
+      const { data } = await API.get('/category/categories');
       if (data?.success) {
         setCategories(data.categories);
       }

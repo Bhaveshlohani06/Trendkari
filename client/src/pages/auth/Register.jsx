@@ -14,6 +14,10 @@ const Register = () => {
 
   const navigate = useNavigate(); 
 
+  const handleGoogleLogin = () => {
+    window.location.href = 'http://localhost:8080/api/v1/auth/google';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -44,8 +48,27 @@ const Register = () => {
     <div className="container mt-5" style={{ maxWidth: '500px' }}>
       <h2 className="text-center mb-4">Create Your Account</h2>
 
+
       {/* {error && <div className="alert alert-danger text-center">{error}</div>}
       {success && <div className="alert alert-success text-center">{success}</div>} */}
+
+          {/* Google Login */}
+    <button
+            type="button"
+            className="btn btn-outline-dark btn-lg w-100 mb-2"
+            onClick={handleGoogleLogin}
+          >
+            <img
+              src="https://img.icons8.com/color/16/000000/google-logo.png"
+              alt="Google"
+              className="me-2"
+            />
+            Continue with Google
+          </button>
+
+<hr/>
+
+
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">

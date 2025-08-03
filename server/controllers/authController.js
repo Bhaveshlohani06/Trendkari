@@ -40,7 +40,7 @@ export const registerController = async (req, res) => {
     await user.save();
 
         // Send welcome email
-    const subject = '🎉 Welcome to Trendakari!';
+    const subject = '🎉 Welcome to Trendkari!';
     const html = `
       <h2>Hello ${name},</h2>
       <p>Welcome to <strong>Trendkari</strong> – Your daily dose of viral trends 🚀</p>
@@ -48,7 +48,7 @@ export const registerController = async (req, res) => {
       <p>Explore trends, share what you love, and stay ahead in pop culture.</p>
       <br>
       <p>Cheers,</p>
-      <p><strong>Team Trendakari</strong></p>
+      <p><strong>Team Trendkari</strong></p>
     `;
 
     await sendEmail(email, subject, html);
