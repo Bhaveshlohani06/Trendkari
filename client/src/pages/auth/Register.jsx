@@ -14,9 +14,12 @@ const Register = () => {
 
   const navigate = useNavigate(); 
 
-  const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/api/v1/auth/google';
-  };
+const BACKEND_URL = import.meta.env.VITE_PRO_BASE_URL;
+
+const handleGoogleLogin = () => {
+  window.location.href = `${BACKEND_URL}/auth/google`;
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
