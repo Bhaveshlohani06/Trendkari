@@ -24,6 +24,11 @@ const Login = () => {
     if (user?.token) {
       toast.success(message || 'Login successful');
 
+        // ✅ Save token
+      localStorage.setItem("token", data.token);
+      // optional: also store user data
+      localStorage.setItem("user", JSON.stringify(data.user));
+
       // ✅ Update auth context
       setAuth({
         user,

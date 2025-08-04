@@ -11,6 +11,7 @@ const AuthProvider = ({ children }) => {
   });
 
   // Keep axios headers and localStorage in sync with auth state
+  
   useEffect(() => {
     if (auth?.token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${auth.token}`;

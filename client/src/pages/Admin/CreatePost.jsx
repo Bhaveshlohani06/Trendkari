@@ -6,12 +6,14 @@ import toast from 'react-hot-toast';
 import { Select } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import API from '../../../utils/api';
+import { useAuth } from '../../context/auth';
 
 const { Option } = Select;
-const BACKEND_URL = "http://localhost:8080/api/v1/post";
+const BACKEND_URL = `${import.meta.env.VITE_PRO_BASE_URL}/post`;
 
 
 const CreatePost = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
     const editorRef = useRef(null);
   const [categories, setCategories] = useState([]);
@@ -103,19 +105,29 @@ const CreatePost = () => {
       postData.append('image', image);
       postData.append('tags', tags);
 
-      const { data } = await API.post('/post/create-post', postData);
 
-      if (data?.success) {
-        toast.success('Post created successfully');
-        navigate('/dashboard/admin');
-      } else {
-        toast.error(data?.message || 'Failed to create post');
+  const { data } = await API.post("/post/create-post", postData,{
+    
+    headers: {
+            Authorization: `Bearer ${auth?.token}`,
+
+          },
+
+        });
+  console.log(postData)
+  console.log("TOKEN BEFORE REQUEST:", auth?.token);
+
+        if (data?.error) {
+          toast.error(data?.message);
+        } else {
+          toast.success("Post Created Successfully");
+          navigate('/dashboard/admin/posts');
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong in creating the product");
       }
-    } catch (error) {
-      console.error(error);
-      toast.error('Something went wrong while creating the post');
-    }
-  };
+    };
 
   return (
     <Layout>
