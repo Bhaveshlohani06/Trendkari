@@ -70,28 +70,6 @@ const Home = () => {
 
       {/* LEFT: Entertainment */}
       <div className="col-md-6">
-        <div className="d-flex align-items-center mb-3">
-          <FiTrendingUp className="text-warning me-2" />          
-          <h2 className="h4 fw-bold text-dark m-0">Top AI Trends You Can’t Miss</h2>
-        </div>
-        <p className="text-muted mb-4">
-          Explore how artificial intelligence is transforming everything from music to memes in real time.
-        </p>
-
-        <div className="row g-4">
-          {blogs
-            .filter((post) => post.category.slug === "ai-trends")
-            .slice(0, 4)
-            .map((post) => (
-              <div className="col-md-6" key={post._id}>
-                <BlogCard post={post} />
-              </div>
-            ))}
-        </div>
-      </div>
-
-      {/* RIGHT: Trending */}
-      <div className="col-md-6">
   <div className="mb-3">
     <h2 className="h4 fw-bold text-dark d-flex align-items-center">
       <BsLightningFill className="text-warning me-2" />
@@ -113,6 +91,30 @@ const Home = () => {
     </div>
   )}
 </div>
+<hr/>
+
+      {/* RIGHT: Trending */}
+            <div className="col-md-6">
+        <div className="d-flex align-items-center mb-3">
+          <FiTrendingUp className="text-warning me-2" />          
+          <h2 className="h4 fw-bold text-dark m-0">Top AI Trends You Can’t Miss</h2>
+        </div>
+        <p className="text-muted mb-4">
+          Explore how artificial intelligence is transforming everything from music to memes in real time.
+        </p>
+
+        <div className="row g-4">
+          {blogs
+            .filter((post) => post.category.slug === "ai-trends")
+            .slice(0, 4)
+            .map((post) => (
+              <div className="col-md-6" key={post._id}>
+                <BlogCard post={post} />
+              </div>
+            ))}
+        </div>
+      </div>
+
 
     </div>
   </div>

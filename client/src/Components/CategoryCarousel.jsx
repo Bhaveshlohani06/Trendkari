@@ -84,7 +84,7 @@ const CategoryCarousel = () => {
     <section className="container my-5">
   <h2 className="text-center mb-2 text-dark fw-bold display-5">CATEGORIES</h2>
   <p className="text-center fw-medium mb-4 text-muted fs-5">
-    Discover Top Trending Topics from Trendakari
+    Discover Top Trending Topics from Trendkari
   </p>
 
   {/* Mobile View - Horizontal Scroll */}
