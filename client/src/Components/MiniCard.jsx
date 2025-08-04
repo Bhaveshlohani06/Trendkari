@@ -15,8 +15,8 @@ const MiniCard = ({ post }) => {
           <img
             src={post.image}
             alt={post.title}
-            className="img-fluid h-100"
-            style={{ objectFit: 'cover' }}
+            className="img-fluid w-100"
+            style={{ objectFit: 'contain',  backgroundColor: '#ffffffff', height: '100%' }}
           />
         </div>
         <div className="col-8">
