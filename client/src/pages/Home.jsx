@@ -91,7 +91,6 @@ const Home = () => {
     </div>
   )}
 </div>
-<hr/>
 
       {/* RIGHT: Trending */}
             <div className="col-md-6">
