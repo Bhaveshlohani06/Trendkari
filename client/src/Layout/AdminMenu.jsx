@@ -20,11 +20,11 @@ const AdminMenu = () => {
         </div>
 
          <div className="mt-3">
-          <Link to="/dashboard/admin/create-post" className="text-white text-decoration-none">Create Product</Link>
+          <Link to="/dashboard/admin/create-post" className="text-white text-decoration-none">Create Post</Link>
         </div>
 
         <div className="mt-3">
-          <Link to="/dashboard/admin/posts" className="text-white text-decoration-none">Product</Link>
+          <Link to="/dashboard/admin/posts" className="text-white text-decoration-none">All Post</Link>
         </div>
 
 

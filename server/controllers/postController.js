@@ -185,7 +185,7 @@ export const generatePostContent = async (req, res) => {
       });
     }
 
-    const generatedContent = await main("Generate a blog content for this topic in simple text format: " + prompt);
+    const generatedContent = await main("Generate a SEO Friendly blog content for this topic in simple text format: " + prompt);
     
     console.log("Generated content:", generatedContent);
 

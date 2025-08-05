@@ -9,15 +9,15 @@ import {
   deletePostController,
   generatePostContent,
   humanizeBlog,
-  searchPostsController
+  searchPostsController,
 } from "../controllers/postController.js";
-import { requireSignIn, isAdmin } from "../middleware/authMiddleware.js";
+import { requireSignIn, isAdmin, allowUsersAndAdmins } from "../middleware/authMiddleware.js";
 import upload from "../middleware/multer.js"; // Import the multer middleware
 
 const router = express.Router();
 
 // CREATE POST
-router.post("/create-post",upload.single('image'), requireSignIn, isAdmin, createPostController);
+router.post("/create-post",upload.single('image'), requireSignIn, allowUsersAndAdmins, createPostController);
 
 // GET ALL POSTS
 router.get("/get-posts", getAllPostsController);
@@ -31,14 +31,14 @@ router.get("/get-post/:slug", getPostBySlugController);
 router.patch("/posts/:id/toggle-publish", togglePublishController);
 
 // UPDATE POST
-router.put("/update-post/:id", requireSignIn, isAdmin, updatePostController);
+router.put("/update-post/:id", requireSignIn, updatePostController);
 
 // DELETE POST
 router.delete("/delete-post/:id", requireSignIn, isAdmin, deletePostController);
 
-router.post("/generate",requireSignIn, isAdmin,  generatePostContent);
+router.post("/generate",requireSignIn, generatePostContent);
 
-router.post("/humanize",requireSignIn, isAdmin, humanizeBlog);
+router.post("/humanize",requireSignIn, humanizeBlog);
 
 router.get('/search', searchPostsController);
 

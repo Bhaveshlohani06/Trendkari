@@ -37,3 +37,19 @@ export const isAdmin = async (req, res, next) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
+//admin and user access
+export const allowUsersAndAdmins = (req, res, next) => {
+  try {
+    const { role } = req.user;
+    if (role === "admin" || role === "user") {
+      next();
+    } else {
+      return res.status(401).json({ success: false, message: "Access Denied" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Auth Error" });
+  }
+};

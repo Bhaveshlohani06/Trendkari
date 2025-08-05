@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Layout from '../Layout/Layout';
-import axios from 'axios';
+import toast from 'react-hot-toast';
+import { Editor } from '@tinymce/tinymce-react';
+import { Select } from 'antd';
 import BlogCard from '../Components/BlogCard';
 import { FiTrendingUp, FiClock, FiZap, FiArrowRight } from 'react-icons/fi';
 import { BsLightningFill, BsNewspaper, BsGraphUp } from 'react-icons/bs';
@@ -11,12 +13,35 @@ import MiniCard from '../Components/MiniCard';
 import Carousel from 'react-bootstrap/Carousel';
 import CategoryCarousel from '../Components/CategoryCarousel';
 import API from '../../utils/api';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/auth';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+
+
+const { Option } = Select;
+const BACKEND_URL = `https://trendkari.onrender.com/api/v1/post`;
+
+
 
 
 
 const Home = () => {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+      const editorRef = useRef(null);
+  
+        const [showModal, setShowModal] = useState(false);
+
+        const [categories, setCategories] = useState([]);
+        const [title, setTitle] = useState('');
+        const [content, setContent] = useState('');
+        const [category, setCategory] = useState('');
+        const [image, setImage] = useState(null);
+        const [tags, setTags] = useState('');
+        const [isFeatured, setIsFeatured] = useState(false);
+        // const [loading, setLoading] = useState(false);
+        const [status, setStatus] = useState('draft');
 
 
 
@@ -38,6 +63,125 @@ const Home = () => {
     getAllPosts();
   }, []);
 
+
+
+    // Load categories
+    const getAllCategories = async () => {
+      try {
+        const { data } = await API.get('/category/categories');
+        if (data?.success) {
+          setCategories(data?.categories);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error('Error while loading categories');
+      }
+    };
+  
+    useEffect(() => {
+      getAllCategories();
+    }, []);
+
+    // Generate content with AI
+  const generateAndHumanize = async () => {
+  if (!title) {
+    toast.error('Please enter a title');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    // Step 1: Generate raw AI content
+    const genRes = await API.post(`${BACKEND_URL}/generate`,
+      // `${BACKEND_URL}/generate`,
+      { prompt: title },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+
+    const generated = genRes?.data?.content;
+
+    if (!generated) {
+      toast.error("Failed to generate content");
+      return;
+    }
+
+    // Step 2: Send raw content to backend to humanize it
+     const humRes = await API.post(`${BACKEND_URL}/humanize`, {
+      htmlContent: generated
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`  // ✅ Add token here too
+      }
+      });
+
+    const humanized = humRes?.data?.content;  // ✅ match response key from backend
+
+    if (!humanized) {
+      toast.error("Failed to humanize content");
+      return;
+    }
+
+    // Step 3: Load into editor
+    setContent(humanized);
+    if (editorRef.current) {
+      editorRef.current.setContent(humanized);
+    }
+
+    toast.success('Content generated and humanized!');
+  } catch (error) {
+    console.error(error);
+    toast.error("Something went wrong");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // Submit post handler
+  const handleCreate = async (e) => {
+        const token = localStorage.getItem("token");
+
+    e.preventDefault();
+    try {
+      const postData = new FormData();
+      postData.append('title', title);
+      postData.append('content', content);
+      postData.append('category', category);
+      postData.append('status', status);
+      postData.append('isFeatured', isFeatured);
+      postData.append('image', image);
+      postData.append('tags', tags);
+
+
+  const { data } = await API.post("/post/create-post", postData,{
+    
+    headers: {
+            Authorization: `Bearer ${token}`,
+
+          },
+
+        });
+  console.log(postData)
+  console.log("TOKEN BEFORE REQUEST:", auth?.token);
+
+        if (data?.error) {
+          toast.error(data?.message);
+        } else {
+          toast.success("Post Created Successfully");
+          navigate('/explore');
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong in creating the product");
+      }
+    };
   
   return (
     <Layout>
@@ -51,6 +195,128 @@ const Home = () => {
             <p className="text-xl md:text-2xl max-w-3xl mx-auto text-dark">
               Daily curated trends across tech, fashion, entertainment, memes & startups
             </p>
+
+             <h1 className="mb-3">Create Post</h1>
+
+        {/* Post Card */}
+      <div className="card shadow-sm rounded mb-4">
+        <div className="card-body">
+          <div className="d-flex align-items-center mb-3">
+            <img
+          src="https://via.placeholder.com/40/000000/FFFFFF?text=+" 
+              alt="Avatar"
+              className="rounded-circle me-2"
+              width="40"
+              height="40"
+            />
+            <input
+              type="text"
+              className="form-control rounded-pill bg-light border-0 ps-3"
+              placeholder="What's on your mind, Bhavesh?"
+              onFocus={() => setShowModal(true)}
+              style={{ height: '45px' }}
+            />
+          </div>
+          <hr />
+          <div className="d-flex justify-content-end">
+            <button className="btn btn-dark d-flex" onClick={() => setShowModal(true)}>
+              <i className="bi bi-pencil me-2"></i>
+              Create Post
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {showModal && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Create a Post</h5>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+              </div>
+
+              <div className="modal-body">
+                {/* Title */}
+                <input
+                  type="text"
+                  className="form-control mb-3"
+                  placeholder="Post Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+
+                {/* Generate AI button */}
+                <button
+                  className="btn btn-warning mb-3"
+                  onClick={generateAndHumanize}
+                  disabled={loading}
+                >
+                  {loading ? 'Generating...' : 'Generate with AI'}
+                </button>
+
+                {/* TinyMCE Editor */}
+                <Editor
+                  apiKey="your_tinymce_api_key"
+                  onInit={(evt, editor) => (editorRef.current = editor)}
+                  value={content}
+                  onEditorChange={setContent}
+                  init={{
+                    height: 300,
+                    menubar: false,
+                    plugins: 'link image lists code',
+                    toolbar:
+                      'undo redo | formatselect | bold italic | bullist numlist | link image | code',
+                  }}
+                />
+
+                {/* Category Dropdown */}
+                <select
+                  className="form-select mt-3"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories?.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+            {/* Image Upload */}
+                 <label htmlFor="imageUpload" className="form-label">Post Image</label>
+                <input
+                  type="file"
+                  id="imageUpload"
+                  accept="image/*"
+                  onChange={(e) => setImage(e.target.files[0])}
+                  className="form-control"
+                />
+              </div>
+
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+                <button className="btn btn-primary" onClick={handleCreate}>
+                  Post
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* End of Modal */}
+
+
+      
+
+
+
+
             {/* <div className="mt-8 flex flex-wrap justify-center gap-4">
               <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition flex items-center">
                 <FiTrendingUp className="mr-2" /> Explore Trends
