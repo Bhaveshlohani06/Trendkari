@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../Layout/Layout';
-import { toast } from 'react-toastify';
+// import { toast } from 'react-toastify';
+import toast from 'react-hot-toast';
 import API from '../../../utils/api';
 
 const Register = () => {
@@ -14,37 +15,39 @@ const Register = () => {
 
   const navigate = useNavigate(); 
 
-const BACKEND_URL = import.meta.env.VITE_PRO_BASE_URL;
+const BACKEND_URL = "https://trendkari.onrender.com/api/v1";
 
 const handleGoogleLogin = () => {
   window.location.href = `${BACKEND_URL}/auth/google`;
 };
 
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    try {
-      const res = await API.post("/auth/register", {
-        name,
-        email,
-        password,
-        bio,
-        avatar,
-      });
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      if (res && res.data.success) {
-        toast.success( res.data && res.data.message);
-        navigate("/login");
-      } else {
-        toast.error(res.data.message); 
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
+  try {
+    const res = await API.post("/auth/register", {
+      name,
+      email,
+      password,
+      bio,
+      // avatar,
+    });
 
+    const { success, message } = res.data; // ✅ extract message
+
+    if (success) {
+      toast.success(message || 'Registration successful'); // ✅ now message is defined
+      navigate("/login");
+    } else {
+      toast.error(message || "Registration failed");
     }
-  };
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Something went wrong");
+    console.log(error);
+  }
+};
+
 
   return (
     <Layout>

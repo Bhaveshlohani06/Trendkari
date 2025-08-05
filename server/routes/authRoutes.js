@@ -44,6 +44,10 @@ router.get(
       const redirectUrl = `${process.env.FRONTEND_URL}/auth-success?token=${token}&name=${encodeURIComponent(
         user.name
       )}`;
+
+      // const redirectUrl = `https://trendkari.in/auth-success?token=${token}&name=${encodeURIComponent(
+      //   user.name
+      // )}`;
       
 
       res.redirect(redirectUrl);

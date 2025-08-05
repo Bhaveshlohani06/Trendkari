@@ -19,7 +19,7 @@ connectDB(); // Connect to MongoDB
 const allowedOrigins = [
   'http://localhost:5173',
   'https://trendkari.vercel.app',
-  'https://trendkari-qp0pmwukf-bhavesh-lohanis-projects.vercel.app', // 👈 Add this
+  'https://trendkari-qp0pmwukf-bhavesh-lohanis-projects.vercel.app',
   'https://www.trendkari.in',
   'https://trendkari.in',
 ];

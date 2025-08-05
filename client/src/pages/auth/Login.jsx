@@ -25,9 +25,9 @@ const Login = () => {
       toast.success(message || 'Login successful');
 
         // ✅ Save token
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", user.token);
       // optional: also store user data
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("user", JSON.stringify(user));
 
       // ✅ Update auth context
       setAuth({
@@ -48,7 +48,7 @@ const Login = () => {
   }
 };
 
-const BACKEND_URL = import.meta.env.VITE_PRO_BASE_URL;
+const BACKEND_URL = "https://trendkari.onrender.com/api/v1";
 
 const handleGoogleLogin = () => {
   window.location.href = `${BACKEND_URL}/auth/google`;

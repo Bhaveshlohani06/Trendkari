@@ -82,6 +82,7 @@ const AllBlogs = () => {
                           src={post.image}
                           alt={post.title}
                           className="img-fluid rounded-start h-100 object-fit-cover"
+                          style={{ maxHeight: '200px', objectFit: 'contain' }}
                         />
                       </div>
                     )}
