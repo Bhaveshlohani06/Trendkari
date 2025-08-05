@@ -9,7 +9,7 @@ import API from '../../../utils/api';
 import { useAuth } from '../../context/auth';
 
 const { Option } = Select;
-const BACKEND_URL = `${import.meta.env.VITE_PRO_BASE_URL}/post`;
+const BACKEND_URL = `https://trendkari.onrender.com/api/v1/post`;
 
 
 const CreatePost = () => {
@@ -43,6 +43,8 @@ const CreatePost = () => {
     getAllCategories();
   }, []);
 
+
+
   // Generate content with AI
   const generateAndHumanize = async () => {
   if (!title) {
@@ -53,10 +55,19 @@ const CreatePost = () => {
   setLoading(true);
 
   try {
+    const token = localStorage.getItem("token");
+
     // Step 1: Generate raw AI content
-    const genRes = await API.post(`${BACKEND_URL}/generate`, {
-      prompt: title
-    });
+    const genRes = await API.post(`${BACKEND_URL}/generate`,
+      // `${BACKEND_URL}/generate`,
+      { prompt: title },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
 
     const generated = genRes?.data?.content;
 
@@ -66,9 +77,13 @@ const CreatePost = () => {
     }
 
     // Step 2: Send raw content to backend to humanize it
-    const humRes = await API.post(`${BACKEND_URL}/humanize`, {
-      htmlContent: generated  // ✅ Match backend key
-    });
+     const humRes = await API.post(`${BACKEND_URL}/humanize`, {
+      htmlContent: generated
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`  // ✅ Add token here too
+      }
+      });
 
     const humanized = humRes?.data?.content;  // ✅ match response key from backend
 
@@ -94,6 +109,8 @@ const CreatePost = () => {
 
   // Submit post handler
   const handleCreate = async (e) => {
+        const token = localStorage.getItem("token");
+
     e.preventDefault();
     try {
       const postData = new FormData();
@@ -109,7 +126,7 @@ const CreatePost = () => {
   const { data } = await API.post("/post/create-post", postData,{
     
     headers: {
-            Authorization: `Bearer ${auth?.token}`,
+            Authorization: `Bearer ${token}`,
 
           },
 
