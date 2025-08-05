@@ -34,6 +34,20 @@ async (accessToken, refreshToken, profile, done) => {
 
             await user.save();
 
+            //welcome message
+            const subject = '🎉 Welcome to Trendkari!';
+    const html = `
+      <h2>Hello ${name},</h2>
+      <p>Welcome to <strong>Trendkari</strong> – Your daily dose of viral trends 🚀</p>
+      <p>We’re thrilled to have you on board!</p>
+      <p>Explore trends, share what you love, and stay ahead in pop culture.</p>
+      <br>
+      <p>Cheers,</p>
+      <p><strong>Team Trendkari</strong></p>
+    `;
+
+    await sendEmail(email, subject, html);
+
              
         }
 
