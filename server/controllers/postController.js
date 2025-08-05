@@ -10,7 +10,7 @@ import main from '../config/gemini.js';
 // CREATE POST
 export const createPostController = async (req, res) => {
   try {
-    const { title, content, category, tags, isFeatured, status } = req.body;
+    const { title, content, category, author, tags, isFeatured, status } = req.body;
     const image = req.file;
 
     // Validation
@@ -27,6 +27,7 @@ export const createPostController = async (req, res) => {
       title,
       content,
       category,
+      author: req.user._id,
       slug: slugify(title, { lower: true, strict: true }),
       tags: tags ? tags.split(',') : [],
       isFeatured: isFeatured === 'true',

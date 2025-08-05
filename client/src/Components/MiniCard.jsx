@@ -28,7 +28,7 @@ const MiniCard = ({ post }) => {
             <small className="text-muted">
              <small className="text-muted">#{post.category?.name || "General"}</small>
              <br/>
-              <small className="text-muted">{post.isFeatured?.name || "Trendkari"}</small>
+            <small className="text-muted">{post.author?.name || "Trendkari"}</small>
             </small>
             
           </div>

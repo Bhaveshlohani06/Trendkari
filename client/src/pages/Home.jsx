@@ -27,6 +27,8 @@ const BACKEND_URL = `https://trendkari.onrender.com/api/v1/post`;
 
 
 const Home = () => {
+  const [auth] = useAuth();
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
       const editorRef = useRef(null);
@@ -203,7 +205,7 @@ const Home = () => {
         <div className="card-body">
           <div className="d-flex align-items-center mb-3">
             <img
-          src="https://via.placeholder.com/40/000000/FFFFFF?text=+" 
+          src={auth?.user?.avatar || 'https://via.placeholder.com/40'}
               alt="Avatar"
               className="rounded-circle me-2"
               width="40"
@@ -212,7 +214,7 @@ const Home = () => {
             <input
               type="text"
               className="form-control rounded-pill bg-light border-0 ps-3"
-              placeholder="What's on your mind, Bhavesh?"
+              placeholder="What's on your mind...."
               onFocus={() => setShowModal(true)}
               style={{ height: '45px' }}
             />
