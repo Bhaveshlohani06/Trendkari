@@ -9,10 +9,11 @@ const PrivateRoute = () => {
 
   useEffect(() => {
     const authCheck = async () => {
+      const token = localStorage.getItem("token");
       try {
         const res = await API.get("/auth/user-auth", {
   headers: {
-    Authorization: auth?.token
+    Authorization: `Bearer ${auth?.token}`,
   }
 });
         if (res.data.ok) {

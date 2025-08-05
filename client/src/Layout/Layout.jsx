@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet";
 import { Toaster } from "react-hot-toast";
 
 // Capitalize component name
-const Layout = ({ children, title = "My App", description = "", keywords = "", author = "" }) => {
+const Layout = ({ children, title = "", description = "", keywords = "", author = "" }) => {
 
      const today = new Date();
   const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
@@ -17,7 +17,7 @@ const Layout = ({ children, title = "My App", description = "", keywords = "", a
                 <meta charSet="utf-8" />
                 <meta name="description" content={description} />
                 <meta name="keywords" content={keywords} />
-                <meta name="author" content={author} />
+                <meta name="author" content={author} /> 
                 <title>{title}</title>
             </Helmet>
 
@@ -27,6 +27,8 @@ const Layout = ({ children, title = "My App", description = "", keywords = "", a
     </div>
 
             <Header />
+
+          
 
             <main style={{  }}>
                 <Toaster />

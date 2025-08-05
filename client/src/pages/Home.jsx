@@ -198,7 +198,7 @@ const Home = () => {
               Daily curated trends across tech, fashion, entertainment, memes & startups
             </p>
 
-             <h1 className="mb-3">Create Post</h1>
+             <h5 className="mb-3 text-dark">{auth.user.name}</h5>
 
         {/* Post Card */}
       <div className="card shadow-sm rounded mb-4">
@@ -364,15 +364,14 @@ const Home = () => {
             <div className="col-md-6">
         <div className="d-flex align-items-center mb-3">
           <FiTrendingUp className="text-warning me-2" />          
-          <h2 className="h4 fw-bold text-dark m-0">Top AI Trends You Can’t Miss</h2>
+          <h2 className="h4 fw-bold text-dark m-0">What’s Buzzing on Trendkari?</h2>
         </div>
         <p className="text-muted mb-4">
-          Explore how artificial intelligence is transforming everything from music to memes in real time.
-        </p>
+            The trends here change fast, so stay tuned and stay curious.        </p>
 
         <div className="row g-4">
           {blogs
-            .filter((post) => post.category.slug === "ai-trends")
+            .filter((post) => post)
             .slice(0, 4)
             .map((post) => (
               <div className="col-md-6" key={post._id}>
