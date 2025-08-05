@@ -104,6 +104,8 @@ export const loginController = async (req, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
+            avatar: user.avatar || '',
+            author: user.name || 'Trendkari',
             createdAt: user.createdAt,
             token, // Uncomment if using JWT
         },
