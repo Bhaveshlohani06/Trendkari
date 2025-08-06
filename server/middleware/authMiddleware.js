@@ -25,23 +25,48 @@ import userModel from "../models/usermodel.js";
 
 
 
+// export const requireSignIn = async (req, res, next) => {
+//   try {
+//     const token = req.headers.authorization?.split(" ")[1];
+//     if (!token) return res.status(401).send("Unauthorized: Token missing");
+
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     console.log("Decoded JWT:", decoded);
+
+//     const user = await userModel.findById(decoded.id).select("-password");
+//     if (!user) return res.status(404).send("User not found");
+
+//     req.user = user;
+//     req.token = token;
+//     next();
+//   } catch (err) {
+//     console.error("JWT Error:", err);
+//     res.status(401).send("Unauthorized: Invalid token");
+//   }
+// };
+
+
 export const requireSignIn = async (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) return res.status(401).send("Unauthorized: Token missing");
+    const authHeader = req.headers.authorization;
 
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'Unauthorized: Invalid or missing token' });
+    }
+
+    const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("Decoded JWT:", decoded);
 
     const user = await userModel.findById(decoded.id).select("-password");
-    if (!user) return res.status(404).send("User not found");
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     req.user = user;
     req.token = token;
     next();
   } catch (err) {
     console.error("JWT Error:", err);
-    res.status(401).send("Unauthorized: Invalid token");
+    return res.status(401).json({ message: "Unauthorized: Invalid token" });
   }
 };
 

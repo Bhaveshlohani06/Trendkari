@@ -23,6 +23,7 @@ import AboutUs from './Components/Aboutus'
 import Search from './pages/Search'
 import Contact from './pages/Contact'
 import CategoryPosts from './pages/CategoryPosts'
+import Cover from './pages/Cover'
 
 const App = () => {
   
@@ -30,7 +31,7 @@ const App = () => {
     <>
     <Routes>
 
-        <Route path='/' element={<Home />} />
+        {/* <Route path='/' element={<Home />} /> */}
         <Route path='/blog' element={<Blog />} />
 
         <Route path='/register' element={<Register />} />
@@ -45,6 +46,7 @@ const App = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/category/:slug" element={<CategoryPosts />} />
+        <Route path='/cover' element={<Cover/>}/>
 
 
 
@@ -60,8 +62,8 @@ const App = () => {
   </Route>
 
 
-         <Route path="/dashboard/user" element={<PrivateRoute />}>
-    <Route index element={<UserDashboard />} />
+         <Route path="/" element={<PrivateRoute />}>
+    <Route index element={<Home />} />
   </Route>
 
 

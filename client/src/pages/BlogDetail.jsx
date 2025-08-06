@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import MiniCard from '../Components/MiniCard';
 import API from '../../utils/api';
+import * as timeago from 'timeago.js';
 
 const BlogDetail = () => {
   const { slug } = useParams();
@@ -93,7 +94,8 @@ const BlogDetail = () => {
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
             <p className="text-muted">
-              {post.category?.name} • {post.author.name || 'Trendkari'}
+              {post.category?.name} • { post.author.name || 'Trendkari'} • {timeago.format(post.createdAt)}
+              
             </p>
             {post.image && (
               <img

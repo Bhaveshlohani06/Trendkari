@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import * as timeago from 'timeago.js';
 
 const MiniCard = ({ post }) => {
   const navigate = useNavigate();
@@ -28,7 +29,8 @@ const MiniCard = ({ post }) => {
             <small className="text-muted">
              <small className="text-muted">#{post.category?.name || "General"}</small>
              <br/>
-            <small className="text-muted">{post.author?.name || "Trendkari"}</small>
+              By <strong>{post.author?.name || "Unknown"}</strong> • {timeago.format(post.createdAt)}
+            
             </small>
             
           </div>

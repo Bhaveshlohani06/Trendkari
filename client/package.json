@@ -30,7 +30,8 @@
     "react-router-dom": "^7.7.1",
     "react-share": "^5.2.2",
     "react-toaster": "^0.0.3",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "timeago.js": "^4.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",

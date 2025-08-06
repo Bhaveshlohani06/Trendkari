@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/auth";
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
 import API from "../../utils/api";
 
 const PrivateRoute = () => {
@@ -28,8 +28,8 @@ const PrivateRoute = () => {
 
     if (auth?.token) authCheck();
   }, [auth?.token]);
-
-return ok ? <Outlet /> : <h1>Checking authentication... {auth?.token ? 'Token present' : 'No token'}</h1>;
+ 
+return ok ? <Outlet /> : <Navigate to="/cover" />;
 
 };
 

@@ -169,7 +169,6 @@ const Home = () => {
     const { data } = await API.post("/post/create-post", postData,{
       headers: {
               Authorization: `Bearer ${token}`,
-
             },
 
           });
