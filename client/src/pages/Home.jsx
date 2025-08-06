@@ -147,43 +147,48 @@ const Home = () => {
 };
 
   // Submit post handler
-  const handleCreate = async (e) => {
-        const token = localStorage.getItem("token");
-
-    e.preventDefault();
-    try {
-      const postData = new FormData();
-      postData.append('title', title);
-      postData.append('content', content);
-      postData.append('category', category);
-      postData.append('status', status);
-      postData.append('isFeatured', isFeatured);
-      postData.append('image', image);
-      postData.append('tags', tags);
+    const handleCreate = async (e) => {
+          const token = localStorage.getItem("token");
+          const user = JSON.parse(localStorage.getItem("user")); // ✅ Get user from localStorage
 
 
-  const { data } = await API.post("/post/create-post", postData,{
-    
-    headers: {
-            Authorization: `Bearer ${token}`,
+      e.preventDefault();
+      try {
+        const postData = new FormData();
+        postData.append('title', title);
+        postData.append('content', content);
+        postData.append('category', category);
+        postData.append('status', status);
+        postData.append('isFeatured', isFeatured);
+        postData.append('image', image);
+        postData.append('tags', tags);
 
-          },
 
-        });
-  console.log(postData)
-  console.log("TOKEN BEFORE REQUEST:", auth?.token);
 
-        if (data?.error) {
-          toast.error(data?.message);
-        } else {
-          toast.success("Post Created Successfully");
-          navigate('/explore');
+
+    const { data } = await API.post("/post/create-post", postData,{
+      headers: {
+              Authorization: `Bearer ${token}`,
+
+            },
+
+          });
+    if (!user.id) {
+      toast.error("User ID not found. Please login again.");
+          }
+
+          if (data?.error) {
+            toast.error(data?.message);
+          } else {
+            toast.success("Post Created Successfully");
+            navigate('/explore');
+          }
+          
+        } catch (error) {
+          console.log(error);
+          toast.error("Something went wrong in creating the Post");
         }
-      } catch (error) {
-        console.log(error);
-        toast.error("Something went wrong in creating the product");
-      }
-    };
+      };
   
   return (
     <Layout>

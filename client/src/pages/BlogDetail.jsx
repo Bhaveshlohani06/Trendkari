@@ -23,6 +23,8 @@ const BlogDetail = () => {
       console.log('Error fetching blog post:', err);
     }
   };
+    ;
+
 
   const fetchRelatedPosts = async () => {
   try {
@@ -91,7 +93,7 @@ const BlogDetail = () => {
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
             <p className="text-muted">
-              {post.category?.name} • {post.author || 'Trendkari'}
+              {post.category?.name} • {post.author.name || 'Trendkari'}
             </p>
             {post.image && (
               <img

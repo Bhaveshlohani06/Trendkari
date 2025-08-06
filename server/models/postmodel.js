@@ -18,7 +18,7 @@ const postSchema = new mongoose.Schema(
       required: true,
     },
     image: {
-      type: String, // could be a URL or Cloudinary ID
+      type: String, 
       default: "",
     },
     category: {
@@ -28,7 +28,7 @@ const postSchema = new mongoose.Schema(
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "user",
       required: true,
     },
     tags: [
