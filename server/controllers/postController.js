@@ -30,7 +30,7 @@ export const createPostController = async (req, res) => {
       title,
       content,
       category,
-      author: req.user.id,
+      author: req.user._id,
       slug: slugify(title, { lower: true, strict: true }),
       tags: tags ? tags.split(',') : [],
       isFeatured: isFeatured === 'true',

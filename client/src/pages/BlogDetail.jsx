@@ -4,9 +4,11 @@ import Layout from '../Layout/Layout';
 import MiniCard from '../Components/MiniCard';
 import API from '../../utils/api';
 import * as timeago from 'timeago.js';
+import { useAuth } from '../context/auth'; // Assuming you have an auth context
 
 const BlogDetail = () => {
   const { slug } = useParams();
+  const [auth] = useAuth(); // Get auth context
   const [post, setPost] = useState(null);
   const [sameCategoryPosts, setSameCategoryPosts] = useState([]);
   const [otherCategoryPosts, setOtherCategoryPosts] = useState([]);
@@ -16,6 +18,10 @@ const BlogDetail = () => {
   const fetchPost = async () => {
     try {
       const { data } = await API.get(`/post/get-post/${slug}`);
+      console.log("Current User ID:", auth?.user?._id);
+console.log("Post Author ID:", post?.author?._id || post?.author);
+      console.log("Post Data:", data);
+
       if (data?.success) {
         setPost(data?.post);
         fetchRelatedPosts(data.post.category._id);
@@ -94,8 +100,7 @@ const BlogDetail = () => {
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
             <p className="text-muted">
-              {post.category?.name} • {post.author?.name || 'Trendkari'} • {timeago.format(post.createdAt)}
-              
+              {post.category?.name} • {post?.author?.name || 'Trendkari'} • {timeago.format(post.createdAt)}
             </p>
             {post.image && (
               <img
