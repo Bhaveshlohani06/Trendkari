@@ -26,7 +26,7 @@ async (accessToken, refreshToken, profile, done) => {
         if (!user) {
             // If user doesn't exist, create a new one
             user = new User({
-                googleId: profile._id,
+                googleId: profile.id,
                 name: profile.displayName,
                 email: profile.emails[0].value,
                 avatar: profile.photos[0].value,
@@ -37,7 +37,7 @@ async (accessToken, refreshToken, profile, done) => {
             //welcome message
             const subject = '🎉 Welcome to Trendkari!';
     const html = `
-      <h2>Hello ${name},</h2>
+      <h2>Hello ${user.name},</h2>
       <p>Welcome to <strong>Trendkari</strong> – Your daily dose of viral trends 🚀</p>
       <p>We’re thrilled to have you on board!</p>
       <p>Explore trends, share what you love, and stay ahead in pop culture.</p>
@@ -46,7 +46,7 @@ async (accessToken, refreshToken, profile, done) => {
       <p><strong>Team Trendkari</strong></p>
     `;
 
-    await sendEmail(email, subject, html);
+    await sendEmail(user.email, subject, html);
 
              
         }
