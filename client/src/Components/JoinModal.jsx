@@ -4,11 +4,34 @@ import { FaGoogle, FaFacebookF, FaEnvelope, FaTimes } from "react-icons/fa";
 
 const JoinModal = ({ show, onHide }) => {
     
-const BACKEND_URL = "https://trendkari.onrender.com/api/v1";
 
-const handleGoogleLogin = () => {
-  window.location.href = `${BACKEND_URL}/auth/google`;
-};
+
+  const handleGoogleLogin = async (response) => {
+    try {
+      // Optional: decode to preview user info (not mandatory)
+      const decoded = jwt_decode(response.credential);
+      console.log("Google user", decoded);
+
+      // Send credential token to backend
+      const res = await axios.post("/auth/google-login", {
+        token: response.credential,
+      });
+
+      // Save to localStorage & context
+      if (res.data?.token) {
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        setAuth({
+          token: res.data.token,
+          user: res.data.user,
+        });
+
+        navigate("/"); // ✅ Redirect after login
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+    }
+  };
 
   return (
     <Modal show={show} onHide={onHide} centered backdrop="static">

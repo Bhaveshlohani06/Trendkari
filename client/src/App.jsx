@@ -31,7 +31,7 @@ const App = () => {
     <>
     <Routes>
 
-        {/* <Route path='/' element={<Home />} /> */}
+        <Route path='/' element={<Home />} />
         <Route path='/blog' element={<Blog />} />
 
         <Route path='/register' element={<Register />} />
@@ -63,7 +63,7 @@ const App = () => {
 
 
          <Route path="/" element={<PrivateRoute />}>
-    <Route index element={<Home />} />
+    {/* <Route index element={<Home />} />  */}
   </Route>
 
 

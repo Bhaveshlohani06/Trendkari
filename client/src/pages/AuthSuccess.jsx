@@ -15,7 +15,7 @@ const AuthSuccess = () => {
     const name = query.get("name");
 
     if (token && name) {
-      const user = { name };
+      const user = { name, email, role };
 
       // Save to context
       setAuth({ token, user });

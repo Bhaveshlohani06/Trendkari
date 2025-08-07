@@ -13,22 +13,22 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Offcanvas show={isOpen} onHide={onClose} backdrop="static" scroll={false} className="bg-dark text-white">
-      <Offcanvas.Header closeButton closeVariant="white">
-        <Offcanvas.Title className="d-flex align-items-center gap-2">
+    <Offcanvas show={isOpen} onHide={onClose} backdrop="static" scroll={false}   style={{ width: '250px' }}  className="bg-white text-dark">
+      <Offcanvas.Header closeButton closeVariant="dark">
+        <Offcanvas.Title className="d-flex align-items-center">
           <FaBolt className="text-warning" />
           <span className="fw-bold fs-4">Trendkari</span>
         </Offcanvas.Title>
       </Offcanvas.Header>
 
       <Offcanvas.Body>
-        <Nav className="flex-column">
+        <Nav className="flex-column col-m-2">
 
           <Nav.Item>
             <NavLink 
               to="/" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               Home
             </NavLink>
@@ -39,7 +39,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink 
               to="/category/tech" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               Tech
             </NavLink>
@@ -48,7 +48,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink 
               to="/category/fashion" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               Fashion
             </NavLink>
@@ -57,7 +57,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink 
               to="/category/startup-news" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               Startups
             </NavLink>
@@ -67,7 +67,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink 
               to="/category/books" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               Books
             </NavLink>
@@ -77,7 +77,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink 
               to="/category/health" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ms-2 ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               Health
             </NavLink>
@@ -87,7 +87,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink 
               to="/explore" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               Explore
             </NavLink>
@@ -97,7 +97,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <NavLink 
               to="/about" 
               onClick={onClose}
-              className={({ isActive }) => `nav-link text-white ${isActive ? 'fw-bold text-warning' : ''}`}
+              className={({ isActive }) => `nav-link text-dark ${isActive ? 'fw-bold text-warning' : ''}`}
             >
               About
             </NavLink>
@@ -109,50 +109,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             </Badge>
           </Nav.Item>
 
-          {!auth?.user ? (
-            <>
-              <Nav.Item className="mt-3">
-                <NavLink 
-                  to="/login" 
-                  onClick={onClose}
-                  className={({ isActive }) => `nav-link text-white ${isActive ? 'fw-bold text-warning' : ''}`}
-                >
-                  Login
-                </NavLink>
-              </Nav.Item>
-              <Nav.Item>
-                <NavLink 
-                  to="/register" 
-                  onClick={onClose}
-                  className={({ isActive }) => `nav-link text-white ${isActive ? 'fw-bold text-warning' : ''}`}
-                >
-                  Register
-                </NavLink>
-              </Nav.Item>
-            </>
-          ) : (
-            <>
-              <Nav.Item className="mt-3">
-                <NavLink 
-                  to="/dashboard" 
-                  onClick={onClose}
-                  className={({ isActive }) => `nav-link text-white ${isActive ? 'fw-bold text-warning' : ''}`}
-                >
-                  Dashboard
-                </NavLink>
-              </Nav.Item>
-              <Nav.Item>
-                <Button 
-                  variant="danger" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
-              </Nav.Item>
-            </>
-          )}
+        
         </Nav>
       </Offcanvas.Body>
     </Offcanvas>

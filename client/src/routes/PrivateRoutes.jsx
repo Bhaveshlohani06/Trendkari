@@ -23,13 +23,15 @@ const PrivateRoute = () => {
         }
       } catch (error) {
         setOk(false);
+      } finally{
+        setLoading(false);
       }
     };
 
     if (auth?.token) authCheck();
   }, [auth?.token]);
  
-return ok ? <Outlet /> : <Navigate to="/cover" />;
+return ok ? <Outlet /> : <Navigate to="/" />;
 
 };
 

@@ -94,7 +94,7 @@ const BlogDetail = () => {
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
             <p className="text-muted">
-              {post.category?.name} • { post.author.name || 'Trendkari'} • {timeago.format(post.createdAt)}
+              {post.category?.name} • {post.author?.name || 'Trendkari'} • {timeago.format(post.createdAt)}
               
             </p>
             {post.image && (
