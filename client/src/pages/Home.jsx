@@ -85,11 +85,19 @@ const Home = () => {
     }, []);
 
     // Generate content with AI
-  const generateAndHumanize = async () => {
+   const generateAndHumanize = async () => {
+
+    const token = localStorage.getItem("token");
+
   if (!title) {
     toast.error('Please enter a title');
     return;
   }
+
+  if(!token){
+      toast.error("Please login to generate content");
+      return;
+    }
 
   setLoading(true);
 
@@ -149,9 +157,14 @@ const Home = () => {
   // Submit post handler
     const handleCreate = async (e) => {
           const token = localStorage.getItem("token");
-          const user = JSON.parse(localStorage.getItem("user")); // ✅ Get user from localStorage
+          const user = JSON.parse(localStorage.getItem("user")); 
 
+          if (!token) {
+            toast.error("Please login to create a post");
+            return;
+          }
 
+    
       e.preventDefault();
       try {
         const postData = new FormData();
@@ -172,9 +185,6 @@ const Home = () => {
             },
 
           });
-    if (!user.id) {
-      toast.error("User ID not found. Please login again.");
-          }
 
           if (data?.error) {
             toast.error(data?.message);
@@ -267,7 +277,7 @@ const Home = () => {
 
                 {/* TinyMCE Editor */}
                 <Editor
-                  apiKey="your_tinymce_api_key"
+                  apiKey="6ag1d56giw5nj7cnellrwfzqxnsuknbv6ubgyx8sbetcpsjs"
                   onInit={(evt, editor) => (editorRef.current = editor)}
                   value={content}
                   onEditorChange={setContent}

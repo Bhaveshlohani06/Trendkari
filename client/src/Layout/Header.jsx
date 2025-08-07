@@ -19,11 +19,14 @@ const Header = ({ toggleSidebar }) => {
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    setAuth({ user: null, token: '' });
-    toast.success('Logged out successfully');
-    navigate('/login');
-  };
+ const handleLogout = () => {
+  // Clear auth state
+  setAuth({ user: null, token: '' });
+  localStorage.removeItem('auth'); // or use localStorage.clear() if needed
+  toast.success('Logged out successfully');
+  navigate('/login');
+};
+
 
   return (
     <Navbar bg="dark" variant="dark" className="shadow-sm px-3 sticky-top">

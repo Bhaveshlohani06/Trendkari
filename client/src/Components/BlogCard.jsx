@@ -28,11 +28,9 @@ const BlogCard = ({ post }) => {
 
         {/* Blog Meta Info */}
         <div className="d-flex justify-content-between align-items-center mt-3">
-          <small className="text-muted">#{post.category?.name || "General"}</small>
+          {/* <small className="text-muted">#{post.category?.name || "General"}</small> */}
           <small className="text-muted">
             By <strong>{post.author?.name || "Unknown"}</strong> • {timeago.format(post.createdAt)}
-                        console.log(post.author?.name || "Unknown");
-
           </small>
         </div>
       </div>
