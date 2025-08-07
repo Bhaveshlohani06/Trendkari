@@ -7,7 +7,6 @@ import { useParams } from 'react-router-dom';
 
 
 const AuthSuccess = () => {
-  const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [, setAuth] = useAuth();
@@ -16,14 +15,15 @@ const AuthSuccess = () => {
     const query = new URLSearchParams(location.search);
     const token = query.get("token");
     const name = query.get("name");
-    // const email = query.get("email");
-    const _id = params.get('_id') || params.get('id'); // if your backend sends the user ID
+    const id = query.get("_id");
+    console.log("Token:", token);
+
 
     if (token && name ) {
-      const user = { name};
+      const user = { _id: id, name };
 
       // Save to context
-setAuth({ user: res.data.user, token: res.data.token });
+      setAuth({ user: res.data.user, token: res.data.token });
 
       // Save to localStorage
       localStorage.setItem("auth", JSON.stringify({ token, user }));
