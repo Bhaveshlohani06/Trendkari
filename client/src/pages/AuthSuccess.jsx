@@ -23,10 +23,11 @@ const AuthSuccess = () => {
       const user = { _id: id, name };
 
       // Save to context
-      setAuth({ user: res.data.user, token: res.data.token });
+      setAuth({ token, user });
 
       // Save to localStorage
       localStorage.setItem("auth", JSON.stringify({ token, user }));
+      console.log("Auth context set:", { token, user });
 
       // Redirect to homepage or dashboard
       navigate("/");
