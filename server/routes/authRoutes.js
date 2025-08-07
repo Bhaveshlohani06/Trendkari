@@ -41,13 +41,12 @@ router.get(
       });
 
       // Redirect with token and user name
-      const redirectUrl = `${process.env.FRONTEND_URL}/auth-success?token=${token}&name=${encodeURIComponent(
-        user.name
-      )}`;
+     const redirectUrl = `${process.env.FRONTEND_URL}/auth-success` +
+  `?token=${token}` +
+  `&name=${encodeURIComponent(user.name)}` +
+  `&_id=${user._id}` +
+  `&email=${encodeURIComponent(user.email)}`;
 
-      // const redirectUrl = `https://trendkari.in/auth-success?token=${token}&name=${encodeURIComponent(
-      //   user.name
-      // )}`;
       
 
       res.redirect(redirectUrl);

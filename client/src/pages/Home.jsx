@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Layout from '../Layout/Layout';
 import toast from 'react-hot-toast';
-import { Editor } from '@tinymce/tinymce-react';
+// import {ReactQuill} from 'react-quill';
+
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+
 import { Select } from 'antd';
 import BlogCard from '../Components/BlogCard';
 import { FiTrendingUp, FiClock, FiZap, FiArrowRight } from 'react-icons/fi';
@@ -31,7 +35,7 @@ const Home = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-      const editorRef = useRef(null);
+  const contentRef = useRef(null);
   
         const [showModal, setShowModal] = useState(false);
 
@@ -141,11 +145,11 @@ const Home = () => {
 
     // Step 3: Load into editor
     setContent(humanized);
-    if (editorRef.current) {
-      editorRef.current.setContent(humanized);
-    }
+if (contentRef.current) {
+  contentRef.current.innerHTML = humanized;
+}
 
-    toast.success('Content generated and humanized!');
+toast.success('Content generated and humanized!');
   } catch (error) {
     console.error(error);
     toast.error("Something went wrong");
@@ -169,7 +173,8 @@ const Home = () => {
       try {
         const postData = new FormData();
         postData.append('title', title);
-        postData.append('content', content);
+        const htmlContent = contentRef.current?.innerHTML || '';
+        postData.append('content', htmlContent);
         postData.append('category', category);
         postData.append('status', status);
         postData.append('isFeatured', isFeatured);
@@ -266,29 +271,43 @@ const Home = () => {
                   required
                 />
 
-                {/* Generate AI button */}
-                <button
-                  className="btn btn-warning mb-3"
-                  onClick={generateAndHumanize}
-                  disabled={loading}
-                >
-                  {loading ? 'Generating...' : 'Generate with AI'}
-                </button>
+               
 
                 {/* TinyMCE Editor */}
-                <Editor
-                  apiKey="6ag1d56giw5nj7cnellrwfzqxnsuknbv6ubgyx8sbetcpsjs"
-                  onInit={(evt, editor) => (editorRef.current = editor)}
-                  value={content}
-                  onEditorChange={setContent}
-                  init={{
-                    height: 300,
-                    menubar: false,
-                    plugins: 'link image lists code',
-                    toolbar:
-                      'undo redo | formatselect | bold italic | bullist numlist | link image | code',
-                  }}
-                />
+                <div
+  ref={contentRef}
+  contentEditable
+  onInput={() => setContent(contentRef.current.innerHTML)} // updates content state
+  style={{
+    minHeight: '300px',
+    border: '1px solid #ccc',
+    padding: '10px',
+    borderRadius: '5px',
+    backgroundColor: '#fff',
+    fontSize: '16px',
+    lineHeight: '1.6',
+    direction: 'ltr', // 👈 Force Left-to-Right text direction
+    textAlign: 'left',
+  }}
+  suppressContentEditableWarning={true}
+>
+  {content ? (
+    <div dangerouslySetInnerHTML={{ __html: content }} />
+  ) : (
+    'Start writing or wait for content to be generated...'
+  )}
+</div>
+
+                      {/* Generate AI button */}
+                      <button
+                        className="btn btn-warning btn-sm m-3"
+                        onClick={generateAndHumanize}
+                        disabled={loading}
+                        style={{ align: 'flex-start' }}
+                      >
+                        {loading ? 'Generating...' : 'Generate with AI'}
+                      </button>
+
 
                 {/* Category Dropdown */}
                 <select

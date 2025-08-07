@@ -15,12 +15,13 @@ const AuthSuccess = () => {
     const query = new URLSearchParams(location.search);
     const token = query.get("token");
     const name = query.get("name");
+    const email = query.get("email");
     const id = query.get("_id");
-    console.log("Token:", token);
+
 
 
     if (token && name ) {
-      const user = { _id: id, name };
+      const user = { _id: id, name, email };
 
       // Save to context
       setAuth({ token, user });
