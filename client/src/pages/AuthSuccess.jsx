@@ -3,8 +3,11 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/auth'; // your AuthContext hook
+import { useParams } from 'react-router-dom';
+
 
 const AuthSuccess = () => {
+  const params = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const [, setAuth] = useAuth();
