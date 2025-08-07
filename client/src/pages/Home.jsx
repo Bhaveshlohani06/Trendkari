@@ -173,8 +173,7 @@ toast.success('Content generated and humanized!');
       try {
         const postData = new FormData();
         postData.append('title', title);
-        const htmlContent = contentRef.current?.innerHTML || '';
-        postData.append('content', htmlContent);
+        postData.append('content', contentRef.current.innerHTML);
         postData.append('category', category);
         postData.append('status', status);
         postData.append('isFeatured', isFeatured);

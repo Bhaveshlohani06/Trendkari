@@ -13,9 +13,6 @@ export const createPostController = async (req, res) => {
     const { title, content, category, tags, isFeatured, status } = req.body;
     const image = req.file;
     
-    console.log("Current User:", req.user);
-
-
     // Validation
     switch (true) {
       case !title:
@@ -66,13 +63,13 @@ export const createPostController = async (req, res) => {
       post,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({
-      success: false,
-      message: "Error creating post",
-      error,
-    });
-  }
+  console.error("Create Post Error:", error.message, error.stack);
+  res.status(500).send({
+    success: false,
+    message: "Error creating post",
+    error: error.message,
+  });
+}
 };
 
 

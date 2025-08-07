@@ -17,7 +17,7 @@ import upload from "../middleware/multer.js"; // Import the multer middleware
 const router = express.Router();
 
 // CREATE POST
-router.post("/create-post",upload.single('image'), allowUsersAndAdmins, createPostController);
+router.post("/create-post",requireSignIn, upload.single('image'), createPostController);
 
 // GET ALL POSTS
 router.get("/get-posts", getAllPostsController);
