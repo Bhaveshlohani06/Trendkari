@@ -31,6 +31,8 @@ const BlogCard = ({ post }) => {
           <small className="text-muted">#{post.category?.name || "General"}</small>
           <small className="text-muted">
             By <strong>{post.author?.name || "Unknown"}</strong> • {timeago.format(post.createdAt)}
+                        console.log(post.author?.name || "Unknown");
+
           </small>
         </div>
       </div>
