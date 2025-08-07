@@ -26,7 +26,7 @@ async (accessToken, refreshToken, profile, done) => {
         if (!user) {
             // If user doesn't exist, create a new one
             user = new User({
-                googleId: profile.id,
+                googleId: profile._id,
                 name: profile.displayName,
                 email: profile.emails[0].value,
                 avatar: profile.photos[0].value,
