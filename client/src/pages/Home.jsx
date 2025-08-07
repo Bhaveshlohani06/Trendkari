@@ -202,7 +202,9 @@ const Home = () => {
               Daily curated trends across tech, fashion, entertainment, memes & startups
             </p>
 
-             <h5 className="mb-3 text-dark">{auth.user.name}</h5>
+             <h5 className="mb-3 text-dark">
+  {auth?.user?.name ? `(${auth.user.name})` : "Welcome"}
+</h5>
 
         {/* Post Card */}
       <div className="card shadow-sm rounded mb-4">
