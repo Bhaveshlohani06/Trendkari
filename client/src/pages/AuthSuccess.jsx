@@ -7,14 +7,14 @@ import { useAuth } from '../context/auth'; // your AuthContext hook
 const AuthSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [auth, setAuth] = useAuth();
+  const [, setAuth] = useAuth();
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
     const token = query.get("token");
     const name = query.get("name");
     // const email = query.get("email");
-    // const _id = query.get("_id");
+    const _id = params.get('_id') || params.get('id'); // if your backend sends the user ID
 
     if (token && name ) {
       const user = { name};
@@ -30,7 +30,7 @@ setAuth({ user: res.data.user, token: res.data.token });
     } else {
       navigate("/login");
     }
-  }, []);
+  }, [location.search, navigate, setAuth]);
 
   return <div>Logging in via Google...</div>;
 };
