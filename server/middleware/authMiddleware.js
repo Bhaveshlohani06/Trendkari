@@ -16,7 +16,8 @@ export const requireSignIn = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log("Decoded JWT:", decoded);
 
-    const user = await userModel.findById(decoded.id).select("-password");
+const userId = decoded.id || decoded._id;
+const user = await userModel.findById(userId).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     req.user = user;

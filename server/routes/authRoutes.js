@@ -36,7 +36,7 @@ router.get(
       const user = req.user;
 
       // Generate JWT
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
         expiresIn: "7d",
       });
 
@@ -44,7 +44,7 @@ router.get(
      const redirectUrl = `${process.env.FRONTEND_URL}/auth-success` +
   `?token=${token}` +
   `&name=${encodeURIComponent(user.name)}` +
-  `&id=${user._id}` +
+  `&_id=${user._id}` +
   `&email=${encodeURIComponent(user.email)}`;
 
       
