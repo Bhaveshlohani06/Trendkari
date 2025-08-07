@@ -163,10 +163,10 @@ toast.success('Content generated and humanized!');
           const token = localStorage.getItem("token");
           const user = JSON.parse(localStorage.getItem("user")); 
 
-          // if (!token) {
-          //   toast.error("Please login to create a post");
-          //   return;
-          // }
+          if (!token) {
+            toast.error("Please login to create a post");
+            return;
+          }
 
     
       e.preventDefault();
