@@ -18,7 +18,7 @@ const AuthSuccess = () => {
       const user = { name };
 
       // Save to context
-      setAuth({ token, user });
+setAuth({ user: res.data.user, token: res.data.token });
 
       // Save to localStorage
       localStorage.setItem("auth", JSON.stringify({ token, user }));
