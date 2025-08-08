@@ -15,6 +15,37 @@ const BlogDetail = () => {
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
 
+
+    const handleDelete = async () => {
+
+    const confirm = window.confirm("Are you sure you want to delete this post?");
+    if (!confirm) return;
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await API.delete(`post/delete-post/${id}`, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Post deleted successfully!");
+        window.location.reload(); 
+      } else {
+        alert(data.message || "Something went wrong");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error deleting post");
+    }
+  };
+
+
+  ///Fetching the post by slug
   const fetchPost = async () => {
     try {
       const { data } = await API.get(`/post/get-post/${slug}`);
@@ -93,6 +124,8 @@ console.log("Post Author ID:", post?.author?._id || post?.author);
     );
   }
 
+              const currentUser = JSON.parse(localStorage.getItem("user")); // Logged-in user
+
   return (
     <Layout>
       <div className="container py-5">
@@ -102,6 +135,13 @@ console.log("Post Author ID:", post?.author?._id || post?.author);
             <p className="text-muted">
               {post.category?.name} • {post?.author?.name || 'Trendkari'} • {timeago.format(post.createdAt)}
             </p>
+
+            {currentUser && post.author === currentUser._id && (
+  <div className="btn-group">
+    {/* <button onClick={handleEdit}>Edit</button> */}
+    <button onClick={handleDelete}>Delete</button>
+  </div>
+)}
             {post.image && (
               <img
                 src={post.image}
@@ -110,7 +150,7 @@ console.log("Post Author ID:", post?.author?._id || post?.author);
                 style={{ maxHeight: '500px', objectFit: 'cover' }}
               />
             )}
-            <div
+            <div  
               className="blog-content mb-5"
               dangerouslySetInnerHTML={{ __html: post.content }}
             ></div>

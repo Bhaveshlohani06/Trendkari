@@ -22,6 +22,8 @@ const Header = ({ toggleSidebar }) => {
  const handleLogout = () => {
   // Clear auth state
   setAuth({ user: null, token: '' });
+  localStorage.removeItem('token'); // Clear token from localStorage
+  localStorage.removeItem('user'); // Clear user data from localStorage
   localStorage.removeItem('auth'); // or use localStorage.clear() if needed
   toast.success('Logged out successfully');
   navigate('/login');

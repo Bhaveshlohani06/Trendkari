@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Offcanvas, Nav, Button, Badge } from 'react-bootstrap';
-import { FaFireAlt, FaBolt } from 'react-icons/fa';
+import { FaFireAlt, FaBolt, FaBars } from 'react-icons/fa';
 import { useAuth } from '../context/auth';
 
 const Sidebar = ({ isOpen, onClose }) => {
@@ -13,10 +13,27 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Offcanvas show={isOpen} onHide={onClose} backdrop="static" scroll={false}   style={{ width: '250px' }}  className="bg-white text-dark">
-      <Offcanvas.Header closeButton closeVariant="dark">
-        <Offcanvas.Title className="d-flex align-items-center">
-          <FaBolt className="text-warning" />
+     <Offcanvas
+      show={isOpen}
+      onHide={onClose}
+      backdrop="static"
+      scroll={false}
+      placement="start"
+      style={{ width: "200px"}}
+      className="bg-white text-dark"
+    >
+      <Offcanvas.Header className="justify-content-between ms-3 ">
+        {/* Hamburger icon as custom close button (left aligned) */}
+        <button
+          onClick={onClose}
+          className="btn bg-transparent border-0 p-0"
+          aria-label="Close sidebar"
+        >
+          <FaBars className="fs-4 text-dark" />
+        </button>
+
+        {/* Title with icon (right aligned) */}
+        <Offcanvas.Title className="d-flex align-items-center ">
           <span className="fw-bold fs-4">Trendkari</span>
         </Offcanvas.Title>
       </Offcanvas.Header>

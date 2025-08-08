@@ -31,8 +31,8 @@ const App = () => {
     <>
     <Routes>
 
-        <Route path='/' element={<Home />} />
         <Route path='/blog' element={<Blog />} />
+        <Route path='/' element={<Home />} />
 
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
@@ -46,7 +46,7 @@ const App = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/category/:slug" element={<CategoryPosts />} />
-        <Route path='/cover' element={<Cover/>}/>
+        <Route path='/coverpage' element={<Cover/>}/>
 
 
 
@@ -63,7 +63,7 @@ const App = () => {
 
 
          <Route path="/" element={<PrivateRoute />}>
-    {/* <Route index element={<Home />} />  */}
+        {/* <Route path='/home' element={<Home />} /> */}
   </Route>
 
 

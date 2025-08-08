@@ -36,7 +36,7 @@ const Login = () => {
       });
 
       // ✅ navigate to intended page or default
-      navigate(location.state?.from || '/');
+      navigate(location.state?.from || '/');   
     } else {
       toast.error('Invalid login response (missing token)');
     }

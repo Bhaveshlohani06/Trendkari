@@ -338,7 +338,7 @@ toast.success('Content generated and humanized!');
                   Cancel
                 </button>
                 <button className="btn btn-primary" onClick={handleCreate}>
-                  Post
+                        {loading ? 'Posting...' : 'Post'}
                 </button>
               </div>
             </div>

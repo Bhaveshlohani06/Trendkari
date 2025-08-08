@@ -1,42 +1,18 @@
-// src/components/JoinModal.jsx
+import React from "react";
 import { Modal, Button } from "react-bootstrap";
-import { FaGoogle, FaFacebookF, FaEnvelope, FaTimes } from "react-icons/fa";
+import { FaGoogle, FaEnvelope, FaTimes } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const JoinModal = ({ show, onHide }) => {
-    
+  const BACKEND_URL = "https://trendkari.onrender.com/api/v1";
 
-
-  const handleGoogleLogin = async (response) => {
-    try {
-      // Optional: decode to preview user info (not mandatory)
-      const decoded = jwt_decode(response.credential);
-      console.log("Google user", decoded);
-
-      // Send credential token to backend
-      const res = await axios.post("/auth/google-login", {
-        token: response.credential,
-      });
-
-      // Save to localStorage & context
-      if (res.data?.token) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        setAuth({
-          token: res.data.token,
-          user: res.data.user,
-        });
-
-        navigate("/"); // ✅ Redirect after login
-      }
-    } catch (error) {
-      console.error("Google login error:", error);
-    }
+  const handleGoogleLogin = () => {
+    window.location.href = `${BACKEND_URL}/auth/google`;
   };
 
   return (
     <Modal show={show} onHide={onHide} centered backdrop="static">
       <Modal.Body className="text-center p-5 position-relative rounded">
-        {/* Close Button */}
         <button 
           onClick={onHide}
           className="position-absolute top-0 end-0 m-3 bg-transparent border-0"
@@ -51,20 +27,16 @@ const JoinModal = ({ show, onHide }) => {
           <FaGoogle /> Sign up with Google
         </Button>
 
-        <Button variant="outline-dark" className="w-100 mb-3 rounded-pill d-flex align-items-center justify-content-center gap-2">
-          <FaFacebookF /> Sign up with Facebook
-        </Button>
-
-        <Button variant="outline-dark" className="w-100 mb-4 rounded-pill d-flex align-items-center justify-content-center gap-2">
+        <Link to="/register" className="btn btn-outline-dark w-100 mb-4 rounded-pill d-flex align-items-center justify-content-center gap-2 text-decoration-none text-dark">
           <FaEnvelope /> Sign up with Email
-        </Button>
+        </Link>
 
         <p className="mb-1">
-          Already have an account? <a href="/login">Sign in</a>
+          Already have an account? <Link to="/login">Sign in</Link>
         </p>
 
         <p className="small text-muted mt-3">
-          Click "Sign up" to agree to TrendKari's <a href="/terms">Terms of Service</a> and acknowledge our <a href="/privacy">Privacy Policy</a>.
+          Click "Sign up" to agree to TrendKari's <Link to="/terms">Terms of Service</Link> and acknowledge our <Link to="/privacy">Privacy Policy</Link>.
         </p>
       </Modal.Body>
     </Modal>

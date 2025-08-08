@@ -34,7 +34,7 @@ router.patch("/posts/:id/toggle-publish", togglePublishController);
 router.put("/update-post/:id", requireSignIn, updatePostController);
 
 // DELETE POST
-router.delete("/delete-post/:id", requireSignIn, isAdmin, deletePostController);
+router.delete("/delete-post/:id", requireSignIn, deletePostController);
 
 router.post("/generate",requireSignIn, generatePostContent);
 
