@@ -16,7 +16,7 @@ const BlogCard = ({ post }) => {
         src={post.image} 
         alt={post.title} 
         className="card-img-top" 
-        style={{ height: '200px', objectFit: 'cover', borderRadius: '10px 10px 0 0' }}
+        style={{ height: '200px', objectFit: 'contain', borderRadius: '10px 10px 0 0' }}
       />
 
       {/* Blog Content */}

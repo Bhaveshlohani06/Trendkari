@@ -272,7 +272,7 @@ toast.success('Content generated and humanized!');
 
                
 
-                {/* TinyMCE Editor */}
+                {/* Editor */}
                 <div
   ref={contentRef}
   contentEditable
