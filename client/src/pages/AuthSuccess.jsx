@@ -16,7 +16,7 @@ const AuthSuccess = () => {
     const token = query.get("token");
     const name = query.get("name");
     const email = query.get("email");
-    const id = query.get("id");
+    const id = query.get("_id");
 
 
 
@@ -35,7 +35,6 @@ if (authData?.token) {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token); // Save token for future requests
       localStorage.setItem("userId", user._id);
-      console.log(user._id)
 
       // Redirect to homepage or dashboard
       navigate("/");  
