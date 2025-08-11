@@ -5,12 +5,12 @@ import {
   getAllPostsController,
   getPostBySlugController,
   togglePublishController,  
-  updatePostController,
   deletePostController,
   generatePostContent,
   humanizeBlog,
   searchPostsController,
-getPostsByUser
+getPostsByUser,
+updatePostController
 } from "../controllers/postController.js";
 import { requireSignIn, isAdmin, allowUsersAndAdmins } from "../middleware/authMiddleware.js";
 import upload from "../middleware/multer.js"; // Import the multer middleware
@@ -32,7 +32,7 @@ router.get("/get-post/:slug", getPostBySlugController);
 router.patch("/posts/:id/toggle-publish", togglePublishController);
 
 // UPDATE POST
-router.put("/update-post/:id", requireSignIn, updatePostController);
+router.put("/post/:id", requireSignIn, updatePostController);
 
 // DELETE POST
 router.delete("/delete-post/:id", requireSignIn, deletePostController);
@@ -44,6 +44,8 @@ router.post("/humanize",requireSignIn, humanizeBlog);
 router.get('/search', searchPostsController);
 
 router.get('/profile/:id', requireSignIn, getPostsByUser)
+
+
 
 
 

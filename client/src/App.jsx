@@ -15,7 +15,6 @@ import DashboardRedirect from './pages/DashboardRedirect.'
 import CreateCategory from './pages/Admin/CreateCategory'
 import CreatePost from './pages/Admin/CreatePost'
 import Posts from './pages/Admin/Posts'
-import UpdatePost from './pages/Admin/UpdatePost'
 import BlogDetail from './pages/BlogDetail'
 import AllBlogs from './pages/AllBlog'
 import PrivacyPolicy from './Components/PrivacyPolicy'
@@ -25,6 +24,7 @@ import Contact from './pages/Contact'
 import CategoryPosts from './pages/CategoryPosts'
 import Cover from './pages/Cover'
 import UserProfile from './pages/ProfilePage'
+import EditPost from './Components/forms/Editpost'
 
 
 const App = () => {
@@ -51,6 +51,8 @@ const App = () => {
         <Route path='/coverpage' element={<Cover/>}/>
 
 <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/edit-post/:id" element={<EditPost />} />
+
 
 
 
@@ -61,7 +63,7 @@ const App = () => {
     <Route path='create-category' element={<CreateCategory/>}/>
     <Route path='create-post' element={<CreatePost/>}/>
     <Route path='posts' element={<Posts/>}/>
-    <Route path='post/:slug' element={<UpdatePost/>}/>
+    {/* <Route path='post/:slug' element={<UpdatePost/>}/> */}
   </Route>
 
 

@@ -134,30 +134,59 @@ export const updatePostController = async (req, res) => {
     form.keepExtensions = true;
 
     form.parse(req, async (err, fields, files) => {
-      if (err) return res.status(500).send({ error: "Image upload error" });
+      if (err) {
+        return res.status(500).send({ error: "Image upload error" });
+      }
 
-      const { title, content, category, tags, status, isFeatured } = fields;
+      const {
+        title,
+        description,
+        content,
+        category,
+        tags,
+        status,
+        isFeatured,
+      } = fields;
 
       const post = await postModel.findById(req.params.id);
-      if (!post) return res.status(404).send({ message: "Post not found" });
+      if (!post) {
+        return res.status(404).send({ message: "Post not found" });
+      }
 
+      // Update text fields
       post.title = title || post.title;
+      post.description = description || post.description;
       post.content = content || post.content;
-      post.slug = slugify(title) || post.slug;
-      post.category = category || post.category;
-      post.tags = tags ? tags.split(",") : post.tags;
-      post.status = status || post.status;
-      post.isFeatured = isFeatured || post.isFeatured;
 
+      if (title && title !== post.title) {
+        post.slug = slugify(title, { lower: true, strict: true });
+      }
+
+      post.category = category || post.category;
+      post.tags = tags ? tags.split(",").map(tag => tag.trim().toLowerCase()) : post.tags;
+      post.status = status || post.status;
+
+      // Convert "true"/"false" string to boolean
+      if (typeof isFeatured !== "undefined") {
+        post.isFeatured =
+          isFeatured === "true" || isFeatured === true ? true : false;
+      }
+
+      // Handle image if uploaded
       if (files.image) {
         post.image = `/uploads/${files.image.newFilename}`;
       }
 
       await post.save();
-      res.status(200).send({ success: true, message: "Post updated", post });
+      res.status(200).send({
+        success: true,
+        message: "Post updated successfully",
+        post,
+      });
     });
   } catch (error) {
-    res.status(500).send({ success: false, error });
+    console.error(error);
+    res.status(500).send({ success: false, error: error.message });
   }
 };
 
