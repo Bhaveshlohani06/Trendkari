@@ -44,7 +44,7 @@ router.get(
      const redirectUrl = `${process.env.FRONTEND_URL}/auth-success` +
         `?token=${token}` +
         `&name=${encodeURIComponent(user.name)}` +
-        `&_id=${user._id}` +
+        `&id=${user._id}` +
         `&email=${encodeURIComponent(user.email)}`;
 
       

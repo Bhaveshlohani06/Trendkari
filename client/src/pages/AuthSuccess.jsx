@@ -16,7 +16,7 @@ const AuthSuccess = () => {
     const token = query.get("token");
     const name = query.get("name");
     const email = query.get("email");
-    const id = query.get("_id");
+    const id = query.get("id");
 
 
 
