@@ -26,6 +26,8 @@ const Login = () => {
 
         // ✅ Save token
       localStorage.setItem("token", user.token);
+      localStorage.setItem("userId", user._id); // ✅ MongoDB userId
+
       // optional: also store user data
       localStorage.setItem("user", JSON.stringify(user));
 

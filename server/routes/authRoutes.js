@@ -1,5 +1,5 @@
 import express from 'express';
-import { forgotPasswordController, loginController, registerController, resetPasswordController, testController } from '../controllers/authController.js';
+import { forgotPasswordController, loginController, registerController, resetPasswordController, testController, getUserById, updateAbout } from '../controllers/authController.js';
 import { isAdmin, requireSignIn } from '../middleware/authMiddleware.js';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
@@ -68,6 +68,13 @@ router.get("/user-auth", requireSignIn, (req,res) => {
 router.get("/admin-auth", requireSignIn, isAdmin, (req,res) =>{
     res.status(200).send({ok:true});
 });
+
+//Get user by Id
+router.get('/user/:id', requireSignIn, getUserById)
+
+//UpdateUser
+router.put("/update-about/:id", requireSignIn, updateAbout);
+
 
 
 // Export the router

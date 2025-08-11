@@ -16,6 +16,7 @@ const AuthProvider = ({ children }) => {
     if (auth?.token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${auth.token}`;
     localStorage.setItem('auth', JSON.stringify(auth));
+
       console.log("Loaded from localStorage:", auth);
     } else {
       delete axios.defaults.headers.common['Authorization'];

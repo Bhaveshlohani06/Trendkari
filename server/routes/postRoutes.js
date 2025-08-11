@@ -10,6 +10,7 @@ import {
   generatePostContent,
   humanizeBlog,
   searchPostsController,
+getPostsByUser
 } from "../controllers/postController.js";
 import { requireSignIn, isAdmin, allowUsersAndAdmins } from "../middleware/authMiddleware.js";
 import upload from "../middleware/multer.js"; // Import the multer middleware
@@ -41,6 +42,10 @@ router.post("/generate",requireSignIn, generatePostContent);
 router.post("/humanize",requireSignIn, humanizeBlog);
 
 router.get('/search', searchPostsController);
+
+router.get('/profile/:id', requireSignIn, getPostsByUser)
+
+
 
 
 export default router;

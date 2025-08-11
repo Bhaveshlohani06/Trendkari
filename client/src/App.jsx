@@ -24,6 +24,8 @@ import Search from './pages/Search'
 import Contact from './pages/Contact'
 import CategoryPosts from './pages/CategoryPosts'
 import Cover from './pages/Cover'
+import UserProfile from './pages/ProfilePage'
+
 
 const App = () => {
   
@@ -48,6 +50,7 @@ const App = () => {
         <Route path="/category/:slug" element={<CategoryPosts />} />
         <Route path='/coverpage' element={<Cover/>}/>
 
+<Route path="/profile/:userId" element={<UserProfile />} />
 
 
 

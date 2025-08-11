@@ -16,7 +16,7 @@ const EditPost = () => {
       const res = await fetch(`https://your-api-url.com/api/v1/post/${id}`);
       const data = await res.json();
       if (res.ok) {
-        setFormData({ title: data.post.title, content: data.post.content });
+        setFormData({ title: data.post.title, content: data.post.content });  
       } else {
         alert("Error fetching post");
         navigate("/");

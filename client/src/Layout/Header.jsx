@@ -16,10 +16,16 @@ import {
 } from 'react-icons/fa';
 
 const Header = ({ toggleSidebar }) => {
+ 
+
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
 
+
+
  const handleLogout = () => {
+
+
   // Clear auth state
   setAuth({ user: null, token: '' });
   localStorage.removeItem('token'); // Clear token from localStorage
@@ -85,9 +91,17 @@ const Header = ({ toggleSidebar }) => {
               className="text-white"
               align="end"
             >
-              <NavDropdown.Item as={NavLink} to="/dashboard">
+              {/* <NavDropdown.Item as={NavLink} to="/dashboard">
                 Profile
-              </NavDropdown.Item>
+              </NavDropdown.Item> */}
+
+           {localStorage.getItem("token") && (
+  <NavDropdown.Item as={NavLink} to={`/profile/${localStorage.getItem("userId")}`}>
+    Profile
+  </NavDropdown.Item>
+)}
+
+
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={handleLogout} className="text-danger">
                 Logout

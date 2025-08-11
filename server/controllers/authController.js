@@ -101,6 +101,7 @@ export const loginController = async (req, res) => {
         return res.status(200).json({
         message: 'Login successful',
         user: {
+            _id: user._id,       // ✅ add this
             name: user.name,
             email: user.email,
             role: user.role,
@@ -178,5 +179,46 @@ export const resetPasswordController = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+//Get user by Id
+export const getUserById = async (req, res) => {
+  try {
+    const user = await usermodel.findById(req.params.id).select("-password"); // hide password
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch user details" });
+  }
+};
+
+
+//Update About Section
+export const updateAbout = async (req, res) => {
+  const userId = req.params.id;
+  const { bio } = req.body;
+
+  try {
+    const user = await usermodel.findByIdAndUpdate(
+      userId,
+      { bio },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Optional: remove sensitive fields before sending back
+    user.password = undefined;
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error updating about:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
