@@ -35,9 +35,10 @@ if (authData?.token) {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token); // Save token for future requests
       localStorage.setItem("userId", user._id);
+      console.log(user._id)
 
       // Redirect to homepage or dashboard
-      navigate("/");
+      navigate("/");  
     } else {
       navigate("/login");
     }
