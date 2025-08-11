@@ -36,6 +36,8 @@ const Header = ({ toggleSidebar }) => {
 };
 
 
+const user = JSON.parse(localStorage.getItem("user"));
+const userId = user?._id;
   return (
     <Navbar bg="dark" variant="dark" className="shadow-sm px-3 sticky-top">
       <Container fluid className="d-flex justify-content-between align-items-center">
