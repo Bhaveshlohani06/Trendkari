@@ -10,40 +10,32 @@ import {
   NavDropdown,
 } from 'react-bootstrap';
 import {
-  FaBolt,
   FaBars,
   FaSearch,
 } from 'react-icons/fa';
 
 const Header = ({ toggleSidebar }) => {
- 
-
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+    setAuth({ user: null, token: '' });
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('auth');
+    localStorage.removeItem('userId');
+    toast.success('Logged out successfully');
+    navigate('/login');
+  };
 
+  // Get user and ID (support both _id and id)
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?._id || user?.id;
 
- const handleLogout = () => {
-
-
-  // Clear auth state
-  setAuth({ user: null, token: '' });
-  localStorage.removeItem('token'); // Clear token from localStorage
-  localStorage.removeItem('user'); // Clear user data from localStorage
-  localStorage.removeItem('auth'); // or use localStorage.clear() if needed
-  toast.success('Logged out successfully');
-  navigate('/login');
-};
-
-
-const user = JSON.parse(localStorage.getItem("user"));
-const userId = user?._id;
   return (
     <Navbar bg="dark" variant="dark" className="shadow-sm px-3 sticky-top">
       <Container fluid className="d-flex justify-content-between align-items-center">
-        {/* LEFT: Hamburger + Logo */}
         <div className="d-flex align-items-center gap-3">
-          {/* Hamburger */}
           <Button
             variant="outline-light"
             onClick={toggleSidebar}
@@ -53,7 +45,6 @@ const userId = user?._id;
             <FaBars />
           </Button>
 
-          {/* Logo */}
           <Navbar.Brand
             as={NavLink}
             to="/"
@@ -63,19 +54,16 @@ const userId = user?._id;
           </Navbar.Brand>
         </div>
 
-        {/* RIGHT: Search + Auth */}
         <div className="d-flex align-items-center ms-2 gap-3">
-          {/* Search Icon Only */}
           <Button
             variant="outline-light"
             size="sm"
             aria-label="Search"
-            onClick={() => navigate('/search')} // or trigger modal
+            onClick={() => navigate('/search')}
           >
-            <FaSearch />  
+            <FaSearch />
           </Button>
 
-          {/* Auth Links or User Dropdown */}
           {!auth?.user ? (
             <>
               <Nav.Link as={NavLink} to="/login" className="text-white">
@@ -89,20 +77,14 @@ const userId = user?._id;
             <NavDropdown
               title={auth?.user?.name?.split(' ')[0] || 'User'}
               id="user-nav-dropdown"
-              text="white"
               className="text-white"
               align="end"
             >
-              {/* <NavDropdown.Item as={NavLink} to="/dashboard">
-                Profile
-              </NavDropdown.Item> */}
-
-           {localStorage.getItem("token") && (
-  <NavDropdown.Item as={NavLink} to={`/profile/${localStorage.getItem("userId")}`}>
-    Profile
-  </NavDropdown.Item>
-)}
-
+              {userId && (
+                <NavDropdown.Item as={NavLink} to={`/profile/${userId}`}>
+                  Profile
+                </NavDropdown.Item>
+              )}
 
               <NavDropdown.Divider />
               <NavDropdown.Item onClick={handleLogout} className="text-danger">

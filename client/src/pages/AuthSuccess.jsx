@@ -21,7 +21,7 @@ const AuthSuccess = () => {
 
 
     if (token && name ) {
-      const user = { id: id, name, email };
+      const user = { _id: id, name, email };
 
       // Save to context
       setAuth({ token, user }); 
