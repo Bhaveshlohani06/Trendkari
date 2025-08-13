@@ -16,20 +16,14 @@ const Footer = () => {
               Curating daily viral trends across tech, fashion, memes & more.
             </p>
             <div className="d-flex gap-3 mt-3">
-  <a href="#" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
+  {/* <a href="#" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
     <FaTwitter />
-  </a>
-  <a href="#" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
+  </a> */}
+  <a href="https://www.facebook.com/profile.php?id=61559718047109" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
     <FaFacebookF />
   </a>
-  <a href="#" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
+  <a href="https://www.instagram.com/trendkari.in?igsh=b28wNTBtZXpqbWZk" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
     <FaInstagram />
-  </a>
-  <a href="#" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
-    <FaLinkedinIn />
-  </a>
-  <a href="#" className="text-light fs-5" target="_blank" rel="noopener noreferrer">
-    <FaGithub />
   </a>
 </div>
           </div>

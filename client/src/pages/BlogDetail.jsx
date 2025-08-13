@@ -4,11 +4,11 @@ import Layout from '../Layout/Layout';
 import MiniCard from '../Components/MiniCard';
 import API from '../../utils/api';
 import * as timeago from 'timeago.js';
-import { useAuth } from '../context/auth'; // Assuming you have an auth context
+import { useAuth } from '../context/auth';
 
 const BlogDetail = () => {
   const { slug } = useParams();
-  const [auth] = useAuth(); // Get auth context
+  const [auth] = useAuth(); 
   const [post, setPost] = useState(null);
   const [sameCategoryPosts, setSameCategoryPosts] = useState([]);
   const [otherCategoryPosts, setOtherCategoryPosts] = useState([]);
