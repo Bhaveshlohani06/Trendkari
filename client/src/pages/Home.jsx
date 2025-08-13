@@ -225,7 +225,7 @@ toast.success('Content generated and humanized!');
         <div className="card-body">
           <div className="d-flex align-items-center mb-3">
             <img
-          src={auth.user.avatar || 'https://via.placeholder.com/40'}
+          src={ 'https://via.placeholder.com/40' }
               alt="Avatar"
               className="rounded-circle me-2"
               width="40"

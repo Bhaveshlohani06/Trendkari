@@ -291,24 +291,54 @@ ${htmlContent}
 
 
 // backend/controllers/postController.js
+// controllers/postController.js
 
 export const searchPostsController = async (req, res) => {
-  const query = req.query.q || '';
+  const query = (req.query.q || "").trim();
+  const limit = parseInt(req.query.limit, 10) || 12;
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const skip = (page - 1) * limit;
+
   try {
+    // if no query, return recent posts with author populated
+    if (!query) {
+      const posts = await postModel.find({})
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("author", "name username avatar")    // only these fields
+        .select("title content excerpt thumbnail category author createdAt");
+      return res.json({ success: true, posts, page });
+    }
+
+    // escape regex chars
+    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escaped, "i");
+
     const posts = await postModel.find({
       $or: [
-        { title: { $regex: query, $options: 'i' } },
-        { content: { $regex: query, $options: 'i' } },
+        { title: { $regex: regex } },
+        { content: { $regex: regex } },
       ],
-    });
-    res.json({ success: true, posts });
+    })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("author", "name username avatar")
+      .select("title content excerpt thumbnail category author createdAt");
+
+    res.json({ success: true, posts, page });
   } catch (err) {
-    res.status(500).json({ success: false, error: 'Search failed' });
+    console.error("searchPostsController:", err);
+    res.status(500).json({ success: false, error: "Search failed" });
   }
 };
 
 
 
+
+
+///////Get Posts By User
 export const getPostsByUser = async (req, res) => {
   try {
     const posts = await postModel.find({ author: req.params.id });

@@ -19,7 +19,7 @@ import BlogDetail from './pages/BlogDetail'
 import AllBlogs from './pages/AllBlog'
 import PrivacyPolicy from './Components/PrivacyPolicy'
 import AboutUs from './Components/Aboutus'
-import Search from './pages/Search'
+// import Search from './pages/Search'
 import Contact from './pages/Contact'
 import CategoryPosts from './pages/CategoryPosts'
 import Cover from './pages/Cover'
@@ -45,13 +45,14 @@ const App = () => {
         <Route path='/explore' element={<AllBlogs/>}/>
         <Route path='/privacypolicy' element={<PrivacyPolicy/>}/>
         <Route path='/about' element={<AboutUs/>}/>
-        <Route path="/search" element={<Search />} />
+        {/* <Route path="/search" element={<Search />} /> */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/category/:slug" element={<CategoryPosts />} />
         <Route path='/coverpage' element={<Cover/>}/>
 
-<Route path="/profile/:userId" element={<UserProfile />} />
-        <Route path="/edit-post/:id" element={<EditPost />} />
+
+  <Route path="/profile/:userId" element={<UserProfile />} />
+          <Route path="/edit-post/:id" element={<EditPost />} />
 
 
 
@@ -67,9 +68,10 @@ const App = () => {
   </Route>
 
 
-         <Route path="/" element={<PrivateRoute />}>
-        {/* <Route path='/home' element={<Home />} /> */}
-  </Route>
+        <Route path="/" element={<PrivateRoute />}>
+          {/* <Route path="/profile/:userId" element={<UserProfile />} />
+          <Route path="/edit-post/:id" element={<EditPost />} /> */}
+        </Route>
 
 
 
