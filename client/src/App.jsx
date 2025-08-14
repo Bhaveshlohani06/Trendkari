@@ -1,5 +1,8 @@
-import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
+import ReactGA from "react-ga4";
+
+// Importing pages
 import Home from './pages/Home'
 import Blog from './pages/Blog'
 import Register from './pages/auth/Register'
@@ -19,65 +22,78 @@ import BlogDetail from './pages/BlogDetail'
 import AllBlogs from './pages/AllBlog'
 import PrivacyPolicy from './Components/PrivacyPolicy'
 import AboutUs from './Components/Aboutus'
-// import Search from './pages/Search'
 import Contact from './pages/Contact'
 import CategoryPosts from './pages/CategoryPosts'
 import Cover from './pages/Cover'
 import UserProfile from './pages/ProfilePage'
 import EditPost from './Components/forms/Editpost'
 
+// Your GA Measurement ID
+const TRACKING_ID = "G-CGG172MEXZ";
+
+/**
+ * Component that listens to route changes
+ * and sends pageview data to Google Analytics
+ */
+const RouteChangeTracker = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      page: location.pathname + location.search,
+    });
+  }, [location]);
+
+  return null; // Nothing to render
+};
 
 const App = () => {
-  
+  useEffect(() => {
+    // Initialize GA when app loads
+    ReactGA.initialize(TRACKING_ID);
+  }, []);
+
   return (
     <>
-    <Routes>
+      {/* Track route changes globally */}
+      <RouteChangeTracker />
 
-        <Route path='/blog' element={<Blog />} />
+      {/* Define all app routes */}
+      <Routes>
         <Route path='/' element={<Home />} />
-
+        <Route path='/blog' element={<Blog />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
         <Route path='/auth-success' element={<AuthSuccess />} />
         <Route path='/forgotpassword' element={<ForgotPassword />} />
         <Route path='/reset-password/:token' element={<ResetPassword />} />
         <Route path="/blog/:slug" element={<BlogDetail />} />
-        <Route path='/explore' element={<AllBlogs/>}/>
-        <Route path='/privacypolicy' element={<PrivacyPolicy/>}/>
-        <Route path='/about' element={<AboutUs/>}/>
-        {/* <Route path="/search" element={<Search />} /> */}
+        <Route path='/explore' element={<AllBlogs />} />
+        <Route path='/privacypolicy' element={<PrivacyPolicy />} />
+        <Route path='/about' element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/category/:slug" element={<CategoryPosts />} />
-        <Route path='/coverpage' element={<Cover/>}/>
-
-
-  <Route path="/profile/:userId" element={<UserProfile />} />
-          <Route path="/edit-post/:id" element={<EditPost />} />
-
-
-
-
+        <Route path='/coverpage' element={<Cover />} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
+        <Route path="/edit-post/:id" element={<EditPost />} />
         <Route path="/dashboard" element={<DashboardRedirect />} />
 
-  <Route path="/dashboard/admin" element={<AdminRoute />}>
-    <Route index element={<AdminDashboard />} />
-    <Route path='create-category' element={<CreateCategory/>}/>
-    <Route path='create-post' element={<CreatePost/>}/>
-    <Route path='posts' element={<Posts/>}/>
-    {/* <Route path='post/:slug' element={<UpdatePost/>}/> */}
-  </Route>
-
-
-        <Route path="/" element={<PrivateRoute />}>
-          {/* <Route path="/profile/:userId" element={<UserProfile />} />
-          <Route path="/edit-post/:id" element={<EditPost />} /> */}
+        {/* Admin Routes (nested under /dashboard/admin) */}
+        <Route path="/dashboard/admin" element={<AdminRoute />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path='create-category' element={<CreateCategory />} />
+          <Route path='create-post' element={<CreatePost />} />
+          <Route path='posts' element={<Posts />} />
         </Route>
 
-
-
-    </Routes>
+        {/* Private user routes */}
+        <Route path="/" element={<PrivateRoute />}>
+          {/* Add protected user routes here if needed */}
+        </Route>
+      </Routes>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
