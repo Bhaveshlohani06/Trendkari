@@ -183,7 +183,21 @@ toast.success('Content generated and humanized!');
           setPosting(false);
         }
       };
+      
 
+    // Clean pasted content
+  // const handlePaste = (e) => {
+  //   e.preventDefault();
+  //   const text = e.clipboardData.getData("text/html") || e.clipboardData.getData("text/plain");
+
+  //   // Strip MS Word junk tags
+  //   const cleaned = text
+  //     .replace(/<!--.*?-->/g, "") // remove comments
+  //     .replace(/<o:p>|<\/o:p>/g, "") // remove <o:p>
+  //     .replace(/class="?Mso.*?"/g, ""); // remove Word styles
+
+  //   document.execCommand("insertHTML", false, cleaned);
+  // };
   return (
     <>
       <Navbar bg="dark" variant="dark" className="shadow-sm px-3 sticky-top">
@@ -304,28 +318,63 @@ toast.success('Content generated and humanized!');
                   required
                 />
 
-                {/* Editor */}
-                <div
-                  ref={contentRef}
-                  contentEditable
-                  onInput={() =>
-                    setContent(contentRef.current.innerHTML)
-                  }
-                  style={{
-                    minHeight: "300px",
-                    border: "1px solid #ccc",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    backgroundColor: "#fff",
-                    fontSize: "16px",
-                    lineHeight: "1.6",
-                    direction: "ltr",
-                    textAlign: "left",
-                  }}
-                  suppressContentEditableWarning={true}
-                >
-                  {content || "Start writing or generate content..."}
-                </div>
+                 {/* Toolbar */}
+      <div style={{ marginBottom: "10px" }}>
+        <button onClick={() => document.execCommand("bold")}><b>B</b></button>
+        <button onClick={() => document.execCommand("italic")}><i>I</i></button>
+        <button onClick={() => document.execCommand("underline")}><u>U</u></button>
+        <button onClick={() => document.execCommand("insertUnorderedList")}>• List</button>
+        <button onClick={() => document.execCommand("insertOrderedList")}>1. List</button>
+      </div>
+
+      {/* Editor */}
+      {/* <div
+  ref={contentRef}
+  contentEditable={true}
+  dir="ltr"
+  onInput={() => setContent(contentRef.current.innerText)} 
+  style={{
+    minHeight: "300px",
+    border: "1px solid #ccc",
+    padding: "10px",
+    borderRadius: "5px",
+    backgroundColor: "#fff",
+    fontSize: "16px",
+    lineHeight: "1.6",
+    textAlign: "left",
+    outline: "none",
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
+  }}
+  suppressContentEditableWarning={true}
+>
+  {content || "Start writing or paste your article..."}
+</div> */}
+
+<div
+  ref={contentRef}
+  contentEditable
+  onInput={() => setContent(contentRef.current.innerHTML)}
+  style={{
+    minHeight: '300px',
+    border: '1px solid #ccc',
+    padding: '10px',
+    borderRadius: '5px',
+    backgroundColor: '#fff',
+    fontSize: '16px',
+    lineHeight: '1.6',
+    direction: 'ltr', // Force Left-to-Right text direction
+    textAlign: 'left',
+  }}
+  suppressContentEditableWarning={true}
+>
+  {content ? (
+    <div dangerouslySetInnerHTML={{ __html: content }} />
+  ) : (
+    'Start writing or wait for content to be generated...'
+  )}
+</div>
+
 
                 {/* Generate AI button */}
                 <button

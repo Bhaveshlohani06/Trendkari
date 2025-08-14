@@ -88,8 +88,9 @@ const App = () => {
         </Route>
 
         {/* Private user routes */}
-        <Route path="/" element={<PrivateRoute />}>
+        <Route path="/dashboard/admin" element={<PrivateRoute />}>
           {/* Add protected user routes here if needed */}
+          <Route index element={<UserDashboard />} />
         </Route>
       </Routes>
     </>

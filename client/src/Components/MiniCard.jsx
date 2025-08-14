@@ -17,7 +17,13 @@ const MiniCard = ({ post }) => {
             src={post.image}
             alt={post.title}
             className="img-fluid w-100"
-            style={{ objectFit: 'contain',  backgroundColor: '#ffffffff', height: '100%' }}
+           style={{
+    objectFit: 'contain',
+    objectPosition: 'center',
+    backgroundColor: '#fff',
+    height: 'auto',
+    maxHeight: '300px', // adjust based on your card design
+  }}
           />
         </div>
         <div className="col-8">
