@@ -61,7 +61,7 @@ console.log("Post Author ID:", post?.author?._id || post?.author);
       console.log('Error fetching blog post:', err);
     }
   };
-    ;
+    
 
 
   const fetchRelatedPosts = async () => {

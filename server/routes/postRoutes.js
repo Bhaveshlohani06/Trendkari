@@ -32,7 +32,7 @@ router.get("/get-post/:slug", getPostBySlugController);
 router.patch("/posts/:id/toggle-publish", togglePublishController);
 
 // UPDATE POST
-router.put("/post/:id", requireSignIn, updatePostController);
+router.put("/update-post/:id", requireSignIn,  upload.single("image"), updatePostController);
 
 // DELETE POST
 router.delete("/delete-post/:id", requireSignIn, deletePostController);

@@ -130,65 +130,60 @@ export const togglePublishController = async (req, res) => {
 // UPDATE POST
 export const updatePostController = async (req, res) => {
   try {
-    const form = new formidable.IncomingForm();
-    form.keepExtensions = true;
+    const { title, description, content, category, tags, status, isFeatured } = req.body;
 
-    form.parse(req, async (err, fields, files) => {
-      if (err) {
-        return res.status(500).send({ error: "Image upload error" });
-      }
+    const post = await postModel.findById(req.params.id);
+    if (!post) return res.status(404).send({ message: "Post not found" });
 
-      const {
-        title,
-        description,
-        content,
-        category,
-        tags,
-        status,
-        isFeatured,
-      } = fields;
+    // Update fields
+    if (title) {
+      post.title = title;
+      post.slug = slugify(title.toString(), { lower: true, strict: false });
+    }
+    post.description = description || post.description;
+    post.content = content || post.content;
+    post.category = category || post.category;
+    post.tags = tags ? JSON.parse(tags).map(tag => tag.trim().toLowerCase()) : post.tags;
+    post.status = status || post.status;
+    if (typeof isFeatured !== "undefined") {
+      post.isFeatured = isFeatured === "true" || isFeatured === true;
+    }
+    post.author = req.user.id || post.author;
 
-      const post = await postModel.findById(req.params.id);
-      if (!post) {
-        return res.status(404).send({ message: "Post not found" });
-      }
-
-      // Update text fields
-      post.title = title || post.title;
-      post.description = description || post.description;
-      post.content = content || post.content;
-
-      if (title && title !== post.title) {
-        post.slug = slugify(title, { lower: true, strict: true });
-      }
-
-      post.category = category || post.category;
-      post.tags = tags ? tags.split(",").map(tag => tag.trim().toLowerCase()) : post.tags;
-      post.status = status || post.status;
-
-      // Convert "true"/"false" string to boolean
-      if (typeof isFeatured !== "undefined") {
-        post.isFeatured =
-          isFeatured === "true" || isFeatured === true ? true : false;
-      }
-
-      // Handle image if uploaded
-      if (files.image) {
-        post.image = `/uploads/${files.image.newFilename}`;
-      }
-
-      await post.save();
-      res.status(200).send({
-        success: true,
-        message: "Post updated successfully",
-        post,
+    // Handle new image if uploaded
+    if (req.file) {
+      const fileBuffer = fs.readFileSync(req.file.path);
+      const response = await imagekit.upload({
+        file: fileBuffer,
+        fileName: req.file.originalname,
+        folder: "/posts",
       });
+
+      const optimizedImageUrl = imagekit.url({
+        path: response.filePath,
+        transformation: [
+          { quality: "auto" },
+          { format: "webp" },
+          { width: "1280" },
+        ],
+      });
+
+      post.image = optimizedImageUrl;
+    }
+
+    await post.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Post updated successfully",
+      post,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Update Post Error:", error);
     res.status(500).send({ success: false, error: error.message });
   }
 };
+
 
 // DELETE POST
 export const deletePostController = async (req, res) => {

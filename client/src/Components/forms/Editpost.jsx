@@ -11,7 +11,8 @@ const EditPost = () => {
   const token = localStorage.getItem("token");
 
   const [categories, setCategories] = useState([]);
-  const [postId, setPostId] = useState(null);
+  const [postId, setPostId] = useState('');
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -25,34 +26,35 @@ const EditPost = () => {
   const [previewImage, setPreviewImage] = useState("");
 
   // Fetch all categories
-  const getAllCategories = async () => {
-    try {
-      const { data } = await API.get("/category/categories");
-      if (data?.success) {
-        setCategories(data.categories);
+   const getAllCategories = async () => {
+      try {
+        const { data } = await API.get('/category/categories');
+        if (data?.success) {
+          setCategories(data?.categories);
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error('Error while loading categories');
       }
-    } catch (error) {
-      console.error(error);
-      toast.error("Error while loading categories");
-    }
-  };
+    };
 
   // Fetch single post by slug
   const fetchPost = async () => {
     try {
-      const { data } = await API.get(`/post/get-post/${slug}`);
-      console.log("Fetched Post Data:", data);
-
+          const { data } = await API.get(`/post/get-post/${slug}`);
+        console.log(slug)
       if (data?.success && data.post) {
         const post = data.post;
-        setPostId(post._id); // Store ID for update
+              console.log("Post Data:", data);
+
+        setPostId(post._id);
 
         setFormData({
           title: post.title || "",
           description: post.description || "",
           content: post.content || "",
           category: post.category?._id || "",
-          tags: post.tags?.join(", ") || "",
+          tags: Array.isArray(post.tags) ? post.tags.join(", ") : "",
           status: post.status || "draft",
           isFeatured: post.isFeatured || false,
           image: null,
@@ -73,7 +75,7 @@ const EditPost = () => {
     const { name, value, type, checked, files } = e.target;
     if (type === "file") {
       setFormData({ ...formData, image: files[0] });
-      setPreviewImage(URL.createObjectURL(files[0]));
+      setPreviewImage(files[0] ? URL.createObjectURL(files[0]) : "");
     } else if (type === "checkbox") {
       setFormData({ ...formData, [name]: checked });
     } else {
@@ -82,40 +84,68 @@ const EditPost = () => {
   };
 
   // Handle form submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!postId) {
-      toast.error("Post ID not found");
-      return;
-    }
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!postId) {
+    toast.error("Post ID not found");
+    return;
+  }
 
-    try {
-      const formPayload = new FormData();
-      Object.keys(formData).forEach((key) => {
-        if (formData[key] !== null) {
-          formPayload.append(key, formData[key]);
-        }
-      });
+  setLoading(true); // start loading
 
-      const { data } = await API.put(
-        `/post/${postId}`,
-        formPayload,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+  try {
+    const formPayload = new FormData();
+
+    // Append all fields
+    formPayload.append("title", formData.title);
+    formPayload.append("description", formData.description);
+    formPayload.append("content", formData.content);
+    formPayload.append("category", formData.category);
+    formPayload.append("status", formData.status);
+    formPayload.append("isFeatured", formData.isFeatured);
+
+    // Append tags as JSON array
+    if (formData.tags) {
+      formPayload.append(
+        "tags",
+        JSON.stringify(
+          formData.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((t) => t)
+        )
       );
-
-      if (data?.success) {
-        toast.success("Post updated successfully!");
-        navigate(`/blog/${slug}`);
-      } else {
-        toast.error(data?.message || "Failed to update post");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Error updating post");
     }
-  };
+
+    // Append image only if user selected a new one
+    if (formData.image) {
+      formPayload.append("image", formData.image);
+    }
+
+    const { data } = await API.put(
+      `/post/update-post/${postId}`,
+      formPayload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (data?.success) {
+      toast.success("Post updated successfully!");
+      navigate(`/blog/${data.post.slug}`); // redirect to updated post
+    } else {
+      toast.error(data?.message || "Failed to update post");
+    }
+  } catch (error) {
+    console.error("Update Post Error:", error);
+    toast.error("Error updating post");
+  } finally {
+    setLoading(false); // stop loading
+  }
+};
+
 
   useEffect(() => {
     getAllCategories();
@@ -136,7 +166,7 @@ const EditPost = () => {
                     <Form.Control
                       type="text"
                       name="title"
-                      value={formData.title}
+                      value={formData.title || ""}
                       onChange={handleChange}
                       required
                     />
@@ -147,7 +177,7 @@ const EditPost = () => {
                     <Form.Control
                       as="textarea"
                       name="description"
-                      value={formData.description}
+                      value={formData.description || ""}
                       onChange={handleChange}
                       rows={2}
                     />
@@ -158,7 +188,7 @@ const EditPost = () => {
                     <Form.Control
                       as="textarea"
                       name="content"
-                      value={formData.content}
+                      value={formData.content || ""}
                       onChange={handleChange}
                       rows={6}
                       required
@@ -169,7 +199,7 @@ const EditPost = () => {
                     <Form.Label>Category</Form.Label>
                     <Form.Select
                       name="category"
-                      value={formData.category}
+                      value={formData.category || ""}
                       onChange={handleChange}
                       required
                     >
@@ -187,7 +217,7 @@ const EditPost = () => {
                     <Form.Control
                       type="text"
                       name="tags"
-                      value={formData.tags}
+                      value={formData.tags || ""}
                       onChange={handleChange}
                     />
                   </Form.Group>
@@ -196,7 +226,7 @@ const EditPost = () => {
                     <Form.Label>Status</Form.Label>
                     <Form.Select
                       name="status"
-                      value={formData.status}
+                      value={formData.status || "draft"}
                       onChange={handleChange}
                     >
                       <option value="draft">Draft</option>
@@ -232,8 +262,8 @@ const EditPost = () => {
                     )}
                   </Form.Group>
 
-                  <Button variant="primary" type="submit">
-                    Update Post
+                  <Button variant="primary" type="submit" disabled={loading}>
+                    {loading ? "Updating..." : "Update Post"}
                   </Button>
                 </Form>
               </Card.Body>

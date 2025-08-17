@@ -266,7 +266,7 @@ const UserProfile = () => {
                       <Button
                         variant="outline-primary"
                         size="sm"
-                        onClick={() => navigate(`/edit-post/${post._id}`)}
+                        onClick={() => navigate(`/edit-post/${post.slug}`)}
                         className="d-flex align-items-center"
                       >
                         <FaRegEdit className="me-1" /> Edit

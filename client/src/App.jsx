@@ -76,7 +76,7 @@ const App = () => {
         <Route path="/category/:slug" element={<CategoryPosts />} />
         <Route path='/coverpage' element={<Cover />} />
         <Route path="/profile/:userId" element={<UserProfile />} />
-        <Route path="/edit-post/:id" element={<EditPost />} />
+        <Route path="/edit-post/:slug" element={<EditPost />} />
         <Route path="/dashboard" element={<DashboardRedirect />} />
 
         {/* Admin Routes (nested under /dashboard/admin) */}

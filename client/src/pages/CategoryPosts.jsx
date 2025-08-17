@@ -35,7 +35,7 @@ const CategoryPosts = () => {
       if (data?.success) {
         setBlogs(data.posts);
         // Get trending posts (assuming there's an isTrending field)
-        const trending = data.posts.filter(post => post.isTrending).slice(0, 5);
+        const trending = data.posts.filter(post => post.isTrending).slice(0, 8);
         setTrendingPosts(trending);
         
         // Get posts from other categories
@@ -53,7 +53,7 @@ const CategoryPosts = () => {
     <Layout>
       <div className="container py-5">
         <h2 className="fw-bold text-capitalize mb-4 border-bottom pb-2">
-          {category ? category.name : 'Category'} Blogs
+          {category ? category.name : 'Category'} Article
         </h2>
 
         <div className="row">
@@ -80,15 +80,15 @@ const CategoryPosts = () => {
                         />
                         <div className="card-body">
                           <h5 className="card-title fw-semibold">{post.title}</h5>
-                          <p className="card-text text-muted small">
+                          {/* <p className="card-text text-muted small">
                             {post.content.slice(0, 120)}...
-                          </p>
+                          </p> */}
                           <div className="d-flex align-items-center mt-2">
-                            <small className="text-muted">
+                            {/* <small className="text-muted">
                               {new Date(post.createdAt).toLocaleDateString()}
-                            </small>
+                            </small> */}
                             <small className="text-muted ms-2">
-                              {post.author || 'Admin'}
+                              {post?.author?.name || 'Admin'}
                             </small>
                           </div>
                         </div>
