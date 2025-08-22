@@ -1,18 +1,36 @@
-// utils/hinduZodiac.js
-const nakshatras = [
-  "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira",
-  "Ardra", "Punarvasu", "Pushya", "Ashlesha", "Magha",
-  "Purva Phalguni", "Uttara Phalguni", "Hasta", "Chitra",
-  "Swati", "Vishakha", "Anuradha", "Jyeshtha", "Mula",
-  "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta",
-  "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"
-];
+// utils/rashiFromName.js
+const rashiMap = {
+  mesh: { english: "Aries", hindi: "मेष" },
+  vrishabh: { english: "Taurus", hindi: "वृषभ" },
+  mithun: { english: "Gemini", hindi: "मिथुन" },
+  kark: { english: "Cancer", hindi: "कर्क" },
+  singh: { english: "Leo", hindi: "सिंह" },
+  kanya: { english: "Virgo", hindi: "कन्या" },
+  tula: { english: "Libra", hindi: "तुला" },
+  vrishchik: { english: "Scorpio", hindi: "वृश्चिक" },
+  dhanu: { english: "Sagittarius", hindi: "धनु" },
+  makar: { english: "Capricorn", hindi: "मकर" },
+  kumbh: { english: "Aquarius", hindi: "कुंभ" },
+  meen: { english: "Pisces", hindi: "मीन" }
+};
 
-export function getNakshatra(date) {
-  const d = new Date(date);
-  // Simple mock: assign nakshatra based on day of year
-  const dayOfYear = Math.floor(
-    (d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
-  );
-  return nakshatras[dayOfYear % 27];
+const nameToRashi = {
+  a: "mesh", l: "mesh", e: "mesh", // Aries
+  b: "dhanu", d: "mesh", f: "dhanu", h: "dhanu", // Sagittarius
+  c: "mithun", j: "mithun", t: "mithun",
+  k: "kark", q: "kark",
+  s: "singh",
+  v: "kanya",
+  r: "tula",
+  n: "vrishchik",
+  g: "makar",
+  o: "kumbh",
+  m: "meen"
+};
+
+export function getRashiFromName(name) {
+  if (!name) return null;
+  const firstLetter = name[0].toLowerCase();
+  const rashiKey = nameToRashi[firstLetter];
+  return rashiMap[rashiKey] || null;
 }

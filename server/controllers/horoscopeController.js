@@ -1,7 +1,7 @@
 import User from "../models/usermodel.js";
 import DailyPost from "../models/Horoscope.js";
 import { generatePersonalPost } from "../config/gemini.js";
-import { getNakshatra } from "../utils/zodiacsign.js";
+import { getRashiFromName } from "../utils/zodiacsign.js";
 
 /**
  * Generate a new horoscope immediately for a user (manual/admin use)
@@ -16,12 +16,15 @@ export const generateNow = async (req, res) => {
     if (!user) return res.status(404).json({ error: "User not found" });
 
     // Calculate Nakshatra / Zodiac
-    const nakshatra = getNakshatra(user.dob);
+    const zodiac = getRashiFromName(user.name);
+    if (!zodiac) {
+  zodiac = { english: "General", hindi: "सामान्य" }; 
+}
 
     // Generate horoscope text/content via Gemini/OpenAI
     const json = await generatePersonalPost({
       name: user.name,
-      zodiacSign: nakshatra,
+      zodiacSign: zodiac.english,
       prefs: user.preferences || {
         tone: "friendly",
         language: "english",
@@ -33,7 +36,7 @@ export const generateNow = async (req, res) => {
     // Save in DB
     const post = await DailyPost.create({
       userId: user._id,
-      zodiacSign: nakshatra,
+      zodiac,
       ...json,
       generatedAt: new Date()
     });
@@ -71,11 +74,11 @@ export const getTodaysHoroscope = async (req, res) => {
       const user = await User.findById(userId);
       if (!user) return res.status(404).json({ error: "User not found" });
 
-      const nakshatra = getNakshatra(user.dob);
+      const zodiac = getRashiFromName(user.name);
 
       const json = await generatePersonalPost({
         name: user.name,
-        zodiacSign: nakshatra,
+        zodiacSign: zodiac.english,
         prefs: user.preferences || {
           tone: "friendly",
           language: "english",
@@ -86,7 +89,7 @@ export const getTodaysHoroscope = async (req, res) => {
 
       post = await DailyPost.create({
         userId,
-        zodiacSign: nakshatra,
+        zodiac,
         ...json,
         generatedAt: new Date()
       });

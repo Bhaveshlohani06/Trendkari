@@ -31,32 +31,41 @@ async function main(prompt) {
  */
 export async function   generatePersonalPost({ name, prefs, zodiacSign, extraContext = "" }) {
    const prompt = `
-You are an expert astrologer and content writer. 
-Create a personalized today's horoscope for ${name} (Zodiac Sign: ${zodiacSign}).
+You are an expert astrologer.
+Generate today's personalized horoscope for ${name} (Zodiac: ${zodiacSign}).
 
-Output MUST be valid JSON only with the following keys:
+Output STRICT valid JSON with this shape:
+
 {
   "title": string,
-  "summary": string,
+  "summary": {
+    "english": string,
+    "hindi": string
+  },
   "sections": [
-    {"heading": string, "text": string}
+    {
+      "heading": string,
+      "text": {
+        "english": string,
+        "hindi": string
+      }
+    }
   ],
   "tags": [string],
+  "lucky": {
+    "color": string,
+    "number": number
+  },
   "seo": {
     "metaTitle": string,
     "metaDescription": string
   }
 }
 
-Tone: ${prefs.tone}. 
-Language: ["english", "hindi"]. 
-Max words: ${prefs.wordCount}. 
-  
-User interests: ${prefs.categories.join(", ")}.
-Extra context: ${extraContext}.
-
-Return only JSON (no commentary).
+Language: English + Hindi.
+No commentary, only JSON.
 `;
+
 
 
   const resp = await ai.models.generateContent({
@@ -74,9 +83,18 @@ Return only JSON (no commentary).
     const m = text.match(/(\{[\s\S]*\})/m);
     if (m) return JSON.parse(m[1]);
     // fallback: return plain text inside content
-    return { title: "Preview", summary: text, sections: [{heading:"", text}], tags: [], seo:{} };
-  }
+return {
+  title: "Preview",
+  summary: { english: text, hindi: "" },
+  sections: [{ heading: "", text: { english: "", hindi: "" } }],
+  tags: [],
+  seo: {}
+};  }
 }
+
+
+
+
 
 
 export default main;
