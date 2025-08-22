@@ -28,9 +28,23 @@ const nameToRashi = {
   m: "meen"
 };
 
+// export function getRashiFromName(name) {
+//   if (!name) return null;
+//   const firstLetter = name[0].toLowerCase();
+//   const rashiKey = nameToRashi[firstLetter];
+//   return rashiMap[rashiKey] || null;
+// }
+
 export function getRashiFromName(name) {
-  if (!name) return null;
-  const firstLetter = name[0].toLowerCase();
+  if (!name) return { english: "General", hindi: "सामान्य" };
+
+  const firstLetter = name.trim()[0].toLowerCase();
   const rashiKey = nameToRashi[firstLetter];
-  return rashiMap[rashiKey] || null;
+
+  if (rashiKey && rashiMap[rashiKey]) {
+    return rashiMap[rashiKey];
+  }
+
+  // fallback so it never breaks
+  return { english: "General", hindi: "सामान्य" };
 }
