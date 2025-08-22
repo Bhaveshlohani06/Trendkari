@@ -331,9 +331,7 @@ export const searchPostsController = async (req, res) => {
 
 
 
-
-
-///////Get Posts By User
+////// Get Posts By User /////
 export const getPostsByUser = async (req, res) => {
   try {
     const posts = await postModel.find({ author: req.params.id });
@@ -342,3 +340,5 @@ export const getPostsByUser = async (req, res) => {
     res.status(500).json({ error: "Error fetching posts" });  
   }
 }
+
+

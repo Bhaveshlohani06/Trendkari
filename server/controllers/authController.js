@@ -4,6 +4,9 @@ import { hashPassword, comparePassword    } from '../helper/authHelper.js';
 import JWT from 'jsonwebtoken';
 import { sendEmail } from '../utils/emailService.js';
 import crypto from 'crypto';
+import { imagekit } from "../config/imaegkit.js";
+import fs from "fs";
+
 
 
 
@@ -189,7 +192,7 @@ export const getUserById = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.json(user);
+ res.json({ success: true, user});  
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch user details" });
@@ -197,28 +200,74 @@ export const getUserById = async (req, res) => {
 };
 
 
+
+
 //Update About Section
-export const updateAbout = async (req, res) => {
-  const userId = req.params.id;
-  const { bio } = req.body;
-
+export const updateUserProfile = async (req, res) => {
   try {
-    const user = await usermodel.findByIdAndUpdate(
-      userId,
-      { bio },
-      { new: true, runValidators: true }
-    );
+    const userId = req.user?._id;
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    console.log("Raw req.body:", req.body);
+    console.log("Raw req.file:", req.file);
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
     }
 
-    // Optional: remove sensitive fields before sending back
-    user.password = undefined;
+    const updates = {};
 
-    res.status(200).json(user);
+    // Top-level
+    if (req.body?.name) updates.name = req.body.name;
+    if (req.body?.bio) updates.bio = req.body.bio;
+
+    // Preferences
+    if (req.body?.language) updates["preferences.language"] = req.body.language;
+    if (req.body?.tone) updates["preferences.tone"] = req.body.tone;
+    if (req.body?.categories) updates["preferences.categories"] = req.body.categories;
+    if (req.body?.wordCount) updates["preferences.wordCount"] = req.body.wordCount;
+    if (req.body?.timezone) updates["preferences.timezone"] = req.body.timezone;
+    if (req.body?.frequency) updates["preferences.frequency"] = req.body.frequency;
+    if (req.body?.dob) updates["preferences.dob"] = req.body.dob;
+    if (req.body?.zodiacSign) updates["preferences.zodiacSign"] = req.body.zodiacSign;
+
+    // Avatar
+    if (req.file) {
+      const fileBuffer = fs.readFileSync(req.file.path);
+      const response = await imagekit.upload({
+        file: fileBuffer,
+        fileName: req.file.originalname || `avatar_${Date.now()}.jpg`,
+        folder: "/avatars",
+      });
+
+      updates.avatar = imagekit.url({
+        path: response.filePath,
+        transformation: [{ quality: "auto" }, { format: "webp" }, { width: "400" }],
+      });
+    }
+
+    console.log("Final Update Payload:", updates);
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ success: false, message: "No fields to update" });
+    }
+
+    const updatedUser = await usermodel.findByIdAndUpdate(
+      userId,
+      { $set: updates },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
   } catch (error) {
-    console.error("Error updating about:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Update Profile Error:", error);
+    res.status(500).json({ success: false, error: error.message });
   }
 };

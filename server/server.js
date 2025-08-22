@@ -8,6 +8,7 @@ import postRoutes from './routes/postRoutes.js';
 import passport from 'passport';
 import './config/passport.js'; // import the strategy config
 import session from 'express-session';
+import horoscopeRoutes from './routes/horoscope.js'
 
 
 dotenv.config(); // Load environment variables
@@ -65,6 +66,7 @@ app.use(passport.session());
 app.use('/api/v1/auth', authrouter); 
 app.use('/api/v1/category', categoryroutes);
 app.use('/api/v1/post', postRoutes); 
+app.use('/api/v1/horoscope', horoscopeRoutes)
 
 app.get("/api/ping", (req, res) => {
   res.json({ message: "Backend working" });

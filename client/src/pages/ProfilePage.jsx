@@ -42,8 +42,8 @@ const UserProfile = () => {
         const userRes = await API.get(`/auth/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUser(userRes.data);
-        setAboutInput(userRes.data.about || "");
+        setUser(userRes.data.user);
+        setAboutInput(userRes.data.user.bio || "");
 
         // Fetch posts
         const postsRes = await API.get(`/post/profile/${userId}`, {
@@ -78,24 +78,7 @@ const UserProfile = () => {
     }
   };
 
-  const handleAboutUpdate = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await API.put(
-        `/auth/update-about/${userId}`,
-        { about: aboutInput },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      toast.success("About section updated");
-      setUser(res.data);
-      setEditMode(false);
-    } catch (error) {
-      toast.error("Failed to update about");
-      console.error(error);
-    }
-  };
+  
 
   if (loading) {
     return (
@@ -167,7 +150,7 @@ const UserProfile = () => {
                   <Button 
                     variant="outline-primary" 
                     size="sm" 
-                    onClick={() => setEditMode(!editMode)}
+                   onClick={() => navigate(`/update-profile/${user._id}`)} 
                     className="d-flex align-items-center"
                   >
                     <FaUserEdit className="me-1" /> Edit Profile
@@ -177,38 +160,11 @@ const UserProfile = () => {
                 <hr />
 
                 <h5>About Me</h5>
-                {editMode ? (
-                  <>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      value={aboutInput}
-                      onChange={(e) => setAboutInput(e.target.value)}
-                      className="mb-2"
-                    />
-                    <Stack direction="horizontal" gap={2}>
-                      <Button 
-                        variant="success" 
-                        onClick={handleAboutUpdate} 
-                        size="sm"
-                        className="d-flex align-items-center"
-                      >
-                        <FaRegEdit className="me-1" /> Save Changes
-                      </Button>
-                      <Button 
-                        variant="outline-secondary" 
-                        onClick={() => setEditMode(false)} 
-                        size="sm"
-                      >
-                        Cancel
-                      </Button>
-                    </Stack>
-                  </>
-                ) : (
+                 
                   <p className="text-muted">
-                    {user.about || "This user hasn't written anything about themselves yet."}
+                    {user.bio || "This user hasn't written anything about themselves yet."}
                   </p>
-                )}
+                
               </Col>
             </Row>
           </Card.Body>

@@ -1,7 +1,11 @@
 import express from 'express';
-import { forgotPasswordController, loginController, registerController, resetPasswordController, testController, getUserById, updateAbout } from '../controllers/authController.js';
+import { forgotPasswordController, loginController, registerController, resetPasswordController, testController, getUserById, updateUserProfile } from '../controllers/authController.js';
 import { isAdmin, requireSignIn } from '../middleware/authMiddleware.js';
 import passport from 'passport';
+
+import multer from "multer";
+const upload = multer({ dest: "uploads/" });
+
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -73,7 +77,7 @@ router.get("/admin-auth", requireSignIn, isAdmin, (req,res) =>{
 router.get('/user/:id', requireSignIn, getUserById)
 
 //UpdateUser
-router.put("/update-about/:id", requireSignIn, updateAbout);
+router.put("/update-profile/:id", requireSignIn, upload.single("avatar"), updateUserProfile);
 
 
 

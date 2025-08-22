@@ -53,8 +53,20 @@ const userSchema = new mongoose.Schema(
         },
 
 
+           preferences: {
+            language: { type: String, default: 'english' },
+            tone: { type: String, default: 'friendly' },
+            categories: { type: [String], default: ['general'] },
+            wordCount: { type: Number, default: 350 },
+            timezone: { type: String, default: 'Asia/Kolkata' },
+            frequency: { type: String, enum: ['daily', 'weekly'], default: 'daily' },
+
+     dob: { type: Date },  // optional, for new users
+    zodiacSign: { type: String } // fallback for old users
+        }
     },
     { timestamps: true }
 );
+
 
 export default mongoose.model('user', userSchema);

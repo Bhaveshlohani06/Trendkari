@@ -113,6 +113,20 @@ const Sidebar = ({ isOpen, onClose }) => {
             </NavLink>
           </Nav.Item>
 
+
+          <Nav.Item className="">
+            <NavLink
+              to="/horoscope"
+              onClick={onClose}
+              className={({ isActive }) =>
+                `nav-link px-2 py-2 rounded ${isActive ? 'fw-bold bg-warning text-dark' : 'text-dark'} sidebar-link`
+              }
+            >
+              Horoscope
+            </NavLink>
+          </Nav.Item>
+
+
           <Nav.Item>
             <NavLink
               to="/about"

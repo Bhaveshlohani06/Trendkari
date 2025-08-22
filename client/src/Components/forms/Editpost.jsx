@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Form, Button, Container, Row, Col, Card } from "react-bootstrap";
+import { BsXCircle } from "react-icons/bs"; // ✅ cancel icon
 import { toast } from "react-toastify";
 import Layout from "../../Layout/Layout";
 import API from "../../../utils/api";
@@ -265,6 +266,17 @@ const EditPost = () => {
                   <Button variant="primary" type="submit" disabled={loading}>
                     {loading ? "Updating..." : "Update Post"}
                   </Button>
+
+                      {/* ✅ Cancel Button */}
+                    <Button
+                      variant="secondary"
+                      onClick={() => navigate(-1)} // go back
+                      className="d-flex mt-2 align-items-center"
+                    >
+                      <BsXCircle className="me-2" />
+                      Cancel
+                    </Button>
+
                 </Form>
               </Card.Body>
             </Card>

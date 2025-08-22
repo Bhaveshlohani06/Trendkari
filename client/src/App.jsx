@@ -27,6 +27,8 @@ import CategoryPosts from './pages/CategoryPosts'
 import Cover from './pages/Cover'
 import UserProfile from './pages/ProfilePage'
 import EditPost from './Components/forms/Editpost'
+import DailyHoroscope from './pages/Horoscope';
+import EditProfile from './Components/forms/EditProfile'
 
 // Your GA Measurement ID
 const TRACKING_ID = "G-CGG172MEXZ";
@@ -78,6 +80,9 @@ const App = () => {
         <Route path="/profile/:userId" element={<UserProfile />} />
         <Route path="/edit-post/:slug" element={<EditPost />} />
         <Route path="/dashboard" element={<DashboardRedirect />} />
+        <Route path='/update-profile/:userId' element={<EditProfile/>} />
+
+        <Route path="/horoscope" element={<DailyHoroscope />} />
 
         {/* Admin Routes (nested under /dashboard/admin) */}
         <Route path="/dashboard/admin" element={<AdminRoute />}>
@@ -88,7 +93,7 @@ const App = () => {
         </Route>
 
         {/* Private user routes */}
-        <Route path="/dashboard/admin" element={<PrivateRoute />}>
+        <Route path="/dashboard" element={<PrivateRoute />}>
           {/* Add protected user routes here if needed */}
           <Route index element={<UserDashboard />} />
         </Route>
