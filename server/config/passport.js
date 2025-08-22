@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import GoogleStrategy from 'passport-google-oauth20';
 import User from '../models/usermodel.js'; 
 import { sendEmail } from '../utils/emailService.js';
+import {getRashiFromName} from '../utils/zodiacsign.js'
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +31,8 @@ async (accessToken, refreshToken, profile, done) => {
                 name: profile.displayName,
                 email: profile.emails[0].value,
                 avatar: profile.photos[0].value,
+                zodiacSign: getRashiFromName(profile.displayName)
+
             });
 
             await user.save();

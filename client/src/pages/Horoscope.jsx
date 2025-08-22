@@ -40,78 +40,78 @@ const DailyHoroscope = () => {
   if (!horoscope) return <p className="text-center mt-5">No horoscope found for today.</p>;
 
   return (
-    <Layout>
-    <div className="py-5">
-  <Container style={{ maxWidth: "800px" }}>
-    {/* Greeting */}
-    <h1 className="fw-bold mb-3 text-center">
-      Hello, {user?.name || "Friend"} ✨
-    </h1>
-    <p className="text-muted text-center mb-4">
-      <strong>Zodiac/Nakshatra:</strong>{" "}
-      {horoscope.zodiac?.english || user?.zodiacSign || "—"} |{" "}
-      <strong>Date:</strong>{" "}
-      {new Date(horoscope.generatedAt).toLocaleDateString()}
-    </p>
+      <Layout>
+      <div className="py-5">
+    <Container style={{ maxWidth: "800px" }}>
+      {/* Greeting */}
+      <h1 className="fw-bold mb-3 text-center">
+        Hello, {user?.name || "Friend"} ✨
+      </h1>
+      <p className="text-muted text-center mb-4">
+        <strong>Zodiac/Nakshatra:</strong>{" "}
+        {horoscope.zodiac?.english || user?.zodiacSign || "—"} |{" "}
+        <strong>Date:</strong>{" "}
+        {new Date(horoscope.generatedAt).toLocaleDateString()}
+      </p>
 
-    {/* Main Card */}
-    <Card className="shadow-lg rounded-4 border-0">
-      <Card.Body className="p-4">
-        {/* Title */}
-        <Card.Title className="fs-3 fw-semibold mb-3 text-primary">
-          {horoscope.title}
-        </Card.Title>
+      {/* Main Card */}
+      <Card className="shadow-lg rounded-4 border-0">
+        <Card.Body className="p-4">
+          {/* Title */}
+          <Card.Title className="fs-3 fw-semibold mb-3 text-primary">
+            {horoscope.title}
+          </Card.Title>
 
-        {/* Summary bilingual */}
-        <Card.Text className="fs-5 mb-3">{horoscope.summary?.english}</Card.Text>
-        {horoscope.summary?.hindi && (
-          <Card.Text className="fs-5 text-secondary" style={{ fontFamily: "Noto Sans Devanagari, sans-serif" }}>
-            {horoscope.summary.hindi}
-          </Card.Text>
-        )}
+          {/* Summary bilingual */}
+          <Card.Text className="fs-5 mb-3">{horoscope.summary?.english}</Card.Text>
+          {horoscope.summary?.hindi && (
+            <Card.Text className="fs-5 text-secondary" style={{ fontFamily: "Noto Sans Devanagari, sans-serif" }}>
+              {horoscope.summary.hindi}
+            </Card.Text>
+          )}
 
-        {/* Sections */}
-        {horoscope.sections?.map((sec, idx) => (
-          <div key={idx} className="mb-4">
-            <h5 className="fw-bold text-dark">{sec.heading}</h5>
-            <p className="text-muted mb-1">{sec.text?.english}</p>
-            {sec.text?.hindi && (
-              <p className="text-secondary" style={{ fontFamily: "Noto Sans Devanagari, sans-serif" }}>
-                {sec.text.hindi}
-              </p>
-            )}
-          </div>
-        ))}
+          {/* Sections */}
+          {horoscope.sections?.map((sec, idx) => (
+            <div key={idx} className="mb-4">
+              <h5 className="fw-bold text-dark">{sec.heading}</h5>
+              <p className="text-muted mb-1">{sec.text?.english}</p>
+              {sec.text?.hindi && (
+                <p className="text-secondary" style={{ fontFamily: "Noto Sans Devanagari, sans-serif" }}>
+                  {sec.text.hindi}
+                </p>
+              )}
+            </div>
+          ))}
 
-        {/* Lucky details */}
-        {horoscope.lucky && (
-          <ListGroup className="mb-4 rounded-3">
-            <ListGroup.Item className="d-flex justify-content-between">
-              <span><strong>Lucky Color:</strong></span>
-              <Badge bg="info" pill>{horoscope.lucky.color}</Badge>
-            </ListGroup.Item>
-            <ListGroup.Item className="d-flex justify-content-between">
-              <span><strong>Lucky Number:</strong></span>
-              <Badge bg="success" pill>{horoscope.lucky.number}</Badge>
-            </ListGroup.Item>
-          </ListGroup>
-        )}
+          {/* Lucky details */}
+          {horoscope.lucky && (
+            <ListGroup className="mb-4 rounded-3">
+              <ListGroup.Item className="d-flex justify-content-between">
+                <span><strong>Lucky Color:</strong></span>
+                <Badge bg="info" pill>{horoscope.lucky.color}</Badge>
+              </ListGroup.Item>
+              <ListGroup.Item className="d-flex justify-content-between">
+                <span><strong>Lucky Number:</strong></span>
+                <Badge bg="success" pill>{horoscope.lucky.number}</Badge>
+              </ListGroup.Item>
+            </ListGroup>
+          )}
 
-        {/* Tags */}
-        {horoscope.tags?.length > 0 && (
-          <div className="d-flex flex-wrap gap-2">
-            {horoscope.tags.map((tag, i) => (
-              <Badge key={i} pill bg="secondary">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        )}
-      </Card.Body>
-    </Card>
-  </Container>
-</div>
-</Layout>
+          {/* Tags */}
+          {horoscope.tags?.length > 0 && (
+            <div className="d-flex flex-wrap gap-2">
+              {horoscope.tags.map((tag, i) => (
+                <Badge key={i} pill bg="secondary">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+    </Container>
+  </div>
+  </Layout>
   );
 };
 
