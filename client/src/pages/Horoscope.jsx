@@ -49,7 +49,12 @@ const DailyHoroscope = () => {
       </h1>
       <p className="text-muted text-center mb-4">
         <strong>Zodiac/Nakshatra:</strong>{" "}
-        {horoscope.zodiac?.english || user?.zodiacSign || "—"} |{" "}
+        {horoscope?.zodiac
+  ? `${horoscope.zodiac.hindi} | ${horoscope.zodiac.english}`
+  : user?.zodiacSign
+  ? `${user.zodiacSign.hindi} | ${user.zodiacSign.english}`
+  : "—"}
+  <br/>
         <strong>Date:</strong>{" "}
         {new Date(horoscope.generatedAt).toLocaleDateString()}
       </p>
