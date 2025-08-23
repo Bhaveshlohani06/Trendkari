@@ -258,7 +258,7 @@ toast.success('Content generated and humanized!');
               <NavDropdown
                 title={
    <Image
-  src={auth?.user?.avatar || "https://via.placeholder.com/150?text=+"}
+  src={user.avatar || ""} 
   alt="User Avatar"
   roundedCircle
   style={{
