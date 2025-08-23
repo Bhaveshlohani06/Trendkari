@@ -64,6 +64,7 @@ const DailyHoroscope = () => {
         <Card.Body className="p-4">
           {/* Title */}
           <Card.Title className="fs-3 fw-semibold mb-3 text-primary">
+            <h2 className="text-dark">{user.name} राशिफल/Horoscope</h2>
             {horoscope.title}
           </Card.Title>
 
