@@ -90,7 +90,12 @@ export const getTodaysHoroscope = async (req, res) => {
       post = await DailyPost.create({
         userId,
         zodiac,
-        ...json,
+        summary: json.summary,
+  sections: json.sections,
+  lucky: json.lucky,
+  title: json.title,
+  seo: json.seo,
+  tags: json.tags,
         generatedAt: new Date()
       });
     }
