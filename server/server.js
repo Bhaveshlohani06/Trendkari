@@ -2,16 +2,23 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
+import { startScheduler, startDailyMailJob } from "./utils/scheduler.js";
 import authrouter from './routes/authRoutes.js';
 import categoryroutes from './routes/categoryRoutes.js';
 import postRoutes from './routes/postRoutes.js';
+import horoscopeRoutes from './routes/horoscope.js'
 import passport from 'passport';
 import './config/passport.js'; // import the strategy config
 import session from 'express-session';
-import horoscopeRoutes from './routes/horoscope.js'
 
 
 dotenv.config(); // Load environment variables
+
+// after mongoose.connect(...)
+startScheduler();
+startDailyMailJob();
+
+
 
 const app = express();
 

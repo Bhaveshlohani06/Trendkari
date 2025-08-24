@@ -94,7 +94,7 @@ const App = () => {
 
         {/* Private user routes */}
         <Route path="/dashboard" element={<PrivateRoute />}>
-          {/* Add protected user routes here if needed */}
+        {/* <Route path="horoscope" element={<DailyHoroscope />} /> */}
           <Route index element={<UserDashboard />} />
         </Route>
       </Routes>
