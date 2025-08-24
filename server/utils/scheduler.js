@@ -45,7 +45,7 @@ export function startDailyMailJob() {
         });
 
         // Build link regardless of horoscope existing
-        const link = `${process.env.FRONTEND_URL}/horoscope/${horoscope?._id || user._id}`;
+        const link = `${process.env.FRONTEND_URL}/horoscope`;
 
         let snippet, html;
 

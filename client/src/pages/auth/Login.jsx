@@ -66,6 +66,19 @@ const handleGoogleLogin = () => {
             Login to continue exploring <strong>Trendkari</strong>
           </p>
 
+           <button
+            type="button"
+            className="btn btn-outline-dark btn-lg w-100 mb-2"
+            onClick={handleGoogleLogin}
+          >
+            <img
+              src="https://img.icons8.com/color/16/000000/google-logo.png"
+              alt="Google"
+              className="me-2"
+            />
+            Continue with Google
+          </button>
+
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="email" className="form-label fw-semibold">Email address</label>
@@ -101,18 +114,7 @@ const handleGoogleLogin = () => {
             </button>
           </form>
 
-          <button
-            type="button"
-            className="btn btn-outline-dark btn-lg w-100 mb-2"
-            onClick={handleGoogleLogin}
-          >
-            <img
-              src="https://img.icons8.com/color/16/000000/google-logo.png"
-              alt="Google"
-              className="me-2"
-            />
-            Continue with Google
-          </button>
+         
         </div>
       </div>
     </Layout>

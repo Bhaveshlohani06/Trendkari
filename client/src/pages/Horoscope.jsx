@@ -2,18 +2,21 @@ import React, { useState, useEffect } from "react";
 import API from "../../utils/api";
 import Layout from "../Layout/Layout";
 import { Container, Row, Col, Card, Badge, Alert, ListGroup } from 'react-bootstrap';
+import { useNavigate } from "react-router-dom";
 
 
 const DailyHoroscope = () => {
   const [user, setUser] = useState(null);
   const [horoscope, setHoroscope] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const u = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token");
 
     if (!u || !token) {
+      navigate("/login");
       setLoading(false);
       return;
     }
@@ -36,8 +39,18 @@ const DailyHoroscope = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-5">Loading your horoscope...</p>;
-  if (!horoscope) return <p className="text-center mt-5">No horoscope found for today.</p>;
+  if (loading) return ( 
+    <Layout>
+  <p className="text-center mt-5">Loading your horoscope...</p>
+  </Layout>
+);
+  if (!horoscope) return(
+    <Layout>
+     <p className="text-center mt-5">No horoscope found for today.</p>
+
+     <a href="https://www.trendkari.in/login">Sign In</a>
+     </Layout>
+    );
 
   return (
       <Layout>
