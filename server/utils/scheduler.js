@@ -25,7 +25,9 @@ export function startScheduler() {
 
 
 export function startDailyMailJob() {
-  cron.schedule("* 7 * * *", async () => {   // runs every 1 minute (for testing)
+cron.schedule("25 8 * * *", async () => {
+  console.log("Running at 8:25 AM");
+
     console.log("⏰ Running Daily Horoscope Mail Job at", new Date().toLocaleString());
 
     try {
