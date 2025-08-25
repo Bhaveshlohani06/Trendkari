@@ -22,7 +22,7 @@ const handleSubmit = async (e) => {
     // console.log("Token being sent:", auth?.token); // ✅ For debugging
 
     const { data } = await API.post(
-      "/api/v1/category/create-category",
+      "/category/create-category",
       { name },
       {
         headers: {

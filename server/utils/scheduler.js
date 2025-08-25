@@ -11,7 +11,7 @@ import { sendEmail } from "./emailService.js";
 
 export function startScheduler() {
   // Example: every day at 06:00 server time
-  cron.schedule("* * * * *", async () => {
+  cron.schedule("* 6 * * *", async () => {
     const users = await User.find({ frequency: "daily" });
     for (const u of users) {
       try {

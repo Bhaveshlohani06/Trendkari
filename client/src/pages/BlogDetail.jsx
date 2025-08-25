@@ -5,6 +5,8 @@ import MiniCard from '../Components/MiniCard';
 import API from '../../utils/api';
 import * as timeago from 'timeago.js';
 import { useAuth } from '../context/auth';
+import { FaHeart, FaShareAlt, FaFacebook, FaTwitter, FaWhatsapp } from "react-icons/fa";
+
 
 const BlogDetail = () => {
   const { slug } = useParams();
@@ -14,6 +16,42 @@ const BlogDetail = () => {
   const [otherCategoryPosts, setOtherCategoryPosts] = useState([]);
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState([]);
+  const [liked, setLiked] = useState(false);
+  
+  
+     const handleLike = (e) => {
+    e.stopPropagation(); // prevent navigating
+    setLiked(!liked);
+  };
+
+   const handleShare = (e) => {
+    e.stopPropagation(); // prevent navigating
+
+    const shareUrl = `${window.location.origin}/blog/${post.slug}`;
+    const shareText = `Check out this post: ${post.title}`;
+
+    // ✅ Modern share API (mobile/modern browsers)
+    if (navigator.share) {
+      navigator.share({
+        title: post.title,
+        text: shareText,
+        url: shareUrl,
+      }).catch((err) => console.log("Share error:", err));
+    } else {
+      // ✅ Fallback (open share options)
+      const encodedUrl = encodeURIComponent(shareUrl);
+      const encodedText = encodeURIComponent(shareText);
+
+      const whatsapp = `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`;
+      const facebook = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
+      const twitter = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
+
+      // Open in new tab (or show modal with options)
+      window.open(whatsapp, "_blank");
+      window.open(facebook, "_blank");
+      window.open(twitter, "_blank");
+    }
+  };
 
 
     const handleDelete = async () => {
@@ -136,6 +174,15 @@ console.log("Post Author ID:", post?.author?._id || post?.author);
               {post.category?.name} • {post?.author?.name || 'Trendkari'} • {timeago.format(post.createdAt)}
             </p>
 
+                     {/* Like + Share Buttons */}
+                                  {/* <div className="d-flex align-items-center gap-3"> */}
+                                   
+                                    <FaShareAlt 
+                                      onClick={handleShare}
+                                      style={{ cursor: "pointer", fontSize: "18px", color: "gray" }} 
+                                    />
+                                  {/* </div> */}
+
             {currentUser && post.author === currentUser._id && (
   <div className="btn-group">
     {/* <button onClick={handleEdit}>Edit</button> */}
@@ -173,7 +220,26 @@ console.log("Post Author ID:", post?.author?._id || post?.author);
                   <li key={i} className="list-group-item">{c}</li>
                 ))}
               </ul>
+
+              {/* Like + Share Buttons */}
+                                  <div className="d-flex align-items-center gap-3">
+                                    <FaHeart 
+                                      onClick={handleLike}
+                                      style={{ 
+                                        cursor: "pointer", 
+                                        color: liked ? "red" : "gray", 
+                                        fontSize: "18px" 
+                                      }} 
+                                    />
+                                    <FaShareAlt 
+                                      onClick={handleShare}
+                                      style={{ cursor: "pointer", fontSize: "18px", color: "gray" }} 
+                                    />
+                                  </div>
+
             </div>
+
+            
 
             {/* More From Same Category */}
             <div className="mb-5">

@@ -4,7 +4,7 @@ import { Offcanvas, Nav, Badge, Dropdown } from 'react-bootstrap';
 import {
   FaFireAlt, FaBolt, FaBars, FaNewspaper, FaGavel, FaFilm,
   FaPlane, FaMicrochip, FaVideo, FaLaugh, FaHeartbeat,
-  FaRobot, FaGamepad
+  FaRobot, FaGamepad, FaOm
 } from 'react-icons/fa';
 import { useAuth } from '../context/auth';
 
@@ -26,7 +26,8 @@ const Sidebar = ({ isOpen, onClose }) => {
     { name: 'Meme', icon: <FaLaugh /> },
     { name: 'Health', icon: <FaHeartbeat /> },
     { name: 'AI Trends', icon: <FaRobot /> },
-    { name: 'Gaming', icon: <FaGamepad /> }
+    { name: 'Gaming', icon: <FaGamepad /> },
+    { name: 'Spiritual', icon: <FaOm /> }  
   ];
 
   return (
