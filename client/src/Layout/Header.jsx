@@ -1,5 +1,4 @@
 import Image from "react-bootstrap/Image";
-
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -258,8 +257,8 @@ toast.success('Content generated and humanized!');
               <NavDropdown
                 title={
    <Image
-  src={user.avatar || ""} 
-  alt="User Avatar"
+ src={user.avatar || "/default-avatar.png"}
+   alt=" Avatar"
   roundedCircle
   style={{
     width: "40px",
@@ -267,7 +266,7 @@ toast.success('Content generated and humanized!');
     objectFit: "cover",
     border: !auth?.user?.avatar ? "2px solid #ccc" : "none",
     display: "block",
-    margin: '2px',
+    margin: 'auto',
   }}
 />
   }
