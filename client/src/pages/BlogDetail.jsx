@@ -215,7 +215,7 @@ const BlogDetail = () => {
                     <img 
                       src={c.author?.avatar} 
                       alt={c.author?.name} 
-                      style={{ width: "30px", height: "30px", borderRadius: "50%", marginRight: "8px" }}
+                      style={{ width: "40px", height: "40px", borderRadius: "50%", marginRight: "8px" }}
                     />
                     <strong>{c.author?.name || "Anonymous"}:</strong> {c.content}
                   </li>
