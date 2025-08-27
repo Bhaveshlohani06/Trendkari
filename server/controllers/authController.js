@@ -8,9 +8,6 @@ import { imagekit } from "../config/imaegkit.js";
 import fs from "fs";
 
 
-
-
-
 //registerController
 export const registerController = async (req, res) => {
   const { name, email, password, role, avatar, bio} = req.body;

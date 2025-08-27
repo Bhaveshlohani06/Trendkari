@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import API from "../../utils/api";
 import Layout from "../Layout/Layout";
 import { Container, Row, Col, Card, Badge, Alert, ListGroup } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 
 const DailyHoroscope = () => {
+    const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [horoscope, setHoroscope] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +24,14 @@ const DailyHoroscope = () => {
 
     setUser(u);
     fetchHoroscope(token);
+
+
+//     if (!u?.dob) {
+//   alert("Please update your profile with your Date of Birth to get an accurate horoscope.");
+//   navigate(`/update-profile/${u._id}`);
+//   console.log(`DOB missing, redirecting to profile update. ${u._id}`);
+//   return; // ✅ stop further execution
+// }
   }, []);
 
   const fetchHoroscope = async (token) => {

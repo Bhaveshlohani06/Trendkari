@@ -112,7 +112,7 @@ useEffect(() => {
           <Col md={10} lg={8}>
             <Card className="shadow-sm">
               <Card.Body>
-                <Card.Title className="mb-4">Edit Profile</Card.Title>
+                <Card.Title className="mb-4">Update Profile</Card.Title>
                 <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3">
                     <Form.Label>Name</Form.Label>

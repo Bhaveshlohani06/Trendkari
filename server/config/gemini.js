@@ -1,38 +1,44 @@
+import dotenv from "dotenv";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-import { GoogleGenAI } from "@google/genai";
+dotenv.config();
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GOOGLE_GEMINI_API_KEY,
-});
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // or gemini-pro
+
+
+// Get today's date in a nice format
+function getTodayDate() {
+  return new Date().toLocaleDateString("en-IN", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+}
 
 async function main(prompt) {
   try {
-    const result = await ai.models.generateContent({
-      model: "gemini-2.5-flash", // fallback to supported model
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-    });
+    const result = await model.generateContent(prompt);
 
-    const text = result.text; // Check if this works, may vary by version
+    const text = result.response.candidates[0].content.parts[0].text;
     console.log("Generated content:", text);
-    return text || '';
-    
+    return text || "";
   } catch (err) {
     console.error("Error in Gemini main():", err);
-    return '';
+    return "";
   }
 }
 
+export async function generatePersonalPost({ name, prefs, zodiacSign, extraContext = "" }) {
+    const todayDate = getTodayDate();
 
-
-
-/**
- * Generate a personalized daily blog post as structured JSON.
- * The prompt instructs Gemini to return JSON only so parsing is easy.
- */
-export async function   generatePersonalPost({ name, prefs, zodiacSign, extraContext = "" }) {
-   const prompt = `
+  const prompt = `
 You are an expert astrologer.
-Generate today's personalized horoscope for ${name} (Zodiac: ${zodiacSign}).
+Generate today's personalized shoking prediction horoscope with current day and date for ${name} (Zodiac: ${zodiacSign}).
+
+👉 IMPORTANT: The date must be strictly "${todayDate}". 
+Do NOT generate any other date.
 
 Output STRICT valid JSON with this shape:
 
@@ -66,36 +72,21 @@ Language: English + Hindi.
 No commentary, only JSON.
 `;
 
+  const resp = await main(prompt);
 
-
-  const resp = await ai.models.generateContent({
-    model: "gemini-2.5-flash", // choose model appropriate for cost/quality
-    contents: [{ role: "user", parts: [{ text: prompt }] }]
-  });
-
-  // response.text usually contains the model output
-  const text = resp?.text || resp;
-  // Try to parse JSON safely
   try {
-    return JSON.parse(text);
+    return JSON.parse(resp);
   } catch (err) {
-    // attempt to extract JSON substring if model wrapped in markdown or text
-    const m = text.match(/(\{[\s\S]*\})/m);
+    const m = resp.match(/(\{[\s\S]*\})/m);
     if (m) return JSON.parse(m[1]);
-    // fallback: return plain text inside content
-return {
-  title: "Preview",
-  summary: { english: text, hindi: "" },
-  sections: [{ heading: "", text: { english: "", hindi: "" } }],
-  tags: [],
-  seo: {}
-};  }
+    return {
+      title: "Error generating horoscope",
+      summary: { english: "Failed to fetch from Gemini", hindi: "" },
+      sections: [],
+      tags: [],
+      seo: {}
+    };
+  }
 }
 
-
-
-
-
-
 export default main;
-

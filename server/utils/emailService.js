@@ -1,18 +1,47 @@
-import nodemailer from 'nodemailer';
+// import Brevo from "@getbrevo/brevo";
+
+// export const sendEmail = async (to, subject, html) => {
+//   const apiInstance = new Brevo.TransactionalEmailsApi();
+//   apiInstance.setApiKey(
+//     Brevo.TransactionalEmailsApiApiKeys.apiKey,
+//     process.env.BREVO_API_KEY
+//   );
+
+//   const sendSmtpEmail = {
+//     sender: { email: "admin@trendkari.in" }, 
+//     to: [{ email: to }],
+//     subject: subject,
+//     htmlContent: html,
+//   };
+
+//   try {
+//     const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
+//     console.log("✅ Email sent:", response.messageId);
+//   } catch (error) {
+//     console.error("❌ Email send error:", error);
+//   }
+// };
+
+
+
+
+
+
+import nodemailer from "nodemailer";
 
 export const sendEmail = async (to, subject, html) => {
   const transporter = nodemailer.createTransport({
-     host: process.env.EMAIL_HOST,         // smtp.zoho.in
-  port: process.env.EMAIL_PORT,         // 465
-  secure: true,                         // true for 465
-  auth: {
-    user: process.env.EMAIL_USER,       // admin@trendkari.in
-    pass: process.env.ZOHO_PASS,       // App password (not normal Zoho password)
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: process.env.EMAIL_SECURE === "true", // true for 465, false for 587
+    auth: {
+      user: process.env.EMAIL_USER, // this will be 959b69001@smtp-brevo.com
+      pass: process.env.EMAIL_PASS, // your SMTP key
     },
   });
 
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: "admin@trendkari.in", // 👈 sender shown to recipients
     to,
     subject,
     html,
@@ -22,19 +51,4 @@ export const sendEmail = async (to, subject, html) => {
 };
 
 
-// export const sendWelcomeEmail = async (user) => {
-//   const subject = 'Welcome to Trendkari!';
-//   const html = `
-//     <h1>Hello ${user.name},</h1>
-//     <p>Thank you for registering with Trendkari. We are excited to have you on board!</p>
-//     <p>Your account details:</p>
-//     <ul>
-//       <li>Email: ${user.email}</li>
-//       <li>Role: ${user.role}</li>
-//       <li>Account created on: ${new Date(user.createdAt).toLocaleDateString()}</li>
-//     </ul>
-//     <p>Best regards,</p>
-//     <p>The Trendkari Team</p>
-//   `;
-//   await sendEmail(user.email, subject, html);
-// }
+//

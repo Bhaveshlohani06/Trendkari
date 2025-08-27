@@ -3,52 +3,58 @@ import DailyPost from "../models/Horoscope.js";
 import { generatePersonalPost } from "../config/gemini.js";
 import { getRashiFromName } from "../utils/zodiacsign.js";
 
+
 /**
  * Generate a new horoscope immediately for a user (manual/admin use)
  * Expects: userId in req.body or req.params
  */
-export const generateNow = async (req, res) => {
-  try {
-    const userId = req.body.userId || req.params.userId;
-    if (!userId) return res.status(400).json({ error: "userId is required" });
+  export const generateNow = async (req, res) => {
+    try {
+      const userId = req.body.userId || req.params.userId;
+      if (!userId) return res.status(400).json({ error: "userId is required" });
 
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Calculate Nakshatra / Zodiac
-    const zodiac = getRashiFromName(user.name);
-    if (!zodiac) {
-  zodiac = { english: "General", hindi: "सामान्य" }; 
-}
-
-    // Generate horoscope text/content via Gemini/OpenAI
-    const json = await generatePersonalPost({
-      name: user.name,
-      zodiacSign: zodiac.english,
-      prefs: user.preferences || {
-        tone: "friendly",
-        language: "english",
-        wordCount: 250,
-        categories: ["love", "career", "health"]
-      }
-    });
-
-    // Save in DB
-    const post = await DailyPost.create({
-      userId: user._id,
-      zodiac,
-      ...json,
-      generatedAt: new Date()
-    });
-
-    res.json({ ok: true, post });
-  } catch (err) {
-    console.error("Error in generateNow:", err);
-    res.status(500).json({ error: err.message });
+      // Calculate Nakshatra / Zodiac
+      const zodiac = getRashiFromName(user.name);
+      if (!zodiac) {
+    zodiac = { english: "General", hindi: "सामान्य" }; 
   }
-};
 
-/**
+      // Generate horoscope text/content via Gemini/OpenAI
+      const json = await generatePersonalPost({
+        name: user.name,
+        zodiacSign: zodiac.english,
+        prefs: user.preferences || {
+          tone: "friendly",
+          language: "english",
+          wordCount: 250,
+          categories: ["love", "career", "health"]
+        }
+      });
+
+      // Save in DB
+      const post = await DailyPost.create({
+        userId: user._id,
+        zodiac,
+              summary: json.summary,
+  sections: json.sections,
+  lucky: json.lucky,
+  title: json.title,
+  seo: json.seo,
+  tags: json.tags,
+        generatedAt: new Date()
+      });
+
+      res.json({ ok: true, post });
+    } catch (err) {
+      console.error("Error in generateNow:", err);
+      res.status(500).json({ error: err.message });
+    }
+  };
+
+/*  *
  * Get today's horoscope for the logged-in user
  * If not found, it generates one automatically
  */
