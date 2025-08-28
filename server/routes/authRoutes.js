@@ -1,5 +1,6 @@
 import express from 'express';
-import { forgotPasswordController, loginController, registerController, resetPasswordController, testController, getUserById, updateUserProfile } from '../controllers/authController.js';
+import { forgotPasswordController, loginController, registerController, resetPasswordController, testController,
+   getUserById, updateUserProfile, followUnfollowUser } from '../controllers/authController.js';
 import { isAdmin, requireSignIn } from '../middleware/authMiddleware.js';
 import passport from 'passport';
 
@@ -75,6 +76,9 @@ router.get("/admin-auth", requireSignIn, isAdmin, (req,res) =>{
 
 //Get user by Id
 router.get('/user/:id', requireSignIn, getUserById)
+
+// Private (requires login)
+router.post("/:id/follow", requireSignIn, followUnfollowUser);
 
 //UpdateUser
 router.put("/update-profile/:id", requireSignIn, upload.single("avatar"), updateUserProfile);

@@ -1,5 +1,5 @@
 import {React, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import * as timeago from 'timeago.js';
 import { FaHeart, FaShareAlt, FaFacebook, FaTwitter, FaWhatsapp } from "react-icons/fa";
 
@@ -68,7 +68,17 @@ const BlogCard = ({ post }) => {
         <div className="d-flex justify-content-between align-items-center mt-3">
           {/* <small className="text-muted">#{post.category?.name || "General"}</small> */}
           <small className="text-muted">
-            By <strong>{post.author?.name || "Unknown"}</strong> • {timeago.format(post.createdAt)}
+            By <strong>{post?.author ? (
+    <Link 
+      to={`/profile/${post.author._id}`}
+      className="text-decoration-none text-primary fw-medium mx-1"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {post.author.name}
+    </Link>
+  ) : (
+    <span className="fw-medium mx-1">Unknown</span>
+  )}</strong> • {timeago.format(post.createdAt)}
           </small>
 
                 {/* Like + Share Buttons */}

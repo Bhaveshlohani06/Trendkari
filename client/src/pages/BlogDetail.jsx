@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import Layout from '../Layout/Layout';
 import MiniCard from '../Components/MiniCard';
 import API from '../../utils/api';
@@ -159,7 +159,31 @@ const BlogDetail = () => {
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
             <p className="text-muted">
-              {post.category?.name} • {post?.author?.name || 'Trendkari'} • {timeago.format(post.createdAt)}
+              <div className="post-meta text-muted mb-2">
+  {post.category?.name && (
+    <>
+      <span className="category-badge bg-info text-white px-2 py-1 rounded me-2">
+        {post.category.name}
+      </span>
+      • 
+    </>
+  )}
+  
+  {post?.author ? (
+    <Link 
+      to={`/profile/${post.author._id}`}
+      className="text-decoration-none text-primary fw-medium mx-1"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {post.author.name}
+    </Link>
+  ) : (
+    <span className="fw-medium mx-1">Trendkari</span>
+  )}
+  
+  • 
+  <span className="ms-1">{timeago.format(post.createdAt)}</span>
+</div>  
             </p>
 
             {/* Share Button */}
@@ -217,7 +241,19 @@ const BlogDetail = () => {
                       alt={c.author?.name} 
                       style={{ width: "40px", height: "40px", borderRadius: "50%", marginRight: "8px" }}
                     />
-                    <strong>{c.author?.name || "Anonymous"}:</strong> {c.content}
+
+{c.author ? (
+  <Link 
+    to={`/profile/${c.author._id}`}
+    className="text-decoration-none text-primary fw-medium"
+    onClick={(e) => e.stopPropagation()} // Prevent navigation if inside a clickable container
+  >
+    {c.author.name || "Anonymous"}
+  </Link>
+) : (
+  <span className="fw-medium">Anonymous</span>
+)}
+: {c.content}
                   </li>
                 ))}
               </ul>

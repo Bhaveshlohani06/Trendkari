@@ -63,7 +63,9 @@ const userSchema = new mongoose.Schema(
 
      dob: { type: Date },  // optional, for new users
     zodiacSign: { type: String } // fallback for old users
-        }
+        },
+          followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: "user" }],
     },
     { timestamps: true }
 );

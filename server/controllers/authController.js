@@ -185,7 +185,10 @@ export const resetPasswordController = async (req, res) => {
 //Get user by Id
 export const getUserById = async (req, res) => {
   try {
-    const user = await usermodel.findById(req.params.id).select("-password"); // hide password
+    const user = await usermodel.findById(req.params.id)
+    .select("-password")
+    .populate("followers", "name avatar")
+    .populate("following", "name avatar");  
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -196,6 +199,33 @@ export const getUserById = async (req, res) => {
   }
 };
 
+
+
+export const followUnfollowUser = async (req, res) => {
+  try {
+    const currentUser = await usermodel.findById(req.user._id);
+    const targetUser = await usermodel.findById(req.params.id);
+
+    if (!targetUser) return res.status(404).json({ error: "User not found" });
+
+    if (currentUser.following.includes(targetUser._id)) {
+      // unfollow
+      currentUser.following.pull(targetUser._id);
+      targetUser.followers.pull(currentUser._id);
+    } else {
+      // follow
+      currentUser.following.push(targetUser._id);
+      targetUser.followers.push(currentUser._id);
+    }
+
+    await currentUser.save();
+    await targetUser.save();
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 
 
