@@ -25,7 +25,7 @@ export function startScheduler() {
 
 
 export function startDailyMailJob() {
-cron.schedule("* 7 * * *", async () => {
+cron.schedule("34 18 * * *", async () => {
   console.log("Running at 6 AM");
 
     console.log("⏰ Running Daily Horoscope Mail Job at", new Date().toLocaleString());
@@ -82,6 +82,44 @@ cron.schedule("* 7 * * *", async () => {
       }
     } catch (err) {
       console.error("❌ Error in daily mail job:", err.message);
+    }
+  });
+}
+
+
+// send test email
+export function startEngagementMailJob() {
+  // Runs every day at 9 AM
+  cron.schedule("05 20 * * *", async () => {
+    console.log("⏰ Running Daily Engagement Mail Job at", new Date().toLocaleString());
+
+    try {
+      const users = await User.find();
+      console.log(`👥 Found ${users.length} users to send engagement emails`);
+
+      for (const user of users) {
+        console.log(`🔍 Processing user: ${user.email}`);
+
+
+        // Build frontend link
+        const postLink = `${process.env.FRONTEND_URL}/`;
+        const exploreLink = `${process.env.FRONTEND_URL}/explore`;
+
+        // Build email content
+        const html = `
+          <h2>Hello ${user.name || "Trendkari User"} 👋</h2>
+          <p>We noticed you haven’t posted yet — your first post could inspire many!</p>
+          <p>🌟 <a href="${postLink}">Create your first post now</a></p>
+          <hr/>
+          <p>Also, don’t forget to explore and <a href="${exploreLink}">follow other creators</a> to grow your community.</p>
+          <p>✨ Let’s make Trendkari vibrant together!<br/>— Team Trendkari</p>
+        `;
+
+        await sendEmail(user.email, "🚀 Share your first post...", html);
+console.log(`📩 Engagement mail sent to ${user.email}`);
+      }
+    } catch (err) {
+      console.error("❌ Error in engagement mail job:", err.message);
     }
   });
 }

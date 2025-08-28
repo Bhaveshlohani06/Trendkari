@@ -2,13 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
-import { startScheduler, startDailyMailJob } from "./utils/scheduler.js";
+import { startScheduler, startDailyMailJob, startEngagementMailJob  } from "./utils/scheduler.js";
 import authrouter from './routes/authRoutes.js';
 import categoryroutes from './routes/categoryRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import horoscopeRoutes from './routes/horoscope.js'
 import commentRoutes from "./routes/commentRoutes.js";
 import searchRoutes from './routes/searchRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import passport from 'passport';
 import './config/passport.js'; // import the strategy config
 import session from 'express-session';
@@ -27,6 +28,7 @@ connectDB(); // Connect to MongoDB
 // after mongoose.connect(...)
 startScheduler();
 startDailyMailJob();
+startEngagementMailJob();
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -78,6 +80,7 @@ app.use('/api/v1/post', postRoutes);
 app.use('/api/v1/horoscope', horoscopeRoutes)
 app.use("/api/v1", commentRoutes);
 app.use('/api/v1/search', searchRoutes);
+app.use('/api/v1/user', userRoutes);
 
 
 
