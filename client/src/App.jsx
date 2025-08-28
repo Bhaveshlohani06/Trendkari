@@ -29,6 +29,7 @@ import UserProfile from './pages/ProfilePage'
 import EditPost from './Components/forms/Editpost'
 import DailyHoroscope from './pages/Horoscope';
 import EditProfile from './Components/forms/EditProfile'
+import Search from './pages/Search'
 
 // Your GA Measurement ID
 const TRACKING_ID = "G-CGG172MEXZ";
@@ -83,6 +84,7 @@ const App = () => {
         <Route path='/update-profile/:userId' element={<EditProfile/>} />
 
         <Route path="/horoscope" element={<DailyHoroscope />} />
+         <Route path="/search" element={<Search />} />
 
         {/* Admin Routes (nested under /dashboard/admin) */}
         <Route path="/dashboard/admin" element={<AdminRoute />}>

@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/auth";
+import SearchModal from "../Components/SearchModal";
 import {
   Navbar,
   Container,
@@ -29,6 +30,7 @@ const Header = ({ toggleSidebar }) => {
   const [generating, setGenerating] = useState(false);
   const [posting, setPosting] = useState(false)
   const [categories, setCategories] = useState([]);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   
 
   const contentRef = useRef(null);
@@ -227,7 +229,7 @@ toast.success('Content generated and humanized!');
               variant="outline-light"
               size="sm"
               aria-label="Search"
-              onClick={() => navigate("/search")}
+              onClick={() => setShowSearchModal(true)}
             >
               <FaSearch />
             </Button>
@@ -287,6 +289,12 @@ toast.success('Content generated and humanized!');
           </div>
         </Container>
       </Navbar>
+
+      {/* Search Modal */}
+      <SearchModal 
+        show={showSearchModal} 
+        onHide={() => setShowSearchModal(false)} 
+      />
 
       {/* Post Creation Modal */}
       {showModal && (

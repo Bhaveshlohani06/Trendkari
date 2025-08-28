@@ -86,6 +86,17 @@ const AllBlogs = () => {
                         />
                       </div>
                     )}
+                    {post?.author ? (
+                        <Link 
+                          to={`/profile/${post.author._id}`}
+                          className="text-decoration-none text-primary fw-medium mx-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {post.author.name}
+                        </Link>
+                      ) : (
+                        <span className="fw-medium mx-1">Trendkari</span>
+                      )}
                     <div className="col-md-8">
                       <div className="card-body">
                         <div className="d-flex align-items-center text-muted mb-2">

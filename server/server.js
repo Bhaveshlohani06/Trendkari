@@ -8,6 +8,7 @@ import categoryroutes from './routes/categoryRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import horoscopeRoutes from './routes/horoscope.js'
 import commentRoutes from "./routes/commentRoutes.js";
+import searchRoutes from './routes/searchRoutes.js';
 import passport from 'passport';
 import './config/passport.js'; // import the strategy config
 import session from 'express-session';
@@ -15,15 +16,17 @@ import session from 'express-session';
 
 dotenv.config(); // Load environment variables
 
-// after mongoose.connect(...)
-startScheduler();
-startDailyMailJob();
+
 
 
 
 const app = express();
 
 connectDB(); // Connect to MongoDB
+
+// after mongoose.connect(...)
+startScheduler();
+startDailyMailJob();
 
 const allowedOrigins = [
   'http://localhost:5173',
@@ -46,9 +49,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// app.use(cors({
-//   origin: '*',
-// }));
+
 
 
 
@@ -76,6 +77,9 @@ app.use('/api/v1/category', categoryroutes);
 app.use('/api/v1/post', postRoutes); 
 app.use('/api/v1/horoscope', horoscopeRoutes)
 app.use("/api/v1", commentRoutes);
+app.use('/api/v1/search', searchRoutes);
+
+
 
 app.get("/api/ping", (req, res) => {
   res.json({ message: "Backend working" });

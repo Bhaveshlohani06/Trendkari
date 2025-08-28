@@ -8,7 +8,6 @@ import {
   deletePostController,
   generatePostContent,
   humanizeBlog,
-  searchPostsController,
 getPostsByUser,
 updatePostController
 } from "../controllers/postController.js";
@@ -41,7 +40,6 @@ router.post("/generate",requireSignIn, generatePostContent);
 
 router.post("/humanize",requireSignIn, humanizeBlog);
 
-router.get('/search', searchPostsController);
 
 router.get('/profile/:id', requireSignIn, getPostsByUser)
 

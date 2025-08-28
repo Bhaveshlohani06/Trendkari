@@ -16,6 +16,8 @@ import QuoteCard from '../Components/Quotes';
 import MiniCard from '../Components/MiniCard';
 import Carousel from 'react-bootstrap/Carousel';
 import CategoryCarousel from '../Components/CategoryCarousel';
+import CategoryNavbar from '../Components/CategoryNavbar';
+import CategorySlider from '../Components/CategoryNavbar';
 import API from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth';
@@ -205,6 +207,9 @@ toast.success('Content generated and humanized!');
   
   return (
     <Layout>
+      {/* Category Navbar */}
+      <CategorySlider/>
+
       {/* Hero Section */}
       <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

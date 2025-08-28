@@ -1,179 +1,233 @@
-// src/pages/search.jsx
-import React, { useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
-import API from '../../utils/api'
-const LIMIT = 12;
+// components/Search.jsx
+import { useState, useEffect } from 'react';
+import API  from '../../utils/api.js';
+import { Link } from 'react-router-dom';
+import Layout from '../Layout/Layout.jsx';
 
-export default function SearchPage() {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Parse query params from URL
-  const { q, page } = useMemo(() => {
-    const p = new URLSearchParams(location.search);
-    return {
-      q: (p.get("q") || "").trim(),
-      page: Math.max(1, parseInt(p.get("page") || "1", 10)),
-    };
-  }, [location.search]);
-
-  const [input, setInput] = useState(q);      // input for the search bar
-  const [posts, setPosts] = useState([]);
+const Search = () => {
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Keep input in sync when URL changes (e.g., via pagination)
-  useEffect(() => setInput(q), [q]);
-
-  // Fetch every time the URL changes (q/page)
+  // Autocomplete suggestions
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setErr("");
-      try {
-        const params = new URLSearchParams();
-        if (q) params.set("q", q);            // omit when empty; backend treats it as "no query"
-        params.set("page", String(page));
-        params.set("limit", String(LIMIT));
+    const fetchSuggestions = async () => {
+      if (query.length < 2) {
+        setSuggestions([]);
+        return;
+      }
 
-        const { data } = await API.get(`/search?${params.toString()}`);
-        setPosts(data?.posts || []);
-      } catch (e) {
-        console.error(e);
-        setErr("Something went wrong while fetching results.");
-      } finally {
-        setLoading(false);
+      try {
+        const response = await API.get(`/search/autocomplete?q=${encodeURIComponent(query)}`);
+        setSuggestions(response.data.suggestions);
+      } catch (error) {
+        console.error('Error fetching suggestions:', error);
       }
     };
 
-    fetchData();
-  }, [q, page]);
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [query]);
 
-  // Submit from search bar → navigate with q & reset to page 1
-  const onSubmit = (e) => {
-    e.preventDefault();
-    const params = new URLSearchParams();
-    if (input.trim()) params.set("q", input.trim());
-    params.set("page", "1");
-    navigate(`/search?${params.toString()}`);
+  const handleSearch = async (searchQuery = query, advanced = false) => {
+    if (!searchQuery.trim()) return;
+
+    setLoading(true);
+    try {
+      const endpoint = advanced ? '/search/advanced' : '/search/basic';
+      const response = await API.get(`${endpoint}?query=${encodeURIComponent(searchQuery)}`);
+      setResults(response.data);
+      setShowSuggestions(false);
+    } catch (error) {
+      console.error('Search error:', error);
+      alert('Search failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Pagination
-  const goTo = (newPage) => {
-    const params = new URLSearchParams(location.search);
-    params.set("page", String(newPage));
-    navigate(`/search?${params.toString()}`);
+  const handleSuggestionClick = (suggestion) => {
+    setQuery(suggestion.text);
+    handleSearch(suggestion.text);
   };
-
-  // Close button: go back if possible, else go home
-  const onClose = () => {
-    if (window.history.length > 1) navigate(-1);
-    else navigate("/");
-  };
-
-  const heading = q ? `Search Results for "${q}"` : "Latest Posts";
 
   return (
-    <div className="container py-4">
-      {/* Header row: title + close */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="m-0">{heading}</h2>
-        <button className="btn btn-outline-secondary" onClick={onClose}>
-          ✕ Close
-        </button>
-      </div>
 
-      {/* Search bar */}
-      <form onSubmit={onSubmit} className="mb-4">
-        <div className="input-group">
-          <input
-            type="search"
-            className="form-control"
-            placeholder="Search posts…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-          />
-          <button className="btn btn-primary" type="submit">
-            Search
-          </button>
-          {q && (
+    <Layout>
+    <div className="container py-4">
+      {/* Search Input */}
+      <div className="row justify-content-center">
+        <div className="col-md-8 position-relative">
+          <div className="input-group mb-3">
+            <input
+              type="text"
+              className="form-control form-control-lg"
+              placeholder="Search for posts, users, categories..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => setShowSuggestions(true)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+            />
             <button
+              className="btn btn-primary"
               type="button"
-              className="btn btn-outline-secondary"
-              onClick={() => navigate("/search?page=1")}
-              title="Clear search"
+              onClick={() => handleSearch()}
+              disabled={loading}
             >
-              Clear
+              {loading ? 'Searching...' : 'Search'}
             </button>
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              onClick={() => handleSearch(query, true)}
+              disabled={loading}
+              title="AI-Powered Search"
+            >
+              <i className="fas fa-robot"></i> AI Search
+            </button>
+          </div>
+
+          {/* Suggestions Dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="list-group position-absolute w-100" style={{ zIndex: 1000, top: '100%' }}>
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className="list-group-item list-group-item-action"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  <span className={`badge bg-${suggestion.type === 'post' ? 'info' : suggestion.type === 'user' ? 'success' : 'warning'} me-2`}>
+                    {suggestion.type}
+                  </span>
+                  {suggestion.text}
+                </button>
+              ))}
+            </div>
           )}
         </div>
-      </form>
+      </div>
 
-      {/* Status */}
-      {loading && <p>Loading…</p>}
-      {err && <div className="alert alert-danger">{err}</div>}
-      {!loading && !err && posts.length === 0 && (
-        <p>{q ? `No results found for "${q}".` : "No posts yet."}</p>
-      )}
-
-      {/* Results */}
-      <div className="row">
-        {posts.map((post) => (
-          <div key={post._id} className="col-md-4 mb-3">
-            <div className="card h-100">
-              {post.thumbnail && (
-                <img
-                  src={post.thumbnail}
-                  className="card-img-top"
-                  alt={post.title}
-                  style={{ height: 200, objectFit: "cover" }}
-                />
-              )}
-              <div className="card-body d-flex flex-column">
-                <h5 className="card-title">
-                  <Link to={`/post/${post._id}`} className="text-decoration-none">
-                    {post.title}
-                  </Link>
-                </h5>
-                <p className="text-muted mb-2">
-                  {post.author?.name || post.author?.username || "Unknown"} •{" "}
-                  {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ""}
-                </p>
-                <p className="card-text">
-                  {post.excerpt || (post.content ? post.content.slice(0, 120) + "…" : "")}
-                </p>
-                <div className="mt-auto">
-                  {post.category && (
-                    <span className="badge bg-light text-dark">{post.category}</span>
+      {/* Search Results */}
+      {results && (
+        <div className="row mt-4">
+          <div className="col-12">
+            {/* AI Analysis Section */}
+            {results.aiAnalysis && (
+              <div className="card mb-4 border-primary">
+                <div className="card-header bg-primary text-white">
+                  <i className="fas fa-robot me-2"></i> AI Insights
+                </div>
+                <div className="card-body">
+                  <h6>Summary:</h6>
+                  <p>{results.aiAnalysis.summary}</p>
+                  
+                  <h6>Search Intent:</h6>
+                  <p>{results.aiAnalysis.searchIntent}</p>
+                  
+                  <h6>Related Searches:</h6>
+                  <div className="d-flex flex-wrap gap-2">
+                    {results.aiAnalysis.relatedSearches.map((search, index) => (
+                      <button
+                        key={index}
+                        className="btn btn-outline-primary btn-sm"
+                        onClick={() => {
+                          setQuery(search);
+                          handleSearch(search, true);
+                        }}
+                      >
+                        {search}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {results.aiAnalysis.insights && (
+                    <>
+                      <h6 className="mt-3">Additional Insights:</h6>
+                      <p>{results.aiAnalysis.insights}</p>
+                    </>
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            )}
 
-      {/* Pagination */}
-      {!loading && posts.length > 0 && (
-        <div className="d-flex justify-content-between align-items-center mt-4">
-          <button
-            className="btn btn-outline-primary"
-            disabled={page <= 1}
-            onClick={() => goTo(page - 1)}
-          >
-            Previous
-          </button>
-          <span>Page {page}</span>
-          <button
-            className="btn btn-outline-primary"
-            // Disable "Next" only when results are fewer than the page size
-            disabled={posts.length < LIMIT}
-            onClick={() => goTo(page + 1)}
-          >
-            Next
-          </button>
+            {/* Posts Results */}
+            {results.results.posts.length > 0 && (
+              <div className="mb-4">
+                <h4 className="border-bottom pb-2">Posts</h4>
+                <div className="row">
+                  {results.results.posts.map(post => (
+                    <div key={post._id} className="col-md-6 mb-3">
+                      <div className="card h-100">
+                        <img src={post.image} className="card-img-top" alt={post.title} style={{ height: '200px', objectFit: 'cover' }} />
+                        <div className="card-body">
+                          <h5 className="card-title">{post.title}</h5>
+                          <p className="card-text">{post.content.substring(0, 100)}...</p>
+                          <Link to={`/blog/${post.slug}`} className="btn btn-primary btn-sm">Read More</Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Users Results */}
+            {results.results.users.length > 0 && (
+              <div className="mb-4">
+                <h4 className="border-bottom pb-2">Users</h4>
+                <div className="row">
+                  {results.results.users.map(user => (
+                    <div key={user._id} className="col-md-4 mb-3">
+                      <div className="card text-center">
+                        <img src={user.avatar} className="card-img-top rounded-circle w-50 mx-auto mt-3" alt={user.name} style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
+                        <div className="card-body">
+                          <h5 className="card-title">{user.name}</h5>
+                          <p className="card-text">{user.bio?.substring(0, 80)}...</p>
+                          <Link to={`/profile/${user._id}`} className="btn btn-outline-primary btn-sm">View Profile</Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Categories Results */}
+            {results.results.categories.length > 0 && (
+              <div className="mb-4">
+                <h4 className="border-bottom pb-2">Categories</h4>
+                <div className="d-flex flex-wrap gap-2">
+                  {results.results.categories.map(category => (
+                    <Link
+                      key={category._id}
+                      to={`/category/${category.slug || category._id}`}
+                      className="btn btn-outline-info"
+                    >
+                      {category.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* No Results Message */}
+            {results.results.posts.length === 0 && 
+             results.results.users.length === 0 && 
+             results.results.categories.length === 0 && (
+              <div className="text-center py-5">
+                <h4>No results found for "{query}"</h4>
+                <p className="text-muted">Try different keywords or try our AI-powered search</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
+    </Layout>
   );
-}
+};
+
+export default Search;

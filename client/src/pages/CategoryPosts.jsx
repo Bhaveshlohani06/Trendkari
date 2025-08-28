@@ -84,12 +84,20 @@ const CategoryPosts = () => {
                             {post.content.slice(0, 120)}...
                           </p> */}
                           <div className="d-flex align-items-center mt-2">
-                            {/* <small className="text-muted">
+                            <small className="text-muted">
                               {new Date(post.createdAt).toLocaleDateString()}
-                            </small> */}
-                            <small className="text-muted ms-2">
-                              {post?.author?.name || 'Admin'}
                             </small>
+                              <span className="mx-1">•</span>
+                      {post?.author ? (
+                        <Link
+                          to={`/profile/${post.author._id}`}
+                          className="text-decoration-none text-primary fw-medium"
+                        >
+                          {post.author.name}
+                        </Link>
+                      ) : (
+                        <span className="fw-medium">Trendkari</span>
+                      )}
                           </div>
                         </div>
                       </div>
