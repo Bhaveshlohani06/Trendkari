@@ -13,9 +13,8 @@ import CategoryCarousel from '../Components/CategoryCarousel';
 import CategoryNavbar from '../Components/CategoryNavbar';
 import CategorySlider from '../Components/CategoryNavbar';
 import API from '../../utils/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/auth';
-import { Link } from 'react-router-dom';
 import AdBanner from '../Components/AdBanner';
 
 const { Option } = Select;
@@ -30,6 +29,9 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
+    const [isFollowing, setIsFollowing] = useState(false);
+    const [followersCount, setFollowersCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
 
   // Get all posts
   const getAllPosts = async (pageNum = 1, limit = 20) => {
@@ -91,19 +93,24 @@ const getUsersToFollow = async () => {
 // Use your existing follow function
 const handleFollow = async (userId) => {
   try {
-    const { data } = await API.post(`/auth/${userId}/follow`);
-    if (data?.success) {
-      toast.success(data.message);
-      // Update UI to reflect the follow status
-      setUsersToFollow(prev => prev.map(user => 
-        user._id === userId ? { ...user, isFollowing: data.isFollowing } : user
-      ));
-    }
-  } catch (error) {
-    console.log(error);
-    toast.error('Error following user');
-  }
-};
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('You must be logged in to follow users');
+      return;
+    } 
+
+    const { data } = await API.post(`/auth/${userId}/follow`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+     setIsFollowing(data.following);
+          setFollowersCount(prev => data.following ? prev + 1 : prev - 1);
+          toast.success(data.following ? "Followed successfully!" : "Unfollowed successfully!");
+        } catch (error) {
+          toast.error("Failed to update follow status");
+          console.error(error);
+        }
+      };
 
 
   // Infinite scroll setup
@@ -300,17 +307,20 @@ const handleFollow = async (userId) => {
             </div>
           ) : (
             <div className="d-flex overflow-auto pb-3">
-              {usersToFollow.slice(0, 8).map((user) => (
+              {usersToFollow.slice(0, 15).map((user) => (
                 <div key={user._id} className="mx-2 text-center">
-                  <img
-                    src={user.avatar || '/default-avatar.png'}
-                    alt={user.name}
-                    className="rounded-circle border"
-                    style={{ width: '64px', height: '64px', objectFit: 'cover' }}
-                  />
-                  <p className="small fw-medium mt-2 mb-1">{user.name}</p>
-                  <button className="btn btn-outline-primary btn-sm">Follow</button>
-                </div>
+  <Link to={`/profile/${user._id}`} style={{ textDecoration: "none", color: "inherit" }}>
+    <img
+      src={user.avatar || "/default-avatar.png"}
+      alt={user.name}
+      className="rounded-circle border"
+      style={{ width: "64px", height: "64px", objectFit: "cover", cursor: "pointer" }}
+    />
+    <p className="small fw-medium mt-2 mb-1">{user.name}</p>
+  </Link>
+
+  <button className="btn btn-outline-primary btn-sm" onClick={ () => handleFollow() }>Follow</button>
+</div>
               ))}
             </div>
           )}
