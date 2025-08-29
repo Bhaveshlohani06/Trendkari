@@ -16,6 +16,7 @@ import API from '../../utils/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/auth';
 import { Link } from 'react-router-dom';
+import AdBanner from '../Components/AdBanner';
 
 const { Option } = Select;
 
@@ -50,6 +51,7 @@ const Home = () => {
       setLoading(false);
     }
   };
+
 
   // Load categories
   const getAllCategories = async () => {
@@ -153,7 +155,7 @@ const handleFollow = async (userId) => {
     <div className="card p-3 mini-card mb-3">
       <div className="d-flex gap-3">
         <Skeleton.Avatar active size={80} shape="square" />
-        <div className="w-100">
+        <div className="w-auto flex-grow-1">
           <Skeleton paragraph={{ rows: 2 }} active />
           <div className="d-flex justify-content-between">
             <Skeleton.Button active size="small" />
@@ -177,10 +179,16 @@ const handleFollow = async (userId) => {
     </div>
   );
 
+
   return (
     <Layout>
       {/* Category Navbar */}
       <CategorySlider />
+
+      {/* Ad Banner */}
+      <div className="my-4">
+        <AdBanner />
+      </div>
 
       {/* Hero Section with Skeleton */}
       <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4 sm:px-6 lg:px-8">
@@ -383,6 +391,12 @@ const handleFollow = async (userId) => {
           </div>
         </div>
       </section>
+
+           
+            <div className="my-4">
+        <AdBanner />
+      </div>
+
 
       {/* CTA Section */}
       <section className="py-5" style={{ backgroundColor: "#f8f9fa" }}>

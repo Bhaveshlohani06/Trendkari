@@ -6,6 +6,8 @@ import API from '../../utils/api';
 import * as timeago from 'timeago.js';
 import { useAuth } from '../context/auth';
 import { FaHeart, FaShareAlt } from "react-icons/fa";
+import { Helmet } from 'react-helmet';
+import AdBanner from '../Components/AdBanner';
 
 const BlogDetail = () => {
   const { slug } = useParams();
@@ -158,6 +160,8 @@ const BlogDetail = () => {
         <div className="row">
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
+
+            <AdBanner/>
             <p className="text-muted">
               <div className="post-meta text-muted mb-2">
   {post.category?.name && (

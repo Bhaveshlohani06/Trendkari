@@ -23,71 +23,73 @@ export function startScheduler() {
 }
 
 
+// send daily horoscope email at 6 AM every day
 
-export function startDailyMailJob() {
-cron.schedule("34 18 * * *", async () => {
-  console.log("Running at 6 AM");
+// export function startDailyMailJob() {
+// cron.schedule("50 6 * * *", async () => {
+//   console.log("Running at 6 AM");
 
-    console.log("⏰ Running Daily Horoscope Mail Job at", new Date().toLocaleString());
+//     console.log("⏰ Running Daily Horoscope Mail Job at", new Date().toLocaleString());
 
-    try {
-      const users = await User.find();
-      console.log(`👥 Found ${users.length} users to process`);
+//     try {
+//       const users = await User.find();
+//       console.log(`👥 Found ${users.length} users to process`);
 
-      for (const user of users) {
-        console.log(`🔍 Processing user: ${user.email}`);
+//       for (const user of users) {
+//         console.log(`🔍 Processing user: ${user.email}`);
 
-        // Step 1: Find today’s horoscope
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+//         // Step 1: Find today’s horoscope
+//         const today = new Date();
+//         today.setHours(0, 0, 0, 0);
 
-        let horoscope = await Horoscope.findOne({
-          userId: user._id,
-          generatedAt: { $gte: today },
-        });
+//         let horoscope = await Horoscope.findOne({
+//           userId: user._id,
+//           generatedAt: { $gte: today },
+//         });
 
-        // Build link regardless of horoscope existing
-        const link = `${process.env.FRONTEND_URL}/horoscope`;
+//         // Build link regardless of horoscope existing
+//         const link = `${process.env.FRONTEND_URL}/horoscope`;
 
-        let snippet, html;
+//         let snippet, html;
 
-        if (horoscope) {
-          // ✅ If horoscope exists → show snippet
-          snippet = horoscope.summary?.english || horoscope.title || "Your horoscope is ready!";
-          html = `
-            <h2>Good Morning, ${user.name || "Friend"} 🌞</h2>
-            <p>Here’s your <a href="${link}">horoscope for today</a>.</p>
-            <blockquote>${snippet.substring(0, 150)}...</blockquote>
-            <p>✨ Wishing you a wonderful day ahead!<br/>— Team Trendkari</p>
-          `;
-          console.log(`✅ Found horoscope for ${user.email}, sending with snippet.`);
-        } else {
-          // ⚠️ No horoscope → just send link (user clicks → generated automatically)
-          html = `
-            <h2>Good Morning, ${user.name || "Friend"} 🌞</h2>
-            <p>Your horoscope will be ready when you check it! Click here 👉 <a href="${link}">View Horoscope</a></p>
-            <p>✨ Wishing you a wonderful day ahead!<br/>— Team Trendkari</p>
-          `;
-          console.log(`⚠️ No horoscope found for ${user.email}, sending link only.`);
-        }
+//         if (horoscope) {
+//           // ✅ If horoscope exists → show snippet
+//           snippet = horoscope.summary?.english || horoscope.title || "Your horoscope is ready!";
+//           html = `
+//             <h2>Good Morning, ${user.name || "Friend"} 🌞</h2>
+//             <p>Here’s your <a href="${link}">horoscope for today</a>.</p>
+//             <blockquote>${snippet.substring(0, 150)}...</blockquote>
+//             <p>✨ Wishing you a wonderful day ahead!<br/>— Team Trendkari</p>
+//           `;
+//           console.log(`✅ Found horoscope for ${user.email}, sending with snippet.`);
+//         } else {
+//           // ⚠️ No horoscope → just send link (user clicks → generated automatically)
+//           html = `
+//             <h2>Good Morning, ${user.name || "Friend"} 🌞</h2>
+//             <p>Your horoscope will be ready when you check it! Click here 👉 <a href="${link}">View Horoscope</a></p>
+//             <p>✨ Wishing you a wonderful day ahead!<br/>— Team Trendkari</p>
+//           `;
+//           console.log(`⚠️ No horoscope found for ${user.email}, sending link only.`);
+//         }
 
-        // Step 3: Send email
-        await sendEmail(
-          user.email,
-          "Your Daily Horoscope ✨",
-          html
-        );
+//         // Step 3: Send email
+//         await sendEmail(
+//           user.email,
+//           "Your Daily Horoscope ✨",
+//           html
+//         );
 
-        console.log(`📩 Sent daily horoscope mail to ${user.email}`);
-      }
-    } catch (err) {
-      console.error("❌ Error in daily mail job:", err.message);
-    }
-  });
-}
+//         console.log(`📩 Sent daily horoscope mail to ${user.email}`);
+//       }
+//     } catch (err) {
+//       console.error("❌ Error in daily mail job:", err.message);
+//     }
+//   });
+// }
 
 
 // send test email
+
 export function startEngagementMailJob() {
   // Runs every day at 9 AM
   cron.schedule("05 20 * * *", async () => {
@@ -120,6 +122,47 @@ console.log(`📩 Engagement mail sent to ${user.email}`);
       }
     } catch (err) {
       console.error("❌ Error in engagement mail job:", err.message);
+    }
+  });
+}
+
+
+//testing
+export function startDailyMailJob() {
+  cron.schedule("23 9 * * *", async () => {
+    console.log("Running at 6 AM");
+    console.log("⏰ Running Post Request Mail Job at", new Date().toLocaleString());
+
+    try {
+      const users = await User.find();
+      console.log(`👥 Found ${users.length} users to process`);
+
+      for (const user of users) {
+        console.log(`🔍 Processing user: ${user.email}`);
+
+        const link = `${process.env.FRONTEND_URL}/`;
+
+        const html = `
+          <h2>Hello ${user.name || "Trendkari User"} 👋</h2>
+          <p>We noticed you haven’t posted yet — your first post could inspire many!</p>
+          <p>🌟 <a href="${link}">Create your first post now</a></p>
+          <hr/>
+          <p>✨ Let’s make Trendkari vibrant together!<br/>— Team Trendkari</p>
+        `;
+
+        // ✅ Now inside the loop
+        await sendEmail(
+          user.email,
+          "🚀 Share your first post...",
+          html,
+            `Hi ${user.name}, start your first post here: ${link}`
+
+        );
+
+        console.log(`📩 Sent daily post mail to ${user.email}`);
+      }
+    } catch (err) {
+      console.error("❌ Error in daily mail job:", err.message);
     }
   });
 }
