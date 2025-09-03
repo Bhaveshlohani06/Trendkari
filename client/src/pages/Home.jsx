@@ -309,18 +309,18 @@ const handleFollow = async (userId) => {
             <div className="d-flex overflow-auto pb-3">
               {usersToFollow.slice(0, 15).map((user) => (
                 <div key={user._id} className="mx-2 text-center">
-  <Link to={`/profile/${user._id}`} style={{ textDecoration: "none", color: "inherit" }}>
-    <img
-      src={user.avatar || "/default-avatar.png"}
-      alt={user.name}
-      className="rounded-circle border"
-      style={{ width: "64px", height: "64px", objectFit: "cover", cursor: "pointer" }}
-    />
-    <p className="small fw-medium mt-2 mb-1">{user.name}</p>
-  </Link>
+                  <Link to={`/profile/${user._id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <img
+                      src={user.avatar || "/default-avatar.png"}
+                      alt={user.name}
+                      className="rounded-circle border"
+                      style={{ width: "64px", height: "64px", objectFit: "cover", cursor: "pointer" }}
+                    />
+                    <p className="small fw-medium mt-2 mb-1">{user.name}</p>
+                  </Link>
 
-  <button className="btn btn-outline-primary btn-sm" onClick={ () => handleFollow() }>Follow</button>
-</div>
+                  <button className="btn btn-outline-primary btn-sm" onClick={() => handleFollow()}>Follow</button>
+                </div>
               ))}
             </div>
           )}
