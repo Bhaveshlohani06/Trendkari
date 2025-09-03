@@ -39,6 +39,10 @@ router.get(
   async (req, res) => {
     try {
       const user = req.user;
+      if(!user){
+          console.error("Google callback: req.user is undefined");
+        return res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_failed`);
+      }
 
       // Generate JWT
       const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
