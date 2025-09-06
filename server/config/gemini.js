@@ -34,13 +34,20 @@ export async function generatePersonalPost({ name, prefs, zodiacSign, extraConte
     const todayDate = getTodayDate();
 
   const prompt = `
-You are an expert astrologer.
-Generate today's personalized shoking prediction horoscope with current day and date for ${name} (Zodiac: ${zodiacSign}).
+You are an expert astrologer with deep knowledge of Vedic + Western astrology, numerology, and planetary transits.
+Your task is to generate today's **unique, personalized, and surprising horoscope** for ${name} (Zodiac: ${zodiacSign}).
 
-👉 IMPORTANT: The date must be strictly "${todayDate}". 
-Do NOT generate any other date.
+👉 STRICT DATE: Use "${todayDate}" as today's date. Do NOT use any other date.
 
-Output STRICT valid JSON with this shape:
+⚡ CONTENT RULES:
+- Horoscope must feel NEW and DIFFERENT every day (avoid repetition).
+- Incorporate **planetary influences, moon phases, lucky alignments, warnings, and hidden opportunities** for today.
+- Provide **1 shocking/unexpected insight** about love, career, health, or money.
+- Keep tone mystical, yet practical, giving actionable advice.
+- Avoid generic filler like "you will feel happy" — instead, give **specific scenarios**.
+- Each section should vary in depth, not copy-paste.
+
+📑 OUTPUT FORMAT (STRICT JSON ONLY):
 
 {
   "title": string,
