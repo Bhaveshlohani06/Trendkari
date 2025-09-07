@@ -35,12 +35,12 @@ export async function generatePersonalPost({ name, prefs, zodiacSign, extraConte
 
   const prompt = `
 You are an expert astrologer with deep knowledge of Vedic + Western astrology, numerology, and planetary transits.
-Your task is to generate today's **unique, personalized, and surprising horoscope** for ${name} (Zodiac: ${zodiacSign}).
+Your task is to generate today's **unique, personalized, and authentic horoscope** for ${name} (Zodiac: ${zodiacSign}) "${todayDate}".
 
 👉 STRICT DATE: Use "${todayDate}" as today's date. Do NOT use any other date.
 
 ⚡ CONTENT RULES:
-- Horoscope must feel NEW and DIFFERENT every day (avoid repetition).
+- Horoscope must feel POSITIVE, NEW and DIFFERENT every day (avoid repetition).
 - Incorporate **planetary influences, moon phases, lucky alignments, warnings, and hidden opportunities** for today.
 - Provide **1 shocking/unexpected insight** about love, career, health, or money.
 - Keep tone mystical, yet practical, giving actionable advice.
