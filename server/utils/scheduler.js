@@ -26,7 +26,7 @@ export function startScheduler() {
 // send daily horoscope email at 6 AM every day
 
 export function startDailyMailJob() {
-cron.schedule("02 10 * * *", async () => {
+cron.schedule("10 9 * * *", async () => {
   console.log("Running at 6 AM");
 
     console.log("⏰ Running Daily Horoscope Mail Job at", new Date().toLocaleString());
