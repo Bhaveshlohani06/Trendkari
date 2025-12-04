@@ -26,7 +26,7 @@ async (accessToken, refreshToken, profile, done) => {
 
         if (!user) {
             // If user doesn't exist, create a new one
-            user = new User({
+            neweuser = new User({
                 googleId: profile.id,
                 name: profile.displayName,
                 email: profile.emails[0].value,
@@ -35,7 +35,7 @@ async (accessToken, refreshToken, profile, done) => {
 
             });
 
-            await user.save();
+            await newuser.save();
 
             //welcome message
             const subject = '🎉 Welcome to Trendkari!';
@@ -54,7 +54,7 @@ async (accessToken, refreshToken, profile, done) => {
              
         }
 
-        return done(null, user); // Log in user
+        return done(null, user, newuser); // Log in user
     } catch (err) {
         return done(err, null);
     }

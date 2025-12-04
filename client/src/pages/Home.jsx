@@ -236,7 +236,7 @@ const handleFollow = async (userId) => {
 
               {loading ? (
                 <div className="d-flex flex-column gap-3">
-                  {[...Array(6)].map((_, i) => (
+                  {[...Array(10)].map((_, i) => (
                     <MiniCardSkeleton key={i} />
                   ))}
                 </div>
@@ -245,7 +245,7 @@ const handleFollow = async (userId) => {
               ) : (
                 <div className="d-flex flex-column gap-3">
                   {shuffleArray(blogs.filter((post) => post.isFeatured))
-                    .slice(0, 6)
+                    .slice(0, 10)
                     .map((post) => (
                       <MiniCard key={post._id} post={post} />
                     ))}
@@ -265,7 +265,7 @@ const handleFollow = async (userId) => {
 
               {loading ? (
                 <div className="row g-4">
-                  {[...Array(4)].map((_, i) => (
+                  {[...Array(6)].map((_, i) => (
                     <div className="col-md-6" key={i}>
                       <BlogCardSkeleton />
                     </div>
@@ -273,7 +273,7 @@ const handleFollow = async (userId) => {
                 </div>
               ) : (
                 <div className="row g-4">
-                  {shuffleArray(blogs).slice(0, 4).map((post) => (
+                  {shuffleArray(blogs).slice(0, 6).map((post) => (
                     <div className="col-md-6" key={post._id}>
                       <BlogCard post={post} />
                     </div>
@@ -355,15 +355,15 @@ const handleFollow = async (userId) => {
 
               {loading ? (
                 <div className="d-flex flex-column gap-3">
-                  {[...Array(6)].map((_, i) => (
+                  {[...Array(18)].map((_, i) => (
                     <MiniCardSkeleton key={i} />
                   ))}
                 </div>
-              ) : getRandomPosts('startup-news', 6).length === 0 ? (
+              ) : getRandomPosts('startup-news', 18).length === 0 ? (
                 <p className="text-muted">No startup posts found</p>
               ) : (
                 <div className="d-flex flex-column gap-3">
-                  {getRandomPosts('startup-news', 6).map((post) => (
+                  {getRandomPosts('startup-news', 18).map((post) => (
                     <MiniCard key={post._id} post={post} />
                   ))}
                 </div>
@@ -382,7 +382,7 @@ const handleFollow = async (userId) => {
 
               {loading ? (
                 <div className="row g-4">
-                  {[...Array(4)].map((_, i) => (
+                  {[...Array(10)].map((_, i) => (
                     <div className="col-md-6" key={i}>
                       <BlogCardSkeleton />
                     </div>
@@ -390,7 +390,7 @@ const handleFollow = async (userId) => {
                 </div>
               ) : (
                 <div className="row g-4">
-                  {getRandomPosts('politics', 4).map((post) => (
+                  {getRandomPosts('politics', 10).map((post) => (
                     <div className="col-md-6" key={post._id}>
                       <BlogCard post={post} />
                     </div>
@@ -461,15 +461,15 @@ const handleFollow = async (userId) => {
 
               {loading ? (
                 <div className="d-flex flex-column gap-3">
-                  {[...Array(6)].map((_, i) => (
+                  {[...Array(10)].map((_, i) => (
                     <MiniCardSkeleton key={i} />
                   ))}
                 </div>
-              ) : getRandomPosts('tech', 6).length === 0 ? (
+              ) : getRandomPosts('tech', 10).length === 0 ? (
                 <p className="text-muted">No tech posts found</p>
               ) : (
                 <div className="d-flex flex-column gap-3">
-                  {getRandomPosts('tech', 6).map((post) => (
+                  {getRandomPosts('tech', 10).map((post) => (
                     <MiniCard key={post._id} post={post} />
                   ))}
                 </div>
@@ -488,7 +488,7 @@ const handleFollow = async (userId) => {
 
               {loading ? (
                 <div className="row g-4">
-                  {[...Array(4)].map((_, i) => (
+                  {[...Array(10)].map((_, i) => (
                     <div className="col-md-6" key={i}>
                       <BlogCardSkeleton />
                     </div>
@@ -496,7 +496,7 @@ const handleFollow = async (userId) => {
                 </div>
               ) : (
                 <div className="row g-4">
-                  {getRandomPosts('fashion', 4).map((post) => (
+                  {getRandomPosts('fashion', 10).map((post) => (
                     <div className="col-md-6" key={post._id}>
                       <BlogCard post={post} />
                     </div>

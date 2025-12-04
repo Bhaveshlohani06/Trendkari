@@ -4,8 +4,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 dotenv.config();
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); // or gemini-pro
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
 
+//const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
 
 // Get today's date in a nice format
 function getTodayDate() {
@@ -21,7 +23,9 @@ async function main(prompt) {
   try {
     const result = await model.generateContent(prompt);
 
-    const text = result.response.candidates[0].content.parts[0].text;
+    // const text = result.response.candidates[0].content.parts[0].text;
+       const text = await result.response.text();
+
     console.log("Generated content:", text);
     return text || "";
   } catch (err) {

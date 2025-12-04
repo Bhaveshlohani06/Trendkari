@@ -30,6 +30,7 @@ import EditPost from './Components/forms/Editpost'
 import DailyHoroscope from './pages/Horoscope';
 import EditProfile from './Components/forms/EditProfile'
 import Search from './pages/Search'
+import WeatherPage from './pages/Weather';
 
 // Your GA Measurement ID
 const TRACKING_ID = "G-CGG172MEXZ";
@@ -82,6 +83,8 @@ const App = () => {
         <Route path="/edit-post/:slug" element={<EditPost />} />
         <Route path="/dashboard" element={<DashboardRedirect />} />
         <Route path='/update-profile/:userId' element={<EditProfile/>} />
+
+        <Route path="/weather" element={<WeatherPage />} />
 
         <Route path="/horoscope" element={<DailyHoroscope />} />
          <Route path="/search" element={<Search />} />

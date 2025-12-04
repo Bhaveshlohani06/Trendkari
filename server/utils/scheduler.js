@@ -25,8 +25,9 @@ export function startScheduler() {
 
 // send daily horoscope email at 6 AM every day
 
+
 export function startDailyMailJob() {
-cron.schedule("10 9 * * *", async () => {
+cron.schedule("14 10 * * *", async () => {
   console.log("Running at 6 AM");
 
     console.log("⏰ Running Daily Horoscope Mail Job at", new Date().toLocaleString());
@@ -56,7 +57,7 @@ cron.schedule("10 9 * * *", async () => {
           // ✅ If horoscope exists → show snippet
           snippet = horoscope.summary?.english || horoscope.title || "Your horoscope is ready!";
           html = `
-            <h2>Good Morning, ${user.name || "Friend"} 🌞</h2>
+            <h2>Hey, ${user.name || "Friend"} 🌞</h2>
             <p>Here’s your <a href="${link}">horoscope for today</a>.</p>
             <blockquote>${snippet.substring(0, 150)}...</blockquote>
             <p>Share your Thoughts with The World  </p>
@@ -93,7 +94,7 @@ cron.schedule("10 9 * * *", async () => {
 
 export function startEngagementMailJob() {
   // Runs every day at 9 AM
-  cron.schedule("15 23 * * *", async () => {
+  cron.schedule("23 17 * * *", async () => {
     console.log("⏰ Running Daily Engagement Mail Job at", new Date().toLocaleString());
 
     try {
@@ -105,19 +106,23 @@ export function startEngagementMailJob() {
 
 
         // Build frontend link
-        const postLink = `${process.env.FRONTEND_URL}/`;
+        const postLink = `${process.env.FRONTEND_URL}/blog/where-is-india-under-narendra-modi-leadership-review-on-his-75-birthday`;
         const exploreLink = `${process.env.FRONTEND_URL}/explore`;
+        const creatorLink = `${process.env.FRONTEND_URL}/profile/6891fa2bfc54de57543d7773`;
 
         // Build email content
-        const html = `
-          <h2>Hello ${user.name || "Trendkari User"} 👋</h2>
-          <p>Share your thought with the world with Trendkari</p>
-          <p>🌟 <a href="${postLink}">Create your first post now</a></p>
-          <hr/>
-          <p>✨ Let’s make Trendkari vibrant together!<br/>— Team Trendkari</p>
-        `;
+       const html = `
+ <p>✍️ आज ही <a href="https://trendkari.in">Trendkari</a> पर अपना पहला लेख लिखें  
+या <a href="${creatorLink}">हमारे क्रिएटर को फॉलो करें</a> और उनकी सोच से जुड़ें।</p>
 
-        await sendEmail(user.email, "🚀 Share your first Thought...", html);
+<hr/>
+
+<p>✨ आइए मिलकर Trendkari को सार्थक विचारों और चर्चाओं का मंच बनाएं।<br/>
+— टीम Trendkari</p>
+`;
+
+
+        await sendEmail(user.email, "Trendkari पर पढ़ें और लिखें", html);
 console.log(`📩 Engagement mail sent to ${user.email}`);
       }
     } catch (err) {

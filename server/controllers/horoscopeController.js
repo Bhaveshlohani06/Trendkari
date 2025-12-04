@@ -38,7 +38,7 @@ import { getRashiFromName } from "../utils/zodiacsign.js";
       const post = await DailyPost.create({
         userId: user._id,
         zodiac,
-              summary: json.summary,
+  summary: json.summary,
   sections: json.sections,
   lucky: json.lucky,
   title: json.title,

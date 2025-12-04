@@ -10,6 +10,7 @@ import horoscopeRoutes from './routes/horoscope.js'
 import commentRoutes from "./routes/commentRoutes.js";
 import searchRoutes from './routes/searchRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import weatherRoutes from './routes/weatherRoutes.js';
 import passport from 'passport';
 import './config/passport.js'; // import the strategy config
 import session from 'express-session';
@@ -81,6 +82,7 @@ app.use('/api/v1/horoscope', horoscopeRoutes)
 app.use("/api/v1", commentRoutes);
 app.use('/api/v1/search', searchRoutes);
 app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/weather', weatherRoutes);
 
 
 
