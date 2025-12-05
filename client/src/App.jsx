@@ -7,6 +7,8 @@ import Home from './pages/Home'
 import Blog from './pages/Blog'
 import Register from './pages/auth/Register'
 import Login from './pages/auth/Login'
+import PhoneLogin from './pages/auth/PhoneLogin'
+
 import AuthSuccess from './pages/AuthSuccess'
 import ForgotPassword from './pages/auth/ForgotPassword'
 import ResetPassword from './pages/auth/ResetPassword'
@@ -69,6 +71,9 @@ const App = () => {
         <Route path='/blog' element={<Blog />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
+    <Route path="/phone-login" element={<PhoneLogin />} />
+
+
         <Route path='/auth-success' element={<AuthSuccess />} />
         <Route path='/forgotpassword' element={<ForgotPassword />} />
         <Route path='/reset-password/:token' element={<ResetPassword />} />
