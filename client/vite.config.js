@@ -11,9 +11,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'City Weather App',
-        short_name: 'Weather',
-        description: 'Real-time multi-city weather updates',
+        name: 'Trendkari - Multi-Dimensional Trend Analysis',
+        short_name: 'Trendkari',
+        description: 'Trendkari - Multi-Dimensional Trend Analysis',
         theme_color: '#0ea5e9',
         background_color: '#ffffff',
         display: 'standalone',
