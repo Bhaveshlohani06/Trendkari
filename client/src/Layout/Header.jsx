@@ -235,7 +235,7 @@ toast.success('Content generated and humanized!');
             </Button>
 
             {/* Writing Icon */}
-            {auth?.user && (
+            {/* {auth?.user && (
               <Button
                 variant="outline-light"
                 size="sm"
@@ -244,7 +244,7 @@ toast.success('Content generated and humanized!');
               >
                 <FaPen />
               </Button>
-            )}
+            )} */}
 
             {!auth?.user ? (
               <>
