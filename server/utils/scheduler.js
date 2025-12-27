@@ -94,38 +94,64 @@ cron.schedule("14 10 * * *", async () => {
 
 export function startEngagementMailJob() {
   // Runs every day at 9 AM
-  cron.schedule("23 17 * * *", async () => {
+  cron.schedule("16 19 * * *", async () => {
     console.log("⏰ Running Daily Engagement Mail Job at", new Date().toLocaleString());
 
-    try {
+     try {
       const users = await User.find();
-      console.log(`👥 Found ${users.length} users to send engagement emails`);
+      console.log(`👥 Found ${users.length} users to send emails`);
 
       for (const user of users) {
         console.log(`🔍 Processing user: ${user.email}`);
 
+        // 🔗 You can change this link anytime
+const postLink = "https://www.trendkari.in/blog/ramganjmandi-mein-goonjega-shri-ram-ka-naam-padhaar-rahe-hain-bageshwar-dham!";
 
-        // Build frontend link
-        const postLink = `${process.env.FRONTEND_URL}/blog/where-is-india-under-narendra-modi-leadership-review-on-his-75-birthday`;
-        const exploreLink = `${process.env.FRONTEND_URL}/explore`;
-        const creatorLink = `${process.env.FRONTEND_URL}/profile/6891fa2bfc54de57543d7773`;
+const html = `
+  <h3>🚩 Ramganjmandi में गूँजेगा श्री राम का नाम, पधार रहे हैं बागेश्वर धाम!</h3>
 
-        // Build email content
-       const html = `
- <p>✍️ आज ही <a href="https://trendkari.in">Trendkari</a> पर अपना पहला लेख लिखें  
-या <a href="${creatorLink}">हमारे क्रिएटर को फॉलो करें</a> और उनकी सोच से जुड़ें।</p>
+  <p>
+    आस्था, संस्कार और सनातन चेतना का महापर्व <strong>Ramganjmandi</strong> में दस्तक देने जा रहा है। 
+    23 से 25 जनवरी तक परम पूज्य <strong>पंडित श्री धीरेन्द्र कृष्ण शास्त्री जी (बागेश्वर धाम सरकार)</strong> 
+    के मुखारविंद से श्रीराम कथा एवं गौमाता महोत्सव का भव्य आयोजन होने जा रहा है।
+  </p>
 
-<hr/>
+  <p>
+    इस पावन आयोजन की तैयारियाँ शुरू हो चुकी हैं। गाँव-गाँव संदेश पहुँचाने के लिए 5 'कथा-रथ' 
+    रवाना किए गए हैं और 22 जनवरी को भव्य कलश यात्रा से नगर भक्तिमय हो जाएगा।
+  </p>
 
-<p>✨ आइए मिलकर Trendkari को सार्थक विचारों और चर्चाओं का मंच बनाएं।<br/>
-— टीम Trendkari</p>
+  <p>
+    👉 <a href="${postLink}">
+      रामगंजमंडी कार्यक्रम का पूरा विवरण और शेड्यूल यहाँ पढ़ें
+    </a>
+  </p>
+
+  <hr/>
+
+  <p>
+    The spiritual wave of Bageshwar Dham is coming to Rajasthan! 
+    ✨ ऐसे ही trending news, cultural updates और awareness blogs के लिए 
+    Trendkari के साथ जुड़े रहें।
+  </p>
+
+  <p>
+    by Chhavi Dhanotiya <br/>
+    — Team Trendkari
+  </p>
 `;
 
+await sendEmail(
+  user.email,
+  "🚩 Ramganjmandi तैयार है: पधार रहे हैं बागेश्वर धाम सरकार!",
+  html
+);
 
-        await sendEmail(user.email, "Trendkari पर पढ़ें और लिखें", html);
-console.log(`📩 Engagement mail sent to ${user.email}`);
+
+        console.log(`📩 Avatar Movie mail sent to ${user.email}`);
       }
-    } catch (err) {
+    }
+    catch (err) {
       console.error("❌ Error in engagement mail job:", err.message);
     }
   });
@@ -133,6 +159,8 @@ console.log(`📩 Engagement mail sent to ${user.email}`);
 
 
 //testing
+
+
 // export function startDailyMailJob() {
 //   cron.schedule("40 21 * * *", async () => {
 //     console.log("Running at 6 AM");
