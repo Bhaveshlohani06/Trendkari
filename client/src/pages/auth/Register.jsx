@@ -39,12 +39,23 @@ const handleGoogleLogin = () => {
     if (success) {
       toast.success(message || 'Registration successful'); // ✅ now message is defined
       navigate("/login");
-    } else {
+    } 
+    else {
       toast.error(message || "Registration failed");
     }
   } catch (error) {
+
+    if (error.response && error.response.status === 409) {
+      toast.error("User with this email already exists");
+      navigate("/login");
+    } else  
+
     toast.error(error.response?.data?.message || "Something went wrong");
     console.log(error);
+
+    
+
+
   }
 };
 

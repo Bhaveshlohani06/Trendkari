@@ -42,13 +42,50 @@ const Login = () => {
     } else {
       toast.error('Invalid login response (missing token)');
     }
-  } catch (error) {
+  } 
+ catch (error) {
+    if (  res.status(404) ) {
+      toast.error(  res.status(404).json({ error: 'User not found' })  );
+    } else {
+      toast.error('An unexpected error occurred during login');
+    }
     toast.error('Login failed');
     console.error(error);
-  } finally {
+
+    
+  }
+  
+//   catch (error) {
+//   console.error("Login error:", error);
+
+//   const backendMsg =
+//     error?.response?.data?.error ||
+//     error?.response?.data?.message;
+
+//   if (backendMsg) {
+//     toast.error(backendMsg);
+//   } else {
+//     toast.error("An unexpected error occurred during login");
+//   }
+// }
+
+// catch (error) {
+//   const status = error?.response?.status;
+//   const msg = error?.response?.data?.error;
+
+//   if (status === 404) toast.error("User not found. Please register.");
+//   else if (status === 401) toast.error("Incorrect email or password.");
+//   else if (status === 500) toast.error("Server error. Try again later.");
+//   else toast.error(msg || "Login failed");
+// }
+
+  finally {
     setLoading(false);
   }
 };
+
+
+
 
 const BACKEND_URL = "https://trendkari.onrender.com/api/v1";
 

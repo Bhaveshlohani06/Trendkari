@@ -197,6 +197,8 @@ const handleFollow = async (userId) => {
         <AdBanner />
       </div> */}
 
+      
+
       {/* Hero Section with Skeleton */}
       <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">

@@ -13,7 +13,7 @@ export const registerController = async (req, res) => {
   const { name, email, password, role, avatar, bio} = req.body;
 
   // Basic validation
-  if (!name || !email || !password || !bio) {
+  if (!name || !email || !password ) {
     return res.status(422).json({ error: 'Please fill all required fields' });
   }
 
@@ -113,7 +113,11 @@ export const loginController = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ error: 'Server error. Please try again.' });
+        
+        res.status(404).json({ error: 'User not found' });
+        res.status(401).json({ error: 'Invalid credentials' });
+        res.status(500).json({ error: 'Server error. Please try again.' });
+
     }
     }   
 
