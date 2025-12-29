@@ -161,7 +161,7 @@ const BlogDetail = () => {
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
 
-            <AdBanner/>
+          {/* <AdBanner/> */}
             <p className="text-muted">
               <div className="post-meta text-muted mb-2">
   {post.category?.name && (

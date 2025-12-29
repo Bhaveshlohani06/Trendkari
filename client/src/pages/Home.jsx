@@ -193,9 +193,9 @@ const handleFollow = async (userId) => {
       <CategorySlider />
 
       {/* Ad Banner */}
-      <div className="my-4">
+      {/* <div className="my-4">
         <AdBanner />
-      </div>
+      </div> */}
 
       {/* Hero Section with Skeleton */}
       <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4 sm:px-6 lg:px-8">
