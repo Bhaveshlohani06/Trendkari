@@ -113,9 +113,6 @@ export const loginController = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        
-        res.status(404).json({ error: 'User not found' });
-        res.status(401).json({ error: 'Invalid credentials' });
         res.status(500).json({ error: 'Server error. Please try again.' });
 
     }
@@ -138,15 +135,26 @@ export const testController = (req, res) => {
 export const forgotPasswordController = async (req, res) => {
   try {
     const { email } = req.body;
+
     const user = await usermodel.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const token = crypto.randomBytes(32).toString('hex');
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+   user.resetPasswordToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 min
     await user.save();
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+
+    // user.resetPasswordToken = token;
+    // user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    // await user.save();
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
     const html = `<p>Click <a href="${resetLink}">here</a> to reset your password</p>`;
 
     await sendEmail(user.email, 'Reset Password', html);
@@ -174,10 +182,17 @@ export const resetPasswordController = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
 
-    user.password = password;
+    // user.password = password;
+    // user.resetPasswordToken = undefined;
+    // user.resetPasswordExpires = undefined;
+    // await user.save();
+
+    user.password = await hashPassword(password);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+
     await user.save();
+
 
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {

@@ -9,6 +9,11 @@ export const hashPassword = async (password) => {
         console.log(error);
     }
 };
-export const comparePassword = async (password, hashPassword) => {
-    return bcrypt.compare(password, hashPassword);  
+export const comparePassword = async (password, hashedPassword) => {
+
+      if (!password || !hashedPassword) {
+    return false; // prevents bcrypt crash
+  }
+
+    return bcrypt.compare(password, hashedPassword);  
 }
