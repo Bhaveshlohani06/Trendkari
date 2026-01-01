@@ -85,7 +85,7 @@ const getUsersToFollow = async () => {
     }
   } catch (error) {
     console.error("API error:", error.response?.data || error.message);
-    toast.error('Error while loading users');
+ //   toast.error('Error while loading users');
   }
 };
 
