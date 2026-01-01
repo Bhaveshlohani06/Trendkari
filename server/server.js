@@ -36,6 +36,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'https://trendkari.vercel.app',
   'https://trendkari-qp0pmwukf-bhavesh-lohanis-projects.vercel.app',
+`https://trendkari.onrender.com`,
   'https://www.trendkari.in',
   'https://trendkari.in',
 ];
