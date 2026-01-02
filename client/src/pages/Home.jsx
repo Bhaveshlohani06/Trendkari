@@ -225,25 +225,30 @@ const handleFollow = async (userId) => {
   return (
     <Layout>
       {/* Category Navbar */}
-      <CategorySlider />
+      {/* <CategorySlider /> */}
 
 <div className="container my-4">
-  <div className="d-flex align-items-center justify-content-between mb-2">
-    <h5 className="fw-semibold mb-0">Browse by City</h5>
+  {/* Section Header */}
+  <div className="d-flex align-items-center mb-2">
+    <span className="fw-semibold text-dark small text-uppercase">
+      Browse by City
+    </span>
   </div>
 
-  <div className="d-flex gap-2 overflow-auto pb-2">
+  {/* City Pills */}
+  <div className="d-flex gap-2 overflow-auto pb-1">
     {cities.map(city => (
       <Link
         key={city.value}
         to={`/city/${city.value}`}
-        className="btn btn-outline-dark rounded-pill px-3 flex-shrink-0"
+        className="btn btn-light border rounded-pill px-3 py-1 small text-dark flex-shrink-0"
       >
-        📍 {city.label}
+        {city.label}
       </Link>
     ))}
   </div>
 </div>
+
 
 
 

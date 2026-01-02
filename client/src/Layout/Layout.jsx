@@ -28,24 +28,40 @@ const Layout = ({ children, title = "", description = "", keywords = "", author 
       </Helmet>
 
       {/* News ticker */}
-<Alert
-  variant="danger"
+{/* <Alert
+  variant="warning"
   className="py-2 mb-0 rounded-0 small fw-medium"
   style={{ whiteSpace: "nowrap" }}
 >
-  <marquee behavior="scroll" direction="left" scrollamount="5">
-    📅 {formattedDate} — 
-    <a href="/blog/indias-ai-revolution-gpt-5-job-transformation-and-trendkaris-role-in-the-future" className="text-dark text-decoration-none">
-      India’s AI Revolution
+  <marquee behavior="scroll" direction="left" scrollamount="4">
+    📍 {formattedDate} — 
+    <a
+      href="/city"
+      className="text-dark text-decoration-none fw-semibold"
+    >
+      Local Updates
     </a> |  
-    <a href="/blog/patwari-admit-card-2025" className="text-dark text-decoration-none">
-       Patwari Admit Card
+    <a
+      href="/ramganjmandi/article"
+      className="text-dark text-decoration-none"
+    >
+      Today’s City News
     </a> | 
-    <a href="/blog/best-laptops-to-buy-in-2025-ultimate-guide-deals" className="text-dark text-decoration-none">
-       Best Laptop to Buy 2025 🚨
+    <a
+      href="/kota/article"
+      className="text-dark text-decoration-none"
+    >
+      Local Jobs & Admit Cards
+    </a> | 
+    <a
+      href="/city/kota"
+      className="text-dark text-decoration-none"
+    >
+      Nearby Events & Alerts 🚨
     </a>
   </marquee>
-</Alert>
+</Alert> */}
+
 
       {/* Header with toggleSidebar passed down */}
       <Header toggleSidebar={toggleSidebar} />

@@ -80,6 +80,9 @@ const App = () => {
         <Route path='/auth-success' element={<AuthSuccess />} />
         <Route path='/forgotpassword' element={<ForgotPassword />} />
         <Route path='/reset-password/:token' element={<ResetPassword />} />
+       
+        <Route path="/article/:slug" element={<BlogDetail />} />
+
         <Route path="/:location/article/:slug" element={<BlogDetail />} />
         <Route path='/explore' element={<AllBlogs />} />
         <Route path='/privacypolicy' element={<PrivacyPolicy />} />

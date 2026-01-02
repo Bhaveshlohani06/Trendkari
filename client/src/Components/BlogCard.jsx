@@ -47,7 +47,7 @@ const BlogCard = ({ post }) => {
     
     <div 
       className="card mb-4 shadow-sm border-0" 
-      onClick={() => navigate(`/${post.location}/article/${post.slug}`)}        
+      onClick={() => navigate(`/article/${post.slug}`)}        
       style={{ cursor: "pointer" }}
     >
       {/* Blog Image */}

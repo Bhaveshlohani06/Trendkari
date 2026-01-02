@@ -231,6 +231,7 @@ toast.success('Content generated and humanized!');
             </Navbar.Brand>
           </div>
 
+
           {/* Right section */}
           <div className="d-flex align-items-center gap-3">
             <Button

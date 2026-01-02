@@ -1,318 +1,194 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import Layout from '../Layout/Layout';
-import MiniCard from '../Components/MiniCard';
-import API from '../../utils/api';
-import * as timeago from 'timeago.js';
-import { useAuth } from '../context/auth';
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import Layout from "../Layout/Layout";
+import MiniCard from "../Components/MiniCard";
+import API from "../../utils/api";
+import * as timeago from "timeago.js";
+import { useAuth } from "../context/auth";
 import { FaHeart, FaShareAlt } from "react-icons/fa";
-import { Helmet } from 'react-helmet';
-import AdBanner from '../Components/AdBanner';
 
 const BlogDetail = () => {
   const { slug } = useParams();
-  const [auth] = useAuth(); 
+  const navigate = useNavigate();
+  const [auth] = useAuth();
+
   const [post, setPost] = useState(null);
-  const [sameCategoryPosts, setSameCategoryPosts] = useState([]);
-  const [otherCategoryPosts, setOtherCategoryPosts] = useState([]);
-  const [comment, setComment] = useState('');
-  const [comments, setComments] = useState([]);
+  const [relatedPosts, setRelatedPosts] = useState([]);
   const [liked, setLiked] = useState(false);
-  const currentUser = JSON.parse(localStorage.getItem("user")); // Logged-in user
 
-  // 🔹 LIKE TOGGLE
-  const handleLike = (e) => {
-    e.stopPropagation();
-    setLiked(!liked);
-  };
+  const cities = [
+  { name: "Kota", slug: "kota" },
+  { name: "Ramganjmandi", slug: "ramganjmandi" },
+  { name: "Ladpura", slug: "ladpura" },
+  { name: "Sangod", slug: "sangod" },
+  { name: "Rural Kota", slug: "rural-kota" }
+];
 
-  // 🔹 SHARE
-  const handleShare = (e) => {
-    e.stopPropagation();
-    const shareUrl = `${window.location.origin}/${post.location}/article/${post.slug}`;
-    const shareText = `Check out this post: ${post.title}`;
+  const currentUser = JSON.parse(localStorage.getItem("user"));
 
-    if (navigator.share) {
-      navigator.share({
-        title: post.title,
-        text: shareText,
-        url: shareUrl,
-      }).catch((err) => console.log("Share error:", err));
-    } else {
-      const encodedUrl = encodeURIComponent(shareUrl);
-      const encodedText = encodeURIComponent(shareText);
-      const whatsapp = `https://api.whatsapp.com/send?text=${encodedText}%20${encodedUrl}`;
-      const facebook = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`;
-      const twitter = `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`;
-      window.open(whatsapp, "_blank");
-      window.open(facebook, "_blank");
-      window.open(twitter, "_blank");
-    }
-  };
-
-  // 🔹 DELETE POST
-  const handleDelete = async () => {
-    const confirm = window.confirm("Are you sure you want to delete this post?");
-    if (!confirm) return;
-
-    const token = localStorage.getItem("token");
-    try {
-      await API.delete(`post/delete-post/${post._id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert("Post deleted successfully!");
-      window.location.href = "/"; 
-    } catch (error) {
-      console.error(error);
-      alert("Error deleting post");
-    }
-  };
-
-  // 🔹 FETCH SINGLE POST
+  // 🔹 Fetch single post
   const fetchPost = async () => {
     try {
       const { data } = await API.get(`/post/get-post/${slug}`);
       if (data?.success) {
         setPost(data.post);
-        fetchRelatedPosts(data.post.category._id);
+        fetchRelated(data.post);
       }
     } catch (err) {
-      console.log('Error fetching blog post:', err);
+      console.error(err);
     }
   };
 
-  // 🔹 FETCH RELATED POSTS
-  const fetchRelatedPosts = async () => {
+  // 🔹 Fetch related posts (same city + same category)
+  const fetchRelated = async (currentPost) => {
     try {
-      const { data } = await API.get('/post/get-posts');
-      if (data?.success) {
-        const posts = data.posts;
-        const currentPost = posts.find(p => p.slug === slug);
-        if (!currentPost) return;
-
-        const currentCategoryId = currentPost.category._id;
-        const otherPosts = posts.filter(p => p.slug !== slug);
-
-        const sameCategory = otherPosts.filter(
-          p => p.category._id === currentCategoryId
-        ).slice(0, 4);
-
-        const otherCategory = otherPosts.filter(
-          p => p.category._id !== currentCategoryId
-        ).slice(0, 6);
-
-        setSameCategoryPosts(sameCategory);
-        setOtherCategoryPosts(otherCategory);
-      }
-    } catch (err) {
-      console.error('Error fetching related posts:', err);
-    }
-  };
-
-  // 🔹 FETCH COMMENTS
-  const fetchComments = async () => {
-    try {
-      const { data } = await API.get(`/posts/${slug}/comments`);
-      setComments(data.items || []);   // ✅ use items array
-    } catch (err) {
-      console.error("Error fetching comments:", err);
-    }
-  };
-
-  // 🔹 SUBMIT COMMENT
-  const handleCommentSubmit = async (e) => {
-    e.preventDefault();
-    if (!comment.trim()) return;
-
-    try {
-      const token = localStorage.getItem("token");
-      const { data } = await API.post(
-        `/posts/${slug}/comments`,
-        { content: comment },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const { data } = await API.get(
+        `/post/get-posts?location=${currentPost.location}&language=${currentPost.language}`
       );
 
-      // backend likely returns {ok:true, comment:{...}}
-      setComments([data.comment, ...comments]); // prepend new comment
-      setComment('');
+      if (data?.success) {
+        const filtered = data.posts.filter(
+          (p) => p._id !== currentPost._id
+        );
+
+        setRelatedPosts(filtered.slice(0, 8));
+      }
     } catch (err) {
-      console.error("Error posting comment:", err);
-    } 
+      console.error(err);
+    }
   };
 
-  // 🔹 CALL FETCHERS
   useEffect(() => {
     fetchPost();
-    fetchComments();  // ✅ added this
   }, [slug]);
 
   if (!post) {
     return (
       <Layout>
-        <div className="container text-center mt-5">Loading blog post...</div>
+        <div className="container py-5 text-center">Loading article...</div>
       </Layout>
     );
   }
+
+  // 🔹 Share
+  const handleShare = () => {
+    const url = `${window.location.origin}/${post.location}/article/${post.slug}`;
+    navigator.share
+      ? navigator.share({ title: post.title, url })
+      : window.open(
+          `https://api.whatsapp.com/send?text=${encodeURIComponent(
+            post.title + " " + url
+          )}`,
+          "_blank"
+        );
+  };
 
   return (
     <Layout>
       <div className="container py-5">
         <div className="row">
+          {/* MAIN */}
           <div className="col-md-8">
             <h1 className="fw-bold mb-3">{post.title}</h1>
 
-          {/* <AdBanner/> */}
+            {/* META LINE */}
+            <div className="text-muted mb-3 fs-6">
+              <Link to={`/city/${post.location}`} className="text-decoration-none">
+                📍 {post.location.replace("-", " ")}
+              </Link>
+              {" • "}
+              <Link
+                to={`/category/${post.category?.slug}`}
+                className="text-decoration-none"
+              >
+                {post.category?.name}
+              </Link>
+              {" • "}
+              <span>{post.language === "hi" ? "हिंदी" : "English"}</span>
+              {" • "}
+              {post.author && (
+                <Link
+                  to={`/profile/${post.author._id}`}
+                  className="text-decoration-none"
+                >
+                  {post.author.name}
+                </Link>
+              )}
+              {" • "}
+              {timeago.format(post.createdAt)}
+            </div>
 
-          
-            <p className="text-muted">
-              <div className="post-meta text-muted mb-2">
-  {post.category?.name && (
-    <>
-      <span className="category-badge bg-info text-white px-2 py-1 rounded me-2">
-        {post.category.name}
-      </span>
-      • 
-    </>
-  )}
-  
-  {post?.author ? (
-    <Link 
-      to={`/profile/${post.author._id}`}
-      className="text-decoration-none text-primary fw-medium mx-1"
-      onClick={(e) => e.stopPropagation()}
-    >
-      {post.author.name}
-    </Link>
-  ) : (
-    <span className="fw-medium mx-1">Trendkari</span>
-  )}
-  
-  • 
-  <span className="ms-1">{timeago.format(post.createdAt)}</span>
-</div>  
-            </p>
-
-            {/* Share Button */}
-            <FaShareAlt 
-              onClick={handleShare}
-              style={{ cursor: "pointer", fontSize: "18px", color: "gray" }} 
-            />
-
-            {/* Author Delete */}
-            {currentUser && post.author === currentUser._id && (
-              <div className="btn-group">
-                <button onClick={handleDelete}>Delete</button>
-              </div>
-            )}
-
-            {/* Post Image */}
+            {/* IMAGE */}
             {post.image && (
               <img
                 src={post.image}
                 alt={post.title}
                 className="img-fluid rounded mb-4"
-                style={{ maxHeight: '500px', objectFit: 'cover' }}
               />
             )}
 
-            {/* Post Content */}
-            <div  
-              className="blog-content mb-5"
+            {/* CONTENT */}
+            <div
+              className="blog-content mb-4"
               dangerouslySetInnerHTML={{ __html: post.content }}
-            ></div>
+            />
 
-            {/* ✅ Comment Section */}
-            <div className="col-md-8 mb-5">
-              <h4>Comments</h4>
-              {auth?.user ? (
-                <form onSubmit={handleCommentSubmit} className="mb-3">
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    className="form-control mb-2"
-                    rows="3"
-                    placeholder="Write a comment..."
-                  ></textarea>
-                  <button className="btn btn-primary" type="submit">Post Comment</button>
-                </form>
-              ) : (
-                <p>Please <a href="/login">login</a> to comment.</p>
-              )}
-
-              <ul className="list-group">
-                {comments.map((c) => (
-                  <li key={c._id} className="list-group-item">
-                    <img 
-                      src={c.author?.avatar} 
-                      alt={c.author?.name} 
-                      style={{ width: "40px", height: "40px", borderRadius: "50%", marginRight: "8px" }}
-                    />
-
-{c.author ? (
-  <Link 
-    to={`/profile/${c.author._id}`}
-    className="text-decoration-none text-primary fw-medium"
-    onClick={(e) => e.stopPropagation()} // Prevent navigation if inside a clickable container
-  >
-    {c.author.name || "Anonymous"}
-  </Link>
-) : (
-  <span className="fw-medium">Anonymous</span>                    
-)}
-: {c.content}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Like + Share */}
-              <div className="d-flex align-items-center gap-3 mt-3">
-                <FaHeart 
-                  onClick={handleLike}
-                  style={{ 
-                    cursor: "pointer", 
-                    color: liked ? "red" : "gray", 
-                    fontSize: "18px" 
-                  }} 
-                />
-                <FaShareAlt 
-                  onClick={handleShare}
-                  style={{ cursor: "pointer", fontSize: "18px", color: "gray" }} 
-                />
-              </div>
+            {/* ACTIONS */}
+            <div className="d-flex gap-4 text-muted mb-5">
+              <FaHeart
+                onClick={() => setLiked(!liked)}
+                style={{
+                  cursor: "pointer",
+                  color: liked ? "red" : "gray",
+                }}
+              />
+              <FaShareAlt
+                onClick={handleShare}
+                style={{ cursor: "pointer" }}
+              />
             </div>
 
-            {/* Same Category */}
-            <div className="mb-5">
-              <h4>More from {post.category?.name}</h4>  
-              <div className="row">
-                {sameCategoryPosts.map((p) => (
-                  <div className="col-md-6 mb-3" key={p._id}>
-                    <MiniCard post={p} />
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* RELATED */}
+            <h4 className="mb-3">
+              More from {post.location.replace("-", " ")}
+            </h4>
 
-            {/* Other Categories */}
-            <div>
-              <h4>Explore Other Categories</h4>
-              <div className="row">
-                {otherCategoryPosts.map((p) => (
-                  <div className="col-md-6 mb-3" key={p._id}>
-                    <MiniCard post={p} />
-                  </div>
-                ))}
-              </div>
+            <div className="row">
+              {relatedPosts.map((p) => (
+                <div className="col-md-6 mb-3" key={p._id}>
+                  <MiniCard post={p} />
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Sidebar */}
+          {/* SIDEBAR */}
           <div className="col-md-4">
-            <h5>Latest Trends</h5>
-            {otherCategoryPosts.slice(0, 8).map((p) => (
-              <MiniCard post={p} key={p._id} />
+            <h5 className="mb-3">Trending in {post.location}</h5>
+            {relatedPosts.slice(0, 5).map((p) => (
+              <MiniCard key={p._id} post={p} />
             ))}
           </div>
+
+                          {/* Soft City Discovery */}
+          <div className="mt-2">
+            <p className="text-muted mb-2">Explore nearby</p>
+          
+            <div className="d-flex align-items-center gap-3 overflow-auto">
+              {cities
+                .filter(city => city.slug !== location)
+                .map(city => (
+                  <Link
+                    key={city.slug}
+                    to={`/city/${city.slug}`}
+                    className="text-decoration-none text-secondary fw-medium fs-6 text-nowrap"
+                  >
+                    {city.name}
+                  </Link>
+                ))}
+            </div>
+          </div>
+
         </div>
       </div>
     </Layout>
