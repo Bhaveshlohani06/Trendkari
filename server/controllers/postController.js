@@ -10,7 +10,7 @@ import main from '../config/gemini.js';
 // CREATE POST
 export const createPostController = async (req, res) => {
   try {
-    const { title, content, category, tags, isFeatured, status } = req.body;
+    const { title, content, language, location, category, tags, isFeatured, status } = req.body;
     const image = req.file;
     
     // Validation
@@ -21,6 +21,10 @@ export const createPostController = async (req, res) => {
         return res.status(400).send({ message: "Content is required" });
       case !category:
         return res.status(400).send({ message: "Category is required" });
+        case !language:
+        return res.status(400).send({ message: "Langugage is required" });
+        case !location:
+        return res.status(400).send({ message: "Location is required" });
     }
 
     const post = new postModel({
@@ -28,6 +32,8 @@ export const createPostController = async (req, res) => {
       content,
       category,
       author: req.user.id,
+      language,
+      location,
       slug: slugify(title, { lower: true, strict: true }),
       tags: tags ? tags.split(',') : [],
       isFeatured: isFeatured === 'true',
@@ -88,7 +94,50 @@ export const getAllPostsController = async (req, res) => {
   }
 };
 
+// export const getAllPostsController = async (req, res) => {
+//   try {
+//     const { language, location, category } = req.query;
+
+//     const filter = {
+//       status: "published", // important
+//     };
+
+//     if (language) {
+//       filter.language = language;
+//     }
+
+//     if (location) {
+//       filter.location = location;
+//     }
+
+//     if (category) {
+//       filter.category = category;
+//     }
+
+//     const posts = await postModel
+//       .find(filter)
+//       .populate("category")
+//       .populate("author", "name")
+//       .sort({ createdAt: -1 });
+
+//     res.status(200).json({
+//       success: true,
+//       count: posts.length,
+//       posts,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error fetching posts",
+//     });
+//   }
+// };
+
+
 // GET SINGLE POST BY SLUG
+
+
 export const getPostBySlugController = async (req, res) => {
   try {
     const post = await postModel

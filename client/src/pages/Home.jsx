@@ -163,7 +163,7 @@ const handleFollow = async (userId) => {
       <div className="d-flex gap-3">
         <Skeleton.Avatar active size={80} shape="square" />
         <div className="w-auto flex-grow-1">
-          <Skeleton paragraph={{ rows: 2 }} active />
+          <Skeleton paragraph={{ rows: 2 }} active />x
           <div className="d-flex justify-content-between">
             <Skeleton.Button active size="small" />
             <Skeleton.Button active size="small" />

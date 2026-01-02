@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import ReactGA from "react-ga4";
 
+import "antd/dist/reset.css";
+
 // Importing pages
 import Home from './pages/Home'
 import Blog from './pages/Blog'
@@ -68,7 +70,7 @@ const App = () => {
       {/* Define all app routes */}
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/blog' element={<Blog />} />
+        <Route path='/article' element={<Blog />} />
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
     <Route path="/phone-login" element={<PhoneLogin />} />
@@ -77,7 +79,7 @@ const App = () => {
         <Route path='/auth-success' element={<AuthSuccess />} />
         <Route path='/forgotpassword' element={<ForgotPassword />} />
         <Route path='/reset-password/:token' element={<ResetPassword />} />
-        <Route path="/blog/:slug" element={<BlogDetail />} />
+        <Route path="/article/:slug" element={<BlogDetail />} />
         <Route path='/explore' element={<AllBlogs />} />
         <Route path='/privacypolicy' element={<PrivacyPolicy />} />
         <Route path='/about' element={<AboutUs />} />
@@ -93,11 +95,13 @@ const App = () => {
 
         <Route path="/horoscope" element={<DailyHoroscope />} />
          <Route path="/search" element={<Search />} />
+        {/* <Route path='create-category' element={<CreateCategory />} /> */}
+
 
         {/* Admin Routes (nested under /dashboard/admin) */}
         <Route path="/dashboard/admin" element={<AdminRoute />}>
           <Route index element={<AdminDashboard />} />
-          <Route path='create-category' element={<CreateCategory />} />
+         <Route path='create-category' element={<CreateCategory />} />
           <Route path='create-post' element={<CreatePost />} />
           <Route path='posts' element={<Posts />} />
         </Route>

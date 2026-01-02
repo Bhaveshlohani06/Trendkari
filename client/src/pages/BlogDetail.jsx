@@ -257,7 +257,7 @@ const BlogDetail = () => {
     {c.author.name || "Anonymous"}
   </Link>
 ) : (
-  <span className="fw-medium">Anonymous</span>
+  <span className="fw-medium">Anonymous</span>                    
 )}
 : {c.content}
                   </li>
@@ -283,7 +283,7 @@ const BlogDetail = () => {
 
             {/* Same Category */}
             <div className="mb-5">
-              <h4>More from {post.category?.name}</h4>
+              <h4>More from {post.category?.name}</h4>  
               <div className="row">
                 {sameCategoryPosts.map((p) => (
                   <div className="col-md-6 mb-3" key={p._id}>

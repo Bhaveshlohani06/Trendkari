@@ -15,7 +15,7 @@ const BlogCard = ({ post }) => {
    const handleShare = (e) => {
     e.stopPropagation(); // prevent navigating
 
-    const shareUrl = `${window.location.origin}/blog/${post.slug}`;
+    const shareUrl = `${window.location.origin}/article/${post.slug}`;
     const shareText = `Check out this post: ${post.title}`;
 
     // ✅ Modern share API (mobile/modern browsers)
@@ -46,7 +46,7 @@ const BlogCard = ({ post }) => {
   return (
     <div 
       className="card mb-4 shadow-sm border-0" 
-      onClick={() => navigate(`/blog/${post.slug}`)} 
+      onClick={() => navigate(`/article/${post.slug}`)} 
       style={{ cursor: "pointer" }}
     >
       {/* Blog Image */}

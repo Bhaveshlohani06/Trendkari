@@ -17,7 +17,7 @@ const MiniCard = ({ post }) => {
    const handleShare = (e) => {
     e.stopPropagation(); // prevent navigating
 
-    const shareUrl = `${window.location.origin}/blog/${post.slug}`;
+    const shareUrl = `${window.location.origin}/article/${post.slug}`;
     const shareText = `Check out this post: ${post.title}`;
 
     // ✅ Modern share API (mobile/modern browsers)
@@ -47,7 +47,7 @@ const MiniCard = ({ post }) => {
   return (
     <div
       className="card mb-3 shadow-sm"
-      onClick={() => navigate(`/blog/${post.slug}`)}
+      onClick={() => navigate(`/article/${post.slug}`)}
       style={{ cursor: 'pointer', height: '120px', overflow: 'hidden' }}
     >
       <div className="row g-0 h-100">

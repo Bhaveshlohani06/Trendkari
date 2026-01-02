@@ -111,7 +111,7 @@ const AllBlogs = () => {
                         <p className="card-text">
                           {post.content.replace(/<[^>]+>/g, '').slice(0, 160)}...
                         </p>
-                        <Link to={`/blog/${post.slug}`} className="text-primary text-decoration-none">
+                        <Link to={`/article/${post.slug}`} className="text-primary text-decoration-none">
                           Read more <FiArrowRight className="ms-1" />
                         </Link>
                       </div>

@@ -25,6 +25,30 @@ const postSchema = new mongoose.Schema(
       type: String, 
       default: "",
     },
+
+      language: {
+    type: String,
+    enum: ["hi", "en"],
+    default: "hi",
+    index: true,
+    required: true
+
+  },
+  location: {
+    type: String,
+    enum: [
+      "kota",
+      "ramganjmandi",
+      "sangod",
+      "ladpura",
+      "kaithoon",
+      "modak",
+      "rural-kota"
+    ],
+    index: true,
+    required: true
+  },
+
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",

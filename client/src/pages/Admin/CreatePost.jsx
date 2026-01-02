@@ -20,6 +20,8 @@ const CreatePost = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [category, setCategory] = useState('');
+  const [language, setLanguage] = useState("hi"); // default Hindi
+const [location, setLocation] = useState("kota"); // default Kota
   const [image, setImage] = useState(null);
   const [tags, setTags] = useState('');
   const [isFeatured, setIsFeatured] = useState(false);
@@ -121,6 +123,9 @@ const CreatePost = () => {
       postData.append('isFeatured', isFeatured);
       postData.append('image', image);
       postData.append('tags', tags);
+      postData.append('language', language);
+      postData.append('location', location);
+
 
 
   const { data } = await API.post("/post/create-post", postData,{
@@ -199,6 +204,41 @@ const CreatePost = () => {
         }}
       />
               </div>
+
+              {/* Language */}
+<div className="mb-3">
+  <Select
+    value={language}
+    onChange={(value) => setLanguage(value)}
+    className="form-select"
+    variant="outlined"
+    size="large"
+  >
+    <Option value="hi">हिंदी</Option>
+    <Option value="en">English</Option>
+  </Select>
+</div>
+
+{/* Location */}
+<div className="mb-3">
+  <Select
+    value={location}
+    onChange={(value) => setLocation(value)}
+    className="form-select"
+    variant="outlined"
+    size="large"
+  >
+    <Option value="kota">कोटा शहर</Option>
+    <Option value="ramganjmandi">रामगंजमंडी</Option>
+    <Option value="sangod">सांगोद</Option>
+    <Option value="ladpura">लाडपुरा</Option>
+    <Option value="kaithoon">कैथून</Option>
+    <Option value="modak">मोड़क</Option>
+    <Option value="rural-kota">ग्रामीण कोटा</Option>
+  </Select>
+</div>
+
+
 
               {/* Category - Fixed deprecated bordered prop */}
               <div className="mb-3">

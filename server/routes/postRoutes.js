@@ -47,5 +47,5 @@ router.get('/profile/:id', requireSignIn, getPostsByUser)
 
 
 
-
+  
 export default router;

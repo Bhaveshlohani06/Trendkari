@@ -4,6 +4,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/auth";
 import SearchModal from "../Components/SearchModal";
+import { Select } from "antd";
 import {
   Navbar,
   Container,
@@ -17,11 +18,16 @@ const Header = ({ toggleSidebar }) => {
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
 
+  const { Option } = Select;
+
   // Modal state
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("");
+  const [language, setLanguage] = useState("hi"); 
+const [location, setLocation] = useState("kota"); 
+
   const [image, setImage] = useState(null);
   const [status] = useState("published");
   const [isFeatured] = useState(false);
@@ -159,6 +165,8 @@ toast.success('Content generated and humanized!');
         postData.append('isFeatured', isFeatured);
         postData.append('image', image);
         postData.append('tags', tags);
+        postData.append('language', language);
+        postData.append('location', location);
 
 
 
@@ -251,9 +259,9 @@ toast.success('Content generated and humanized!');
                 <Nav.Link as={NavLink} to="/login" className="text-white">
                   Login  
                 </Nav.Link>
-                <Nav.Link as={NavLink} to="/register" className="text-white">
+                {/* <Nav.Link as={NavLink} to="/register" className="text-white">
                   Signup
-                </Nav.Link>
+                </Nav.Link> */}
               </>
             ) : (
               <NavDropdown
@@ -392,6 +400,26 @@ toast.success('Content generated and humanized!');
                   {generating ? "Generating..." : "Generate with AI"}
                 </button>
 
+
+
+{/* Location */}
+<select
+  className="form-select mt-3"
+  value={location}
+  onChange={(e) => setLocation(e.target.value)}
+>
+  <option value="kota">कोटा</option>
+  <option value="ramganjmandi">रामगंजमंडी</option>
+  <option value="sangod">सांगोद</option>
+  <option value="ladpura">लाडपुरा</option>
+  <option value="kaithoon">कैथून</option>
+  <option value="modak">मोड़क</option>
+  <option value="rural-kota">ग्रामीण कोटा</option>
+</select>
+
+
+
+
                 {/* Category */}
                 <select
                   className="form-select mt-3"
@@ -406,6 +434,17 @@ toast.success('Content generated and humanized!');
                     </option>
                   ))}
                 </select>
+
+{/* Language */}
+<select
+  className="form-select mt-3"
+  value={language}
+  onChange={(e) => setLanguage(e.target.value)}
+>
+  <option value="hi">हिंदी</option>
+  <option value="en">English</option>
+</select>
+
 
                 {/* Image Upload */}
                 <label htmlFor="imageUpload" className="form-label mt-3">
