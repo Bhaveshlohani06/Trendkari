@@ -29,7 +29,7 @@ const BlogDetail = () => {
   // 🔹 SHARE
   const handleShare = (e) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/article/${post.slug}`;
+    const shareUrl = `${window.location.origin}/${post.location}/article/${post.slug}`;
     const shareText = `Check out this post: ${post.title}`;
 
     if (navigator.share) {

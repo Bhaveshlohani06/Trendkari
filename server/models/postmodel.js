@@ -31,7 +31,7 @@ const postSchema = new mongoose.Schema(
     enum: ["hi", "en"],
     default: "hi",
     index: true,
-    required: true
+    // required: true
 
   },
   location: {
@@ -46,7 +46,7 @@ const postSchema = new mongoose.Schema(
       "rural-kota"
     ],
     index: true,
-    required: true
+    // required: true
   },
 
     category: {

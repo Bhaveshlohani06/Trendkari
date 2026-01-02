@@ -33,6 +33,16 @@ const Home = () => {
     const [followersCount, setFollowersCount] = useState(0);
     const [followingCount, setFollowingCount] = useState(0);
 
+
+    const cities = [
+  { label: "Kota", value: "kota" },
+  { label: "Ramganj Mandi", value: "ramganjmandi" },
+  { label: "Sangod", value: "sangod" },
+  { label: "Ladpura", value: "ladpura" },
+  { label: "Kaithoon", value: "kaithoon" },
+  { label: "Rural Kota", value: "rural-kota" },
+];
+
   // Get all posts
   const getAllPosts = async (pageNum = 1, limit = 20) => {
     try {
@@ -54,8 +64,33 @@ const Home = () => {
     }
   };
 
+// const getAllPosts = async () => {
+//   try {
+//     setLoading(true);
+
+//     const language = "hi";
+//     const location = "kota";
+
+//     const { data } = await API.get(
+//       `/post/get-posts?language=${language}&location=${location}`
+//     );
+
+//     if (data?.success) {
+//       setBlogs(data.posts);
+//     }
+//   } catch (error) {
+//     console.log("Error fetching blogs", error);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
+
 
   // Load categories
+ 
+ 
   const getAllCategories = async () => {
     try {
       const { data } = await API.get('/category/categories');
@@ -191,6 +226,28 @@ const handleFollow = async (userId) => {
     <Layout>
       {/* Category Navbar */}
       <CategorySlider />
+
+<div className="container my-4">
+  <div className="d-flex align-items-center justify-content-between mb-2">
+    <h5 className="fw-semibold mb-0">Browse by City</h5>
+  </div>
+
+  <div className="d-flex gap-2 overflow-auto pb-2">
+    {cities.map(city => (
+      <Link
+        key={city.value}
+        to={`/city/${city.value}`}
+        className="btn btn-outline-dark rounded-pill px-3 flex-shrink-0"
+      >
+        📍 {city.label}
+      </Link>
+    ))}
+  </div>
+</div>
+
+
+
+
 
       {/* Ad Banner */}
       {/* <div className="my-4">
@@ -388,7 +445,7 @@ const handleFollow = async (userId) => {
                     <div className="col-md-6" key={i}>
                       <BlogCardSkeleton />
                     </div>
-                  ))}
+                  ))}     
                 </div>
               ) : (
                 <div className="row g-4">
@@ -526,6 +583,7 @@ const handleFollow = async (userId) => {
         </div>
       )}
     </Layout>
+    
   );
 };
 

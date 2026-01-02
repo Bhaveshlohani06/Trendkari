@@ -81,61 +81,61 @@ export const createPostController = async (req, res) => {
 
 
 // GET ALL POSTS
-export const getAllPostsController = async (req, res) => {
-  try {
-    const posts = await postModel
-      .find({})
-      .populate("category")
-      .populate("author", "name")
-      .sort({ createdAt: -1 });
-    res.status(200).send({ success: true, posts });
-  } catch (error) {
-    res.status(500).send({ success: false, error });
-  }
-};
-
 // export const getAllPostsController = async (req, res) => {
 //   try {
-//     const { language, location, category } = req.query;
-
-//     const filter = {
-//       status: "published", // important
-//     };
-
-//     if (language) {
-//       filter.language = language;
-//     }
-
-//     if (location) {
-//       filter.location = location;
-//     }
-
-//     if (category) {
-//       filter.category = category;
-//     }
-
 //     const posts = await postModel
-//       .find(filter)
+//       .find({})
 //       .populate("category")
 //       .populate("author", "name")
 //       .sort({ createdAt: -1 });
-
-//     res.status(200).json({
-//       success: true,
-//       count: posts.length,
-//       posts,
-//     });
+//     res.status(200).send({ success: true, posts });
 //   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Error fetching posts",
-//     });
+//     res.status(500).send({ success: false, error });
 //   }
 // };
 
+export const getAllPostsController = async (req, res) => {
+  try {
+    const { language, location, category } = req.query;
 
-// GET SINGLE POST BY SLUG
+    const filter = {
+      status: "published", // important
+    };
+
+    if (language) {
+      filter.language = language;
+    }
+
+    if (location) {
+      filter.location = location;
+    }
+
+    if (category) {
+      filter.category = category;
+    }
+
+    const posts = await postModel
+      .find(filter)
+      .populate("category")
+      .populate("author", "name")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: posts.length,
+      posts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching posts",
+    });
+  }
+};
+
+
+//GET SINGLE POST BY SLUG
 
 
 export const getPostBySlugController = async (req, res) => {

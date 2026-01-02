@@ -35,6 +35,7 @@ import DailyHoroscope from './pages/Horoscope';
 import EditProfile from './Components/forms/EditProfile'
 import Search from './pages/Search'
 import WeatherPage from './pages/Weather';
+import CityFeed from './Components/CityFeed';
 
 // Your GA Measurement ID
 const TRACKING_ID = "G-CGG172MEXZ";
@@ -79,7 +80,7 @@ const App = () => {
         <Route path='/auth-success' element={<AuthSuccess />} />
         <Route path='/forgotpassword' element={<ForgotPassword />} />
         <Route path='/reset-password/:token' element={<ResetPassword />} />
-        <Route path="/article/:slug" element={<BlogDetail />} />
+        <Route path="/:location/article/:slug" element={<BlogDetail />} />
         <Route path='/explore' element={<AllBlogs />} />
         <Route path='/privacypolicy' element={<PrivacyPolicy />} />
         <Route path='/about' element={<AboutUs />} />
@@ -90,6 +91,7 @@ const App = () => {
         <Route path="/edit-post/:slug" element={<EditPost />} />
         <Route path="/dashboard" element={<DashboardRedirect />} />
         <Route path='/update-profile/:userId' element={<EditProfile/>} />
+        <Route path='/city/:location' element={<CityFeed/>} />
 
         <Route path="/weather" element={<WeatherPage />} />
 
