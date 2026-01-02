@@ -29,8 +29,8 @@ const BlogDetail = () => {
   // 🔹 SHARE
   const handleShare = (e) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/blog/${post.slug}`;
-    const shareText = `Check out this post: ${post.title}`;
+    const shareUrl = `${window.location.origin}/article/${post.slug}`;
+    const shareText = `Check out this post: ${post.title}`;g
 
     if (navigator.share) {
       navigator.share({
