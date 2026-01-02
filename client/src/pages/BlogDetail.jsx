@@ -30,7 +30,7 @@ const BlogDetail = () => {
   const handleShare = (e) => {
     e.stopPropagation();
     const shareUrl = `${window.location.origin}/article/${post.slug}`;
-    const shareText = `Check out this post: ${post.title}`;g
+    const shareText = `Check out this post: ${post.title}`;
 
     if (navigator.share) {
       navigator.share({
@@ -137,7 +137,7 @@ const BlogDetail = () => {
       setComment('');
     } catch (err) {
       console.error("Error posting comment:", err);
-    }
+    } 
   };
 
   // 🔹 CALL FETCHERS
