@@ -36,6 +36,7 @@ import EditProfile from './Components/forms/EditProfile'
 import Search from './pages/Search'
 import WeatherPage from './pages/Weather';
 import CityFeed from './Components/CityFeed';
+import ScrollToTop from './Components/ScrollToTop';
 
 // Your GA Measurement ID
 const TRACKING_ID = "G-CGG172MEXZ";
@@ -68,6 +69,7 @@ const App = () => {
       {/* Track route changes globally */}
       <RouteChangeTracker />
 
+      <ScrollToTop />
       {/* Define all app routes */}
       <Routes>
         <Route path='/' element={<Home />} />

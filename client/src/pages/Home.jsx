@@ -271,14 +271,15 @@ const handleFollow = async (userId) => {
                 <Skeleton paragraph={{ rows: 1 }} active style={{ maxWidth: 600, margin: '0 auto' }} />
               </>
             ) : (
-              <>
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-dark">
-                  Trendkari — Your Viral Content Hub
-                </h1>
-                <p className="text-xl md:text-2xl max-w-3xl mx-auto text-dark">
-                  Daily curated trends across tech, fashion, entertainment, memes & startups
-                </p>
-              </>
+<>
+  <h1 className="text-4xl md:text-5xl font-bold mb-4 text-dark">
+    Trendkari — Hyperlocal News & City Trends
+  </h1>
+  <p className="text-xl md:text-2xl max-w-3xl mx-auto text-dark">
+    Latest news, updates, events and stories from your city — all in one place
+  </p>
+</>
+
             )}
           </div>
         </div>
