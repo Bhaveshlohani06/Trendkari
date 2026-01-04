@@ -9,7 +9,8 @@ const cities = [
   { name: "Ramganjmandi", slug: "ramganjmandi" },
   { name: "Ladpura", slug: "ladpura" },
   { name: "Sangod", slug: "sangod" },
-  { name: "Rural Kota", slug: "rural-kota" }
+  { name: "Rural Kota", slug: "rural-kota" },
+  { name: "Modak", slug: "modak" },
 ];
 
 const CityFeed = () => {

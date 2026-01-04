@@ -22,6 +22,7 @@ import { FaUserEdit, FaRegEdit, FaTrash, FaArrowLeft, FaEllipsisV, FaShareAlt, F
 
 const UserProfile = () => {
   const { userId } = useParams();
+ const { slug, location: routeLocation } = useParams();
   const [showModal, setShowModal] = useState(false);
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -306,7 +307,15 @@ const UserProfile = () => {
   };
 
   const handleShare = (post) => {
-    const shareUrl = `${window.location.origin}/blog/${post.slug}`;
+    const shareUrl = `${window.location.origin}/${post.location}/article/${post.slug}`;
+
+
+    
+// handleShare = (post) => {
+//     const shareUrl = post.location
+//       ? `${window.location.origin}/${post.location}/article/${post.slug}`
+//       : `${window.location.origin}/article/${post.slug}`;
+  
     const shareText = `Check out this post: ${post.title}`;
 
     if (navigator.share) {
@@ -510,7 +519,15 @@ const UserProfile = () => {
           <Row xs={1} md={2} lg={3} className="g-4">
             {posts.map((post) => (
               <Col key={post._id}>
-                <Card className="h-100 shadow-sm hover-shadow transition-all" style={{cursor: 'pointer'}} onClick={() => navigate(`/blog/${post.slug}`)}>
+                <Card className="h-100 shadow-sm hover-shadow transition-all" style={{cursor: 'pointer'}} onClick={() =>
+  navigate(
+    post.location
+      ? `/${post.location}/article/${post.slug}`
+      : `/article/${post.slug}`
+  )
+}>
+                   
+                   
                   {post.image && (
                     <Card.Img
                       variant="top"

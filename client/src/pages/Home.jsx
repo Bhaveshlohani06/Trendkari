@@ -41,6 +41,7 @@ const Home = () => {
   { label: "Ladpura", value: "ladpura" },
   { label: "Kaithoon", value: "kaithoon" },
   { label: "Rural Kota", value: "rural-kota" },
+  { label: "Modak", value: "modak" },
 ];
 
   // Get all posts
