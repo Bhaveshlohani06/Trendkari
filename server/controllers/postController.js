@@ -10,7 +10,7 @@ import main from '../config/gemini.js';
 // CREATE POST
 export const createPostController = async (req, res) => {
   try {
-    const { title, content, language, location, category, tags, isFeatured, status } = req.body;
+    const { title, content, language, location, category, tags, isFeatured } = req.body;
     const image = req.file;
     
     // Validation
@@ -26,19 +26,22 @@ export const createPostController = async (req, res) => {
         case !location:
         return res.status(400).send({ message: "Location is required" });
     }
+const post = new postModel({
+  title,
+  content,
+  category,
+  author: req.user.id,
+  language,
+  location,
+  slug: slugify(title, { lower: true, strict: true }),
+  tags: tags ? tags.split(",") : [],
+  isFeatured: isFeatured === "true",
 
-    const post = new postModel({
-      title,
-      content,
-      category,
-      author: req.user.id,
-      language,
-      location,
-      slug: slugify(title, { lower: true, strict: true }),
-      tags: tags ? tags.split(',') : [],
-      isFeatured: isFeatured === 'true',
-      status: status || "draft",
-    });
+  // 🔒 FORCE moderation
+  status: "pending",
+  isPublished: false
+});
+
 
     if (image) {
       const fileBuffer = fs.readFileSync(image.path);
@@ -65,7 +68,7 @@ export const createPostController = async (req, res) => {
 
     res.status(201).send({
       success: true,
-      message: "Post created successfully",
+      message: "Post submitted for admin approval",
       post,
     });
   } catch (error) {
@@ -99,7 +102,7 @@ export const getAllPostsController = async (req, res) => {
     const { language, location, category } = req.query;
 
     const filter = {
-      status: "published", // important
+      status: "approved", // important
     };
 
     if (language) {
@@ -141,9 +144,11 @@ export const getAllPostsController = async (req, res) => {
 export const getPostBySlugController = async (req, res) => {
   try {
     const post = await postModel
-      .findOne({ slug: req.params.slug })
+      .findOne({ slug: req.params.slug,
+        status: "approved"
+       })
       .populate("category")
-      .populate("author", "name");
+      .populate("author", "name", "location");
     res.status(200).send({ success: true, post });
   } catch (error) {
     res.status(500).send({ success: false, error });
@@ -176,6 +181,37 @@ export const togglePublishController = async (req, res) => {
 };
 
 
+// GET PENDING POSTS FOR ADMIN
+export const getPendingPosts = async (req, res) => {
+  const posts = await postModel
+    .find({ status: "pending" })
+    .populate("author", "name email")
+    .sort({ createdAt: -1 });
+
+  res.json({ success: true, posts });
+};
+
+  // APPROVE OR REJECT POST
+    export const approvePost = async (req, res) => {
+  await postModel.findByIdAndUpdate(req.params.id, {
+    status: "approved",
+    isPublished: true,
+  });
+
+  res.json({ success: true, message: "Post approved" });
+};
+
+
+// REJECT POST
+export const rejectPost = async (req, res) => {
+  await postModel.findByIdAndUpdate(req.params.id, {
+    status: "rejected",
+    isPublished: false,
+  });
+  res.json({ success: true, message: "Post rejected" });
+};
+
+
 // UPDATE POST
 export const updatePostController = async (req, res) => {
   try {
@@ -193,7 +229,9 @@ export const updatePostController = async (req, res) => {
     post.content = content || post.content;
     post.category = category || post.category;
     post.tags = tags ? JSON.parse(tags).map(tag => tag.trim().toLowerCase()) : post.tags;
-    post.status = status || post.status;
+      if (req.user.role === "admin" && status) {
+      post.status = status;
+        }
     if (typeof isFeatured !== "undefined") {
       post.isFeatured = isFeatured === "true" || isFeatured === true;
     }

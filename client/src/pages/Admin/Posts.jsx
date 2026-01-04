@@ -11,7 +11,12 @@ const Posts = () => {
   // Fetch all posts
   const getAllPosts = async () => {
     try {
-      const { data } = await API.get('/post/get-posts');
+    const { data } = await API.get('/admin/posts', {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+});
+
       if (data?.success) {
         setPosts(data.posts);
       } else {
@@ -23,9 +28,55 @@ const Posts = () => {
     }
   };
 
+
+  const approvePost = async (id) => {
+  try {
+    const { data } = await API.put(
+      `/admin/post/${id}/approve`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (data?.success) {
+      toast.success("Post approved");
+      getAllPosts();
+    }
+  } catch (error) {
+    toast.error("Failed to approve post");
+  }
+};
+
+const rejectPost = async (id) => {
+  try {
+    const { data } = await API.put(
+      `/admin/post/${id}/reject`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    if (data?.success) {
+      toast.success("Post rejected");
+      getAllPosts();
+    }
+  } catch (error) {
+    toast.error("Failed to reject post");
+  }
+};
+
+
   useEffect(() => {
     getAllPosts();
   }, []);
+
+
 
   return (
     <Layout>
@@ -36,36 +87,65 @@ const Posts = () => {
         <div className="col-md-9">
           <h1 className="text-center mb-4">All Blog Posts</h1>
           <div className="d-flex flex-wrap">
-            {posts?.map((post) => (
-              <Link
-                key={post._id}
-                to={`/dashboard/admin/post/${post.slug}`}
-                className="product-link"
-              >
-                <div className="card m-2" style={{ width: '18rem' }}>
-                  <img
-                    src={post.image}
-                    className="card-img-top"
-                    alt={post.title}
-                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">{post.title}</h5>
-                    <p className="card-text">
-                      {post.content.length > 80
-                        ? post.content.substring(0, 80) + '...'
-                        : post.content}
-                    </p>
-                    <p className="text-muted">
-                      {post.category?.name || 'Uncategorized'} |{' '}
-                      <span className={post.status === 'published' ? 'text-success' : 'text-warning'}>
-                        {post.status}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            ))}
+         {posts?.map((post) => (
+  <div key={post._id} className="card m-2" style={{ width: '18rem' }}>
+    <Link
+      to={`/dashboard/admin/post/${post.slug}`}
+      className="product-link"
+    >
+      <img
+        src={post.image}
+        className="card-img-top"
+        alt={post.title}
+        style={{ height: '200px', objectFit: 'cover' }}
+      />
+    </Link>
+
+    <div className="card-body">
+      <h5 className="card-title">{post.title}</h5>
+
+      <p className="card-text">
+        {post.content.length > 80
+          ? post.content.substring(0, 80) + '...'
+          : post.content}
+      </p>
+
+      <p className="text-muted">
+        {post.category?.name || 'Uncategorized'} |{' '}
+        <span
+          className={
+            post.status === 'published'
+              ? 'text-success'
+              : post.status === 'pending'
+              ? 'text-warning'
+              : 'text-danger'
+          }
+        >
+          {post.status}
+        </span>
+      </p>
+
+      {post.status === 'pending' && (
+        <div className="d-flex gap-2">
+          <button
+            className="btn btn-success btn-sm"
+            onClick={() => approvePost(post._id)}
+          >
+            Approve
+          </button>
+
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => rejectPost(post._id)}
+          >
+            Reject
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+))}
+
           </div>
         </div>
       </div>

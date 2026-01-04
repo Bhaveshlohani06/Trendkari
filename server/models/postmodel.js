@@ -72,8 +72,8 @@ const postSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["draft", "published"],
-      default: "draft",
+    enum: ["pending", "approved", "rejected"],
+      default: "pending",
     },
   },
   { timestamps: true }

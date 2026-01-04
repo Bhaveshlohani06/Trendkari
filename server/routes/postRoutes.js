@@ -10,6 +10,9 @@ import {
   humanizeBlog,
 getPostsByUser,
 updatePostController
+, approvePost,
+  // getAllPostsAdmin,
+  rejectPost,
 } from "../controllers/postController.js";
 import { requireSignIn, isAdmin, allowUsersAndAdmins } from "../middleware/authMiddleware.js";
 import upload from "../middleware/multer.js"; // Import the multer middleware
@@ -30,6 +33,22 @@ router.get("/get-post/:slug", getPostBySlugController);
 // TOGGLE PUBLISH STATUS
 router.patch("/posts/:id/toggle-publish", togglePublishController);
 
+// APPROVE POST
+router.put(
+  "/admin/posts/approve/:id",
+  requireSignIn,
+  isAdmin,
+  approvePost
+);
+
+
+// admin routes
+// router.get("/posts", isAdmin, getAllPostsAdmin);
+
+router.put("/post/:id/approve", isAdmin, approvePost);
+router.put("/post/:id/reject", isAdmin, rejectPost);
+
+
 // UPDATE POST
 router.put("/update-post/:id", requireSignIn,  upload.single("image"), updatePostController);
 
@@ -42,6 +61,7 @@ router.post("/humanize",requireSignIn, humanizeBlog);
 
 
 router.get('/profile/:id', requireSignIn, getPostsByUser)
+
 
 
 

@@ -161,7 +161,7 @@ toast.success('Content generated and humanized!');
         postData.append('title', title);
         postData.append('content', contentRef.current.innerHTML);
         postData.append('category', category);
-        postData.append('status', status);
+     //   postData.append('status', status);
         postData.append('isFeatured', isFeatured);
         postData.append('image', image);
         postData.append('tags', tags);
