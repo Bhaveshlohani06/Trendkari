@@ -285,10 +285,23 @@ toast.success('Content generated and humanized!');
                 align="end"
               >
                 {userId && (
-                  <NavDropdown.Item as={NavLink} to={`/profile/${userId}`}>
-                    {auth.user.name}
-                  </NavDropdown.Item>
+                  <NavDropdown.Item
+  as={NavLink}
+  to={`/dashboard/user/profile/${userId}`}
+>
+  {auth.user.name}
+</NavDropdown.Item>
                 )}
+
+                {auth?.user?.role === "admin" && (
+  <NavDropdown.Item
+    as={NavLink}
+    to="/dashboard/admin"
+  >
+    Admin Dashboard
+  </NavDropdown.Item>
+)}
+
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleLogout} className="text-danger">
                   Logout

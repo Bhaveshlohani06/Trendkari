@@ -191,6 +191,27 @@ export const getPendingPosts = async (req, res) => {
   res.json({ success: true, posts });
 };
 
+// GET ALL POSTS FOR ADMIN
+export const getAllPostsAdmin = async (req, res) => {
+  try {
+    const posts = await postModel.find({})
+      .populate("author", "name email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: posts.length,
+      posts,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch posts",
+    });
+  }
+};
+
   // APPROVE OR REJECT POST
     export const approvePost = async (req, res) => {
   await postModel.findByIdAndUpdate(req.params.id, {

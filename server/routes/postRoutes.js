@@ -11,7 +11,7 @@ import {
 getPostsByUser,
 updatePostController
 , approvePost,
-  // getAllPostsAdmin,
+  getAllPostsAdmin,
   rejectPost,
 } from "../controllers/postController.js";
 import { requireSignIn, isAdmin, allowUsersAndAdmins } from "../middleware/authMiddleware.js";
@@ -33,20 +33,28 @@ router.get("/get-post/:slug", getPostBySlugController);
 // TOGGLE PUBLISH STATUS
 router.patch("/posts/:id/toggle-publish", togglePublishController);
 
-// APPROVE POST
+// ADMIN POSTS
+router.get(
+  "/admin/posts",
+  requireSignIn,
+  isAdmin,
+  getAllPostsAdmin
+);
+
 router.put(
-  "/admin/posts/approve/:id",
+  "/admin/posts/:id/approve",
   requireSignIn,
   isAdmin,
   approvePost
 );
 
+router.put(
+  "/admin/posts/:id/reject",
+  requireSignIn,
+  isAdmin,
+  rejectPost
+);
 
-// admin routes
-// router.get("/posts", isAdmin, getAllPostsAdmin);
-
-router.put("/post/:id/approve", isAdmin, approvePost);
-router.put("/post/:id/reject", isAdmin, rejectPost);
 
 
 // UPDATE POST

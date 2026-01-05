@@ -173,6 +173,8 @@ import Posts from "./pages/Admin/Posts";
 
 /* Utils */
 import DashboardRedirect from "./pages/DashboardRedirect.";
+import DashboardLayout from "./pages/DashboardLayout";
+
 
 const TRACKING_ID = "G-CGG172MEXZ";
 
@@ -228,23 +230,33 @@ const App = () => {
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* ================= DASHBOARD REDIRECT ================= */}
-        <Route path="/dashboard" element={<DashboardRedirect />} />
+        
 
-        {/* ================= USER ROUTES ================= */}
-        <Route path="/dashboard/user" element={<PrivateRoute />}>
-          <Route index element={<UserDashboard />} />
-          <Route path="profile/:userId" element={<UserProfile />} />
-          <Route path="edit-profile/:userId" element={<EditProfile />} /> 
-        </Route>
 
-        {/* ================= ADMIN ROUTES ================= */}
-        <Route path="/dashboard/admin" element={<AdminRoute />}>
-          <Route index element={<AdminDashboard />} />
-          <Route path="create-category" element={<CreateCategory />} />
-          <Route path="create-post" element={<CreatePost />} />
-          <Route path="posts" element={<Posts />} />
-        </Route>
+       <Route path="/dashboard" element={<DashboardLayout />}>
+  
+  {/* DASHBOARD REDIRECT */}
+  <Route index element={<DashboardRedirect />} />
+
+  {/* USER ROUTES */}
+  <Route path="user" element={<PrivateRoute />}>
+    <Route index element={<UserDashboard />} />
+    <Route path="profile/:userId" element={<UserProfile />} />
+    <Route path="edit-profile/:userId" element={<EditProfile />} />
+  </Route>
+
+  {/* ADMIN ROUTES */}
+  <Route path="admin" element={<AdminRoute />}>
+    <Route index element={<AdminDashboard />} />
+    <Route path="create-category" element={<CreateCategory />} />
+    <Route path="create-post" element={<CreatePost />} />
+    <Route path="posts" element={<Posts />} />
+  </Route>
+
+</Route>
+
+
+
       </Routes>
     </>
   );
