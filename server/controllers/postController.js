@@ -141,44 +141,108 @@ export const getAllPostsController = async (req, res) => {
 //GET SINGLE POST BY SLUG
 
 
+// export const getPostBySlugController = async (req, res) => {
+//   try {
+//     const post = await postModel
+//       .findOne({ slug: req.params.slug,
+//         status: "approved"
+//        })
+//       .populate("category")
+//       .populate("author", "name", "location");
+//     res.status(200).send({ success: true, post });
+//   } catch (error) {
+//     res.status(500).send({ success: false, error });
+//   }
+// };
+
+
+
 export const getPostBySlugController = async (req, res) => {
   try {
     const post = await postModel
-      .findOne({ slug: req.params.slug,
-        status: "approved"
-       })
+      .findOne({
+        slug: req.params.slug,
+        status: "approved",
+      })
       .populate("category")
-      .populate("author", "name", "location");
-    res.status(200).send({ success: true, post });
-  } catch (error) {
-    res.status(500).send({ success: false, error });
-  }
-};
+      .populate("author", "name");
 
-
-// TOGGLE PUBLISH STATUS
-export const togglePublishController = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const post = await postModel.findById(id);
     if (!post) {
-      return res.status(404).send({ success: false, message: "Post not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Post not found or not approved",
+      });
     }
 
-    post.status = post.status === "published" ? "draft" : "published";
-    await post.save();
-
-    res.status(200).send({
+    res.status(200).json({
       success: true,
-      message: `Post ${post.status === "published" ? "published" : "set to draft"}`,
       post,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).send({ success: false, message: "Error toggling status", error });
+    console.log("API Request Params:", req.params);
+    console.error("Get post error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching post",
+    });
   }
 };
+
+
+// export const getPostBySlugController = async (req, res) => {
+//   try {
+//     const post = await postModel
+//       .findOne({
+//         slug: req.params.slug,
+//         status: "approved",
+//         isPublished: true,
+//       })
+//       .populate("category")
+//       .populate("author", "name");
+
+//     if (!post) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Post not found or not approved",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       post,
+//     });
+//   } catch (error) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Error fetching post",
+//     });
+//   }
+// };
+
+
+// TOGGLE PUBLISH STATUS
+// export const togglePublishController = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const post = await postModel.findById(id);
+//     if (!post) {
+//       return res.status(404).send({ success: false, message: "Post not found" });
+//     }
+
+//     post.status = post.status === "published" ? "draft" : "published";
+//     await post.save();
+
+//     res.status(200).send({
+//       success: true,
+//       message: `Post ${post.status === "published" ? "published" : "set to draft"}`,
+//       post,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send({ success: false, message: "Error toggling status", error });
+//   }
+// };
 
 
 // GET PENDING POSTS FOR ADMIN

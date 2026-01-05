@@ -4,7 +4,7 @@ import {
   createPostController,
   getAllPostsController,
   getPostBySlugController,
-  togglePublishController,  
+  // togglePublishController,  
   deletePostController,
   generatePostContent,
   humanizeBlog,
@@ -31,7 +31,7 @@ router.get("/get-post/:slug", getPostBySlugController);
 
 
 // TOGGLE PUBLISH STATUS
-router.patch("/posts/:id/toggle-publish", togglePublishController);
+// router.patch("/posts/:id/toggle-publish", togglePublishController);
 
 // ADMIN POSTS
 router.get(
