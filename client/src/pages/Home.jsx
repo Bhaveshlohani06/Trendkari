@@ -40,7 +40,7 @@ const Home = () => {
       setLoading(true);
       const { data } = await API.get(`/post/get-posts`);
       
-      if (data?.success && data.posts) {
+      if (data?.success && data.posts) {  
         // Filter posts by location
         const filteredPosts = data.posts.filter(post => {
           if (!post.location) return false;

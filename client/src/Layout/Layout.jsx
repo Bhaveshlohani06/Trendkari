@@ -1,24 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
+import Sidebar from "./Sidebar";
 import { Helmet } from "react-helmet";
 import { Toaster } from "react-hot-toast";
-import Sidebar from "./Sidebar";
-import { Container, Row, Col, Alert } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 
-const Layout = ({ children, title = "", description = "", keywords = "", author = "" }) => {
+import { shouldShowWhatsappPopup } from "../Components/HelperFunction";
+import WhatsappPopup from "../Components/WhatsappPopup";
+
+const Layout = ({
+  children,
+  title = "",
+  description = "",
+  keywords = "",
+  author = ""
+}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const today = new Date();
-  const options = { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' };
-  const formattedDate = today.toLocaleDateString('en-US', options);
+  const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
+  /* 🔔 WhatsApp popup logic */
+// useEffect(() => {
+//   if (!shouldShowWhatsappPopup()) return;
+
+//   const timer = setTimeout(() => {
+//     setShowWhatsappPopup(true);
+//   }, 500);
+
+//   return () => clearTimeout(timer);
+// }, []);
+
+useEffect(() => {
+  if (!shouldShowWhatsappPopup()) return;
+
+  const onScroll = () => {
+    if (window.scrollY > 300) {
+      setShowWhatsappPopup(true);
+      window.removeEventListener("scroll", onScroll);
+    }
+  };
+
+  window.addEventListener("scroll", onScroll);
+  return () => window.removeEventListener("scroll", onScroll);
+}, []);
+
+
+const handleClosePopup = () => {
+  setShowWhatsappPopup(false);
+  localStorage.setItem(
+    "whatsapp_popup_last_shown",
+    new Date().toISOString().split("T")[0]
+  );
+};
+
+
   return (
     <>
-      {/* Page metadata */}
+      {/* SEO Meta */}
       <Helmet>
         <meta charSet="utf-8" />
         <meta name="description" content={description} />
@@ -27,53 +68,24 @@ const Layout = ({ children, title = "", description = "", keywords = "", author 
         <title>{title ? `${title} | Trendkari` : "Trendkari"}</title>
       </Helmet>
 
-      {/* News ticker */}
-{/* <Alert
-  variant="warning"
-  className="py-2 mb-0 rounded-0 small fw-medium"
-  style={{ whiteSpace: "nowrap" }}
->
-  <marquee behavior="scroll" direction="left" scrollamount="4">
-    📍 {formattedDate} — 
-    <a
-      href="/city"
-      className="text-dark text-decoration-none fw-semibold"
-    >
-      Local Updates
-    </a> |  
-    <a
-      href="/ramganjmandi/article"
-      className="text-dark text-decoration-none"
-    >
-      Today’s City News
-    </a> | 
-    <a
-      href="/kota/article"
-      className="text-dark text-decoration-none"
-    >
-      Local Jobs & Admit Cards
-    </a> | 
-    <a
-      href="/city/kota"
-      className="text-dark text-decoration-none"
-    >
-      Nearby Events & Alerts 🚨
-    </a>
-  </marquee>
-</Alert> */}
+          {/* WhatsApp Popup */}
+      {showWhatsappPopup && (
+        <WhatsappPopup onClose={handleClosePopup} />
+      )}
 
-
-      {/* Header with toggleSidebar passed down */}
+      {/* Header */}
       <Header toggleSidebar={toggleSidebar} />
 
-      {/* Sidebar (Offcanvas inside component) */}
+
+
+      {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
 
-      {/* Main content container */}
+      {/* Main Content */}
       <Container fluid className="mt-3">
         <Row className="justify-content-center">
           <Col xs={12} md={10} lg={8}>
-            <main>
+            <main style={{ minHeight: "70vh" }}>
               <Toaster position="top-right" />
               {children}
             </main>
@@ -83,6 +95,8 @@ const Layout = ({ children, title = "", description = "", keywords = "", author 
 
       {/* Footer */}
       <Footer />
+
+  
     </>
   );
 };
