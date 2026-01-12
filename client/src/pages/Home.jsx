@@ -30,7 +30,7 @@ const Home = () => {
     { label: "Kota", value: "kota", color: "#1E3A8A" },
     { label: "Ramganj Mandi", value: "ramganjmandi", color: "#059669" },
     { label: "Sangod", value: "sangod", color: "#7C3AED" },
-    { label: "Ladpura", value: "ladpura", color: "#DC2626" },
+    { label: "Ladpura", value: "ladpura", color: "#22c9d5" },
     { label: "Kota Rural", value: "kota-rural", color: "#EA580C" },
   ];
 
