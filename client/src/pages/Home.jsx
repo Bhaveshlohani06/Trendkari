@@ -1,19 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from '../Layout/Layout';
 import toast from 'react-hot-toast';
 import { Select, Skeleton } from 'antd';
 import BlogCard from '../Components/BlogCard';
-import { FiTrendingUp, FiClock, FiZap, FiArrowRight, FiUsers } from 'react-icons/fi';
-import { BsLightningFill, BsNewspaper, BsGraphUp } from 'react-icons/bs';
-import { FaLaughSquint, FaTshirt } from 'react-icons/fa';
-import { MdOutlineScience, MdOutlineVideogameAsset } from 'react-icons/md';
-import QuoteCard from '../Components/Quotes';
+import { FiMapPin, FiSun, FiCloud, FiCloudRain } from 'react-icons/fi';
+import { BsBuilding, BsGraphUp } from 'react-icons/bs';
+import { FaLaughSquint, FaLandmark } from 'react-icons/fa';
+import { Carousel } from 'react-bootstrap';
 import MiniCard from '../Components/MiniCard';
-import CategoryCarousel from '../Components/CategoryCarousel';
-import CategoryNavbar from '../Components/CategoryNavbar';
-import CategorySlider from '../Components/CategoryNavbar';
 import API from '../../utils/api';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/auth';
 import AdBanner from '../Components/AdBanner';
 
@@ -21,576 +17,395 @@ const { Option } = Select;
 
 const Home = () => {
   const [auth] = useAuth();
-  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [usersToFollow, setUsersToFollow] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const observer = useRef();
-    const [isFollowing, setIsFollowing] = useState(false);
-    const [followersCount, setFollowersCount] = useState(0);
-    const [followingCount, setFollowingCount] = useState(0);
+  
+  // Location state
+  const [selectedLocation, setSelectedLocation] = useState('kota');
+  const [weather, setWeather] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
 
+  // Define cities
+  const cities = [
+    { label: "Kota", value: "kota", color: "#1E3A8A" },
+    { label: "Ramganj Mandi", value: "ramganjmandi", color: "#059669" },
+    { label: "Sangod", value: "sangod", color: "#7C3AED" },
+    { label: "Ladpura", value: "ladpura", color: "#DC2626" },
+    { label: "Kota Rural", value: "kota-rural", color: "#EA580C" },
+  ];
 
-    const cities = [
-  { label: "Kota", value: "kota" },
-  { label: "Ramganj Mandi", value: "ramganjmandi" },
-  { label: "Sangod", value: "sangod" },
-  { label: "Ladpura", value: "ladpura" },
-  { label: "Kaithoon", value: "kaithoon" },
-  { label: "Rural Kota", value: "rural-kota" },
-  { label: "Modak", value: "modak" },
-];
-
-  // Get all posts
-  const getAllPosts = async (pageNum = 1, limit = 20) => {
+  // Fetch posts by location
+  const fetchPostsByLocation = async (location) => {
     try {
       setLoading(true);
-      const { data } = await API.get(`/post/get-posts?page=${pageNum}&limit=${limit}`);
-      if (data?.success) {
-        if (pageNum === 1) {
-          setBlogs(data.posts);
-        } else {
-          setBlogs(prev => [...prev, ...data.posts]);
-        }
-        setHasMore(data.posts.length === limit);
+      const { data } = await API.get(`/post/get-posts`);
+      
+      if (data?.success && data.posts) {
+        // Filter posts by location
+        const filteredPosts = data.posts.filter(post => {
+          if (!post.location) return false;
+          
+          const postLocation = post.location.toLowerCase().trim();
+          const targetLocation = location.toLowerCase().trim();
+          
+          // Handle different location naming conventions
+          if (targetLocation === 'kota' && postLocation === 'kota') {
+            return true;
+          }
+          
+          if (targetLocation === 'kota-rural' && (postLocation === 'rural' || postLocation === 'gramin')) {
+            return true;
+          }
+          
+          if (targetLocation === 'ramganjmandi' && postLocation.includes('ramganj')) {
+            return true;
+          }
+          
+          return postLocation === targetLocation;
+        });
+        
+        setBlogs(filteredPosts);
       }
     } catch (error) {
-      console.log("Error fetching blogs", error);
+      console.log("Error fetching posts:", error);
       toast.error("Failed to load posts");
     } finally {
       setLoading(false);
     }
   };
 
-// const getAllPosts = async () => {
-//   try {
-//     setLoading(true);
-
-//     const language = "hi";
-//     const location = "kota";
-
-//     const { data } = await API.get(
-//       `/post/get-posts?language=${language}&location=${location}`
-//     );
-
-//     if (data?.success) {
-//       setBlogs(data.posts);
-//     }
-//   } catch (error) {
-//     console.log("Error fetching blogs", error);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
-
-
-
-
-  // Load categories
- 
- 
-  const getAllCategories = async () => {
+  // Get weather data
+  const getWeatherByCity = async (city) => {
     try {
-      const { data } = await API.get('/category/categories');
-      if (data?.success) {
-        setCategories(data?.categories);
+      setWeatherLoading(true);
+      const { data } = await API.get(`/weather?city=${city}`);
+
+      if (data && data.temp !== undefined) {
+        setWeather({
+          temp: Math.round(data.temp),
+          feelsLike: Math.round(data.feelsLike),
+          condition: data.condition,
+        });
+      } else {
+        setWeather(null);
       }
     } catch (error) {
-      console.log(error);
-      toast.error('Error while loading categories');
+      console.error("Weather fetch failed", error);
+      setWeather(null);
+    } finally {
+      setWeatherLoading(false);
     }
   };
 
-  // Get users to follow
-const getUsersToFollow = async () => {
-  try {
-    const token = auth?.token;
-    // console.log("Token:", token);
-    const { data } = await API.get('/user/users-to-follow', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    // console.log("Response:", data);
-    
-    if (data?.success) {
-      setUsersToFollow(data.users);
-    } else {
-      toast.error('Unexpected response format');
-    }
-  } catch (error) {
-    console.error("API error:", error.response?.data || error.message);
- //   toast.error('Error while loading users');
-  }
-};
+  // Get weather icon
+  const getWeatherIcon = (condition = "") => {
+    const text = condition.toLowerCase();
+    if (text.includes("rain")) return <FiCloudRain className="me-1" />;
+    if (text.includes("cloud")) return <FiCloud className="me-1" />;
+    return <FiSun className="me-1" />;
+  };
 
+  // Handle location change
+  const handleLocationChange = (location) => {
+    setSelectedLocation(location);
+    fetchPostsByLocation(location);
+    getWeatherByCity(location);
+  };
 
-// Use your existing follow function
-const handleFollow = async (userId) => {
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      toast.error('You must be logged in to follow users');
-      return;
-    } 
-
-    const { data } = await API.post(`/auth/${userId}/follow`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-     setIsFollowing(data.following);
-          setFollowersCount(prev => data.following ? prev + 1 : prev - 1);
-          toast.success(data.following ? "Followed successfully!" : "Unfollowed successfully!");
-        } catch (error) {
-          toast.error("Failed to update follow status");
-          console.error(error);
-        }
-      };
-
-
-  // Infinite scroll setup
-  const lastBlogElementRef = useRef();
-  
+  // Initialize
   useEffect(() => {
-    if (loading || !hasMore) return;
-    
-    if (observer.current) observer.current.disconnect();
-    
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prev => prev + 1);
-      }
-    });
-    
-    if (lastBlogElementRef.current) {
-      observer.current.observe(lastBlogElementRef.current);
-    }
-  }, [loading, hasMore]);
-
-  useEffect(() => {
-    getAllPosts(page);
-  }, [page]);
-
-  useEffect(() => {
-    getAllCategories();
-    getUsersToFollow();
+    fetchPostsByLocation(selectedLocation);
+    getWeatherByCity(selectedLocation);
   }, []);
 
-  // Shuffle array function for dynamic content
-  const shuffleArray = (array) => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+  // Get current city info
+  const getCurrentCity = () => cities.find(c => c.value === selectedLocation);
+
+  // Group posts for carousel (3 per slide)
+  const carouselSlides = [];
+  if (blogs.length > 0) {
+    for (let i = 0; i < blogs.length; i += 3) {
+      carouselSlides.push(blogs.slice(i, i + 3));
     }
-    return newArray;
+  }
+
+  // Get posts by category
+  const getPostsByCategory = (categorySlug) => {
+    return blogs.filter(post => post.category?.slug === categorySlug).slice(0, 4);
   };
-
-  // Get random posts for different sections
-  const getRandomPosts = (categorySlug, count) => {
-    const categoryPosts = blogs.filter(post => post.category?.slug === categorySlug);
-    return shuffleArray(categoryPosts).slice(0, count);
-  };
-
-  // Skeleton components
-  const MiniCardSkeleton = () => (
-    <div className="card p-3 mini-card mb-3">
-      <div className="d-flex gap-3">
-        <Skeleton.Avatar active size={80} shape="square" />
-        <div className="w-auto flex-grow-1">
-          <Skeleton paragraph={{ rows: 2 }} active />x
-          <div className="d-flex justify-content-between">
-            <Skeleton.Button active size="small" />
-            <Skeleton.Button active size="small" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const BlogCardSkeleton = () => (
-    <div className="card h-100">
-      <Skeleton.Image style={{ width: '100%', height: '180px' }} active />
-      <div className="card-body">
-        <Skeleton paragraph={{ rows: 2 }} active />
-        <div className="d-flex justify-content-between">
-          <Skeleton.Button active size="small" />
-          <Skeleton.Button active size="small" />
-        </div>
-      </div>
-    </div>
-  );
-
 
   return (
     <Layout>
-      {/* Category Navbar */}
-      {/* <CategorySlider /> */}
-
-<div className="container my-4">
-  {/* Section Header */}
-  <div className="d-flex align-items-center mb-2">
-    <span className="fw-semibold text-dark small text-uppercase">
-      Browse by City
-    </span>
-  </div>
-
-  {/* City Pills */}
-  <div className="d-flex gap-2 overflow-auto pb-1">
-    {cities.map(city => (
-      <Link
-        key={city.value}
-        to={`/city/${city.value}`}
-        className="btn btn-light border rounded-pill px-3 py-1 small text-dark flex-shrink-0"
-      >
-        {city.label}
-      </Link>
-    ))}
-  </div>
-</div>
-
-
-
-
-
-
-      {/* Ad Banner */}
-      {/* <div className="my-4">
-        <AdBanner />
-      </div> */}
-
-      
-
-      {/* Hero Section with Skeleton */}
-      <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            {loading ? (
-              <>
-                <Skeleton.Input active size="large" className="mb-4" style={{ width: 400, height: 50 }} />
-                <Skeleton paragraph={{ rows: 1 }} active style={{ maxWidth: 600, margin: '0 auto' }} />
-              </>
-            ) : (
-<>
-  <h1 className="text-4xl md:text-5xl font-bold mb-4 text-dark">
-    Trendkari — Hyperlocal News & City Trends
-  </h1>
-  <p className="text-xl md:text-2xl max-w-3xl mx-auto text-dark">
-    Latest news, updates, events and stories from your city — all in one place
-  </p>
-</>
-
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Trending Now Section with Skeleton */}
-      <section className="py-5 bg-light">
+      {/* Location Header with Weather */}
+      <div className="location-header py-3" style={{
+        backgroundColor: getCurrentCity()?.color || "#1E3A8A",
+        color: "white",
+      }}>
         <div className="container">
-          <div className="row">
-            {/* LEFT: Trending Now */}
-            <div className="col-md-6">
-              <div className="mb-3">
-                <h2 className="h4 fw-bold text-dark d-flex align-items-center">
-                  <BsLightningFill className="text-warning me-2" />
-                  Trending Now
-                </h2>
-                <p className="text-muted">What's buzzing across the internet today</p>
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            {/* City Info with Weather */}
+            <div className="d-flex align-items-center">
+              <FiMapPin className="me-2 fs-5" />
+              <div>
+                <h5 className="mb-0 fw-bold">{getCurrentCity()?.label} News</h5>
+                <small className="opacity-75">Hyperlocal updates from your area</small>
+                
+                {/* Weather Display */}
+                <div className="d-flex align-items-center gap-2 mt-1 small">
+                  {weatherLoading ? (
+                    <span className="opacity-75">Loading weather…</span>
+                  ) : weather ? (
+                    <>
+                      {getWeatherIcon(weather.condition)}
+                      <span>
+                        {weather.temp}°C · {weather.condition}
+                      </span>
+                      <span className="opacity-50">
+                        • Feels like {weather.feelsLike}°C
+                      </span>
+                    </>
+                  ) : (
+                    <span className="opacity-75">Weather unavailable</span>
+                  )}
+                </div>
               </div>
-
-              {loading ? (
-                <div className="d-flex flex-column gap-3">
-                  {[...Array(10)].map((_, i) => (
-                    <MiniCardSkeleton key={i} />
-                  ))}
-                </div>
-              ) : blogs.filter((post) => post.isFeatured).length === 0 ? (
-                <p className="text-muted">No trending posts found</p>
-              ) : (
-                <div className="d-flex flex-column gap-3">
-                  {shuffleArray(blogs.filter((post) => post.isFeatured))
-                    .slice(0, 10)
-                    .map((post) => (
-                      <MiniCard key={post._id} post={post} />
-                    ))}
-                </div>
-              )}
             </div>
 
-            {/* RIGHT: What's Buzzing */}
-            <div className="col-md-6">
-              <div className="d-flex align-items-center mb-3">
-                <FiTrendingUp className="text-warning me-2" />
-                <h2 className="h4 fw-bold text-dark m-0">What's Buzzing on Trendkari?</h2>
-              </div>
-              <p className="text-muted mb-4">
-                The trends here change fast, so stay tuned and stay curious.
-              </p>
-
-              {loading ? (
-                <div className="row g-4">
-                  {[...Array(6)].map((_, i) => (
-                    <div className="col-md-6" key={i}>
-                      <BlogCardSkeleton />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="row g-4">
-                  {shuffleArray(blogs).slice(0, 6).map((post) => (
-                    <div className="col-md-6" key={post._id}>
-                      <BlogCard post={post} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Users to Follow Carousel */}
-      <section className="py-4 bg-white">
-        <div className="container">
-          <div className="d-flex align-items-center mb-4">
-            <FiUsers className="text-primary me-2 fs-4" />
-            <h3 className="h5 fw-bold mb-0">Trending Creators</h3>
-            <Link to="/" className="ms-auto text-decoration-none small">
-              View all <FiArrowRight className="ms-1" />
-            </Link>
-          </div>
-          
-          {loading ? (
-            <div className="d-flex overflow-hidden">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="mx-2 text-center" style={{ minWidth: '100px' }}>
-                  <Skeleton.Avatar active size={64} />
-                  <Skeleton paragraph={{ rows: 1 }} active className="mt-2" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="d-flex overflow-auto pb-3">
-              {usersToFollow.slice(0, 15).map((user) => (
-                <div key={user._id} className="mx-2 text-center">
-                  <Link to={`/profile/${user._id}`} style={{ textDecoration: "none", color: "inherit" }}>
-                    <img
-                      src={user.avatar || "/default-avatar.png"}
-                      alt={user.name}
-                      className="rounded-circle border"
-                      style={{ width: "64px", height: "64px", objectFit: "cover", cursor: "pointer" }}
-                    />
-                    <p className="small fw-medium mt-2 mb-1">{user.name}</p>
-                  </Link>
-
-                  <button className="btn btn-outline-primary btn-sm" onClick={() => handleFollow()}>Follow</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Categories Section */}
-      <section className="py-4 bg-white">
-        <div className="container">
-          <div><CategoryCarousel /></div>
-        </div>
-      </section>
-
-      {/* Quote Section */}
-      <div className="p-4">
-        <QuoteCard />
-      </div>
-
-      {/* Latest Posts Section with Skeleton */}
-      <section className="py-5 bg-light">
-        <div className="container">
-          <div className="row">
-            {/* LEFT: Startup News */}
-            <div className="col-md-6">
-              <div className="mb-3">
-                <h2 className="h4 fw-bold text-dark d-flex align-items-center">
-                  <FiClock className="text-warning me-2" />
-                  India's Hottest Startups – Daily Highlights
-                </h2>
-                <p className="text-muted">Stay ahead with real-time updates on emerging unicorns, disruptive ideas, and founder spotlights.</p>
-              </div>
-
-              {loading ? (
-                <div className="d-flex flex-column gap-3">
-                  {[...Array(18)].map((_, i) => (
-                    <MiniCardSkeleton key={i} />
-                  ))}
-                </div>
-              ) : getRandomPosts('startup-news', 18).length === 0 ? (
-                <p className="text-muted">No startup posts found</p>
-              ) : (
-                <div className="d-flex flex-column gap-3">
-                  {getRandomPosts('startup-news', 18).map((post) => (
-                    <MiniCard key={post._id} post={post} />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT: Politics */}
-            <div className="col-md-6">
-              <div className="d-flex align-items-center mb-3">
-                <BsNewspaper className="text-warning me-2" />
-                <h2 className="h4 fw-bold text-dark m-0">Politics</h2>
-              </div>
-              <p className="text-muted mb-4">
-                Explore exciting updates and insights from the world of entertainment and pop culture.
-              </p>
-
-              {loading ? (
-                <div className="row g-4">
-                  {[...Array(10)].map((_, i) => (
-                    <div className="col-md-6" key={i}>
-                      <BlogCardSkeleton />
-                    </div>
-                  ))}     
-                </div>
-              ) : (
-                <div className="row g-4">
-                  {getRandomPosts('politics', 10).map((post) => (
-                    <div className="col-md-6" key={post._id}>
-                      <BlogCard post={post} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-           
-            <div className="my-4">
-        <AdBanner />
-      </div>
-
-
-      {/* CTA Section */}
-      <section className="py-5" style={{ backgroundColor: "#f8f9fa" }}>
-        <div className="container text-center">
-          <h2 className="fw-semibold mb-3">Stay Updated with Daily Viral Trends</h2>
-          <p className="text-muted mb-4" style={{ maxWidth: "600px", margin: "0 auto" }}>
-            Get the latest buzz in tech, fashion, memes, and more—delivered straight to your inbox.
-          </p>
-
-          <form
-            className="row g-2 justify-content-center align-items-center"
-            style={{ maxWidth: "600px", margin: "0 auto" }}
-          >
-            <div className="col-12 col-sm-8">
-              <input
-                type="email"
-                className="form-control rounded-2"
-                placeholder="Your email address"
-                required
-              />
-            </div>
-            <div className="col-12 col-sm-4">
-              <button
-                type="submit"
-                className="btn btn-dark w-100 fw-medium"
-                style={{ padding: "10px 0" }}
-              >
-                Subscribe
-              </button>
-            </div>
-          </form>
-
-          <p className="text-muted mt-3 small">
-            No spam, just useful updates. Unsubscribe anytime.
-          </p>
-        </div>
-      </section>
-
-      {/* Tech and Fashion Section with Skeleton */}
-      <section className="py-5 bg-light">
-        <div className="container">
-          <div className="row">
-            {/* LEFT: Tech */}
-            <div className="col-md-6">
-              <div className="mb-3">
-                <h2 className="h4 fw-bold text-dark d-flex align-items-center">
-                  <MdOutlineScience className="text-warning me-2" />
-                  What's Hot in Tech 2025
-                </h2>
-                <p className="text-muted">Fast, fresh, and futuristic — your daily dose of what's trending in the tech world.</p>
-              </div>
-
-              {loading ? (
-                <div className="d-flex flex-column gap-3">
-                  {[...Array(10)].map((_, i) => (
-                    <MiniCardSkeleton key={i} />
-                  ))}
-                </div>
-              ) : getRandomPosts('tech', 10).length === 0 ? (
-                <p className="text-muted">No tech posts found</p>
-              ) : (
-                <div className="d-flex flex-column gap-3">
-                  {getRandomPosts('tech', 10).map((post) => (
-                    <MiniCard key={post._id} post={post} />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* RIGHT: Fashion */}
-            <div className="col-md-6">
-              <div className="d-flex align-items-center mb-3">
-                <FaTshirt className="text-warning me-2" />
-                <h2 className="h4 fw-bold text-dark m-0">Style Radar: Looks That Rule the Internet</h2>
-              </div>
-              <p className="text-muted mb-4">
-                Catch the bold, the beautiful, and the bizarre—straight from Instagram, runways, and real streets.
-              </p>
-
-              {loading ? (
-                <div className="row g-4">
-                  {[...Array(10)].map((_, i) => (
-                    <div className="col-md-6" key={i}>
-                      <BlogCardSkeleton />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="row g-4">
-                  {getRandomPosts('fashion', 10).map((post) => (
-                    <div className="col-md-6" key={post._id}>
-                      <BlogCard post={post} />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Infinite scroll trigger */}
-      {hasMore && (
-        <div ref={lastBlogElementRef} className="text-center my-4">
-          {loading ? (
-            <Skeleton active />
-          ) : (
-            <button 
-              className="btn btn-outline-primary"
-              onClick={() => setPage(prev => prev + 1)}
+            {/* Location Selector */}
+            <Select
+              value={selectedLocation}
+              onChange={handleLocationChange}
+              style={{ width: 220 }}
+              suffixIcon={<FiMapPin />}
+              dropdownStyle={{ backgroundColor: "white" }}
             >
-              Load More
-            </button>
-          )}
+              {cities.map((city) => (
+                <Option key={city.value} value={city.value}>
+                  <div className="d-flex align-items-center">
+                    <span style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      backgroundColor: city.color,
+                      marginRight: 8,
+                    }} />
+                    {city.label}
+                  </div>
+                </Option>
+              ))}
+            </Select>
+          </div>
         </div>
-      )}
+      </div>
+
+      {/* Location Tabs */}
+      <div className="container-fluid bg-light py-2">
+        <div className="container">
+          <div className="d-flex overflow-auto">
+            {cities.map(city => (
+              <button
+                key={city.value}
+                className={`btn ${selectedLocation === city.value ? 'text-white' : 'text-dark'} rounded-pill me-2 px-3 py-2`}
+                onClick={() => handleLocationChange(city.value)}
+                style={{
+                  backgroundColor: selectedLocation === city.value ? city.color : 'transparent',
+                  border: `1px solid ${selectedLocation === city.value ? city.color : '#dee2e6'}`,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <FiMapPin className="me-1" />
+                {city.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="container mt-4">
+        {/* Posts Carousel */}
+        <section className="mb-5">
+          <div className="d-flex align-items-center justify-content-between mb-4">
+            <h3 className="h5 fw-bold">Top Stories from {getCurrentCity()?.label}</h3>
+            <div className="small text-muted">
+              {loading ? 'Loading...' : `${blogs.length} posts`}
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="row g-4">
+              {[1, 2, 3].map(i => (
+                <div className="col-md-4" key={i}>
+                  <div className="card h-100">
+                    <Skeleton.Image style={{ width: '100%', height: '200px' }} active />
+                    <div className="card-body">
+                      <Skeleton active paragraph={{ rows: 2 }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : blogs.length > 0 ? (
+            <Carousel indicators={carouselSlides.length > 1} controls={carouselSlides.length > 1}>
+              {carouselSlides.map((slide, index) => (
+                <Carousel.Item key={index}>
+                  <div className="row g-4">
+                    {slide.map(post => (
+                      <div className="col-md-4" key={post._id}>
+                        <BlogCard post={post} />
+                      </div>
+                    ))}
+                  </div>
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          ) : (
+            <div className="text-center py-5 bg-light rounded">
+              <p className="text-muted">No posts available for {getCurrentCity()?.label}</p>
+            </div>
+          )}
+        </section>
+
+        {/* Government Updates */}
+        <section className="mb-5">
+          <div className="d-flex align-items-center mb-4">
+            <BsBuilding className="me-2 fs-4 text-primary" />
+            <h4 className="fw-bold m-0">Government Updates</h4>
+          </div>
+
+          {loading ? (
+            <div className="row g-4">
+              {[1, 2, 3, 4].map(i => (
+                <div className="col-md-3" key={i}>
+                  <div className="card h-100">
+                    <Skeleton active paragraph={{ rows: 3 }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : getPostsByCategory('government').length > 0 ? (
+            <div className="row g-4">
+              {getPostsByCategory('government').map(post => (
+                <div className="col-md-3" key={post._id}>
+                  <div className="card h-100 border-0 shadow-sm">
+                    <div className="card-body">
+                      <div className="d-flex align-items-start mb-2">
+                        <FaLandmark className="text-primary me-2" />
+                        <small className="text-muted">Government</small>
+                      </div>
+                      <h6 className="card-title fw-bold">{post.title}</h6>
+                      <p className="card-text small text-muted">
+                        {post.description?.substring(0, 100)}...
+                      </p>
+                      <Link to={`/article/${encodeURIComponent(post.slug)}`} className="small text-primary text-decoration-none">
+                        Read more →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="alert alert-info">
+              <BsBuilding className="me-2" />
+              No government updates for {getCurrentCity()?.label}
+            </div>
+          )}
+        </section>
+
+        {/* Local Community Updates */}
+        {/* <section className="mb-5">
+          <div className="d-flex align-items-center mb-4">
+            <FaLaughSquint className="me-2 fs-4 text-success" />
+            <h4 className="fw-bold m-0">Local Community Updates</h4>
+          </div>
+
+          {loading ? (
+            <div className="row">
+              <div className="col-md-8">
+                <Skeleton active paragraph={{ rows: 4 }} />
+              </div>
+              <div className="col-md-4">
+                <Skeleton active paragraph={{ rows: 4 }} />
+              </div>
+            </div>
+          ) : getPostsByCategory('local').length > 0 ? (
+            <div className="row g-4">
+              <div className="col-md-8">
+                {getPostsByCategory('local').slice(0, 3).map(post => (
+                  <MiniCard key={post._id} post={post} />
+                ))}
+              </div>
+              <div className="col-md-4">
+                <div className="card border-0 shadow-sm h-100">
+                  <div className="card-body">
+                    <h6 className="fw-bold mb-3">Local Highlights</h6>
+                    <p className="small text-muted">
+                      Stay updated with the latest happenings in {getCurrentCity()?.label}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="alert alert-info">
+              <FaLaughSquint className="me-2" />
+              No local updates for {getCurrentCity()?.label}
+            </div>
+          )}
+        </section> */}
+
+        {/* Business & Economy */}
+        {/* <section className="mb-5">
+          <div className="d-flex align-items-center mb-4">
+            <BsGraphUp className="me-2 fs-4 text-warning" />
+            <h4 className="fw-bold m-0">Business & Economy</h4>
+          </div>
+
+          {loading ? (
+            <div className="row g-4">
+              {[1, 2].map(i => (
+                <div className="col-md-6" key={i}>
+                  <Skeleton active paragraph={{ rows: 4 }} />
+                </div>
+              ))}
+            </div>
+          ) : getPostsByCategory('business').length > 0 ? (
+            <div className="row g-4">
+              {getPostsByCategory('business').slice(0, 2).map(post => (
+                <div className="col-md-6" key={post._id}>
+                  <BlogCard post={post} />
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section> */}
+
+        {/* All Posts Grid */}
+        {blogs.length > 0 && !loading && (
+          <section className="mb-5">
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <h4 className="fw-bold">All Posts from {getCurrentCity()?.label}</h4>
+              <div className="small text-muted">
+                Showing {blogs.length} posts
+              </div>
+            </div>
+            
+            <div className="row g-4">
+              {blogs.map(post => (
+                <div className="col-md-3" key={post._id}>
+                  <BlogCard post={post} />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Ad Banner */}
+        {/* <div className="my-5">
+          <AdBanner />
+        </div> */}
+      </div>
     </Layout>
-    
   );
 };
 

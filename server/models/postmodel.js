@@ -15,7 +15,8 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
+      index: true,
+      trim: true
     },
     content: {
       type: String,

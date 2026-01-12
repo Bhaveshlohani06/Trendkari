@@ -6,6 +6,13 @@ import fs from "fs";
 import formidable from "formidable";
 import { imagekit } from "../config/imaegkit.js";
 import main from '../config/gemini.js';
+import transliterate from "@sindresorhus/transliterate";
+import { generateSlug } from '../helper/slugGenerator.js';
+
+
+
+//
+
 
 // CREATE POST
 export const createPostController = async (req, res) => {
@@ -26,6 +33,21 @@ export const createPostController = async (req, res) => {
         case !location:
         return res.status(400).send({ message: "Location is required" });
     }
+    // Generate slug
+      const baseSlug = generateSlug(title);
+
+    if (!baseSlug) {
+      return res.status(400).send({ message: "Slug generation failed" });
+    }
+
+    // 🔁 Ensure uniqueness
+    let slug = baseSlug;
+    let count = 1;
+
+    while (await postModel.exists({ slug })) {
+      slug = `${baseSlug}-${count++}`;
+    }
+
 const post = new postModel({
   title,
   content,
@@ -33,7 +55,7 @@ const post = new postModel({
   author: req.user.id,
   language,
   location,
-  slug: slugify(title, { lower: true, strict: true }),
+  slug,
   tags: tags ? tags.split(",") : [],
   isFeatured: isFeatured === "true",
 
@@ -63,6 +85,9 @@ const post = new postModel({
 
       post.image = optimizedImageUrl;
     }
+
+           console.log("TITLE:", title);
+console.log("GENERATED SLUG:", slug);
 
     await post.save();
 
@@ -154,14 +179,17 @@ export const getAllPostsController = async (req, res) => {
 //     res.status(500).send({ success: false, error });
 //   }
 // };
-
+  
 
 
 export const getPostBySlugController = async (req, res) => {
   try {
+    // ✅ Decode slug (VERY IMPORTANT for Hindi)
+    const decodedSlug = decodeURIComponent(req.params.slug);
+
     const post = await postModel
       .findOne({
-        slug: req.params.slug,
+        slug: decodedSlug,
         status: "approved",
       })
       .populate("category")
@@ -179,7 +207,7 @@ export const getPostBySlugController = async (req, res) => {
       post,
     });
   } catch (error) {
-    console.log("API Request Params:", req.params);
+    console.log("Raw slug:", req.params.slug);
     console.error("Get post error:", error);
     res.status(500).json({
       success: false,
@@ -187,6 +215,7 @@ export const getPostBySlugController = async (req, res) => {
     });
   }
 };
+
 
 
 // export const getPostBySlugController = async (req, res) => {
