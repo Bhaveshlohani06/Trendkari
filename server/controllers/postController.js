@@ -6,41 +6,146 @@ import fs from "fs";
 import formidable from "formidable";
 import { imagekit } from "../config/imaegkit.js";
 import main from '../config/gemini.js';
-import transliterate from "@sindresorhus/transliterate";
 import { generateSlug } from '../helper/slugGenerator.js';
-
+import { hindiToRoman } from '../utils/slugify.js';
+import {transliterate} from "transliteration";
 
 
 //
 
 
 // CREATE POST
+// export const createPostController = async (req, res) => {
+//   try {
+//     const { title, content, language, location, category, tags, isFeatured } = req.body;
+//     const image = req.file;
+    
+//     // Validation
+//     switch (true) {
+//       case !title:
+//         return res.status(400).send({ message: "Title is required" });
+//       case !content:
+//         return res.status(400).send({ message: "Content is required" });
+//       case !category:
+//         return res.status(400).send({ message: "Category is required" });
+//         case !language:
+//         return res.status(400).send({ message: "Langugage is required" });
+//         case !location:
+//         return res.status(400).send({ message: "Location is required" });
+//     }
+//     // Generate slug
+//     //   const baseSlug = generateSlug(title);
+
+//     // if (!baseSlug) {
+//     //   return res.status(400).send({ message: "Slug generation failed" });
+//     // }
+
+//     // // 🔁 Ensure uniqueness
+//     // let slug = baseSlug;
+//     // let count = 1;
+
+//     // while (await postModel.exists({ slug })) {
+//     //   slug = `${baseSlug}-${count++}`;
+//     // }     
+
+
+//     // ✅ Slug generation with Hindi transliteration
+//     let slug; 
+//     if (language === "hindi") {
+//       const romanizedTitle = hindiToRoman(title);
+//       slug = generateSlug(romanizedTitle);
+//     } else {
+//       slug = generateSlug(title);
+//     }
+
+
+// const post = new postModel({
+//   title,
+//   content,
+//   category,
+//   author: req.user.id,
+//   language,
+//   location,
+//   slug,
+//   tags: tags ? tags.split(",") : [],
+//   isFeatured: isFeatured === "true",
+
+//   // 🔒 FORCE moderation
+//   status: "pending",
+//   isPublished: false
+// });
+
+
+//     if (image) {
+//       const fileBuffer = fs.readFileSync(image.path);
+
+//       const response = await imagekit.upload({
+//         file: fileBuffer,
+//         fileName: image.originalname,
+//         folder: '/posts',
+//       });
+
+//       const optimizedImageUrl = imagekit.url({
+//         path: response.filePath,
+//         transformation: [
+//           { quality: 'auto' },
+//           { format: 'webp' },
+//           { width: '1280' },
+//         ],
+//       });
+
+//       post.image = optimizedImageUrl;
+//     }
+
+//            console.log("TITLE:", title);
+// console.log("GENERATED SLUG:", slug);
+
+//     await post.save();
+
+//     res.status(201).send({
+//       success: true,
+//       message: "Post submitted for admin approval",
+//       post,
+//     });
+//   } catch (error) {
+//   console.error("Create Post Error:", error.message, error.stack);
+//   res.status(500).send({
+//     success: false,
+//     message: "Error creating post",
+//     error: error.message,
+//   });
+// }
+// };
+
 export const createPostController = async (req, res) => {
   try {
-    const { title, content, language, location, category, tags, isFeatured } = req.body;
+    const {
+      title,
+      content,
+      language,
+      location,
+      category,
+      tags,
+      isFeatured,
+    } = req.body;
+
     const image = req.file;
-    
-    // Validation
-    switch (true) {
-      case !title:
-        return res.status(400).send({ message: "Title is required" });
-      case !content:
-        return res.status(400).send({ message: "Content is required" });
-      case !category:
-        return res.status(400).send({ message: "Category is required" });
-        case !language:
-        return res.status(400).send({ message: "Langugage is required" });
-        case !location:
-        return res.status(400).send({ message: "Location is required" });
-    }
-    // Generate slug
-      const baseSlug = generateSlug(title);
+
+    // ✅ Validation
+    if (!title) return res.status(400).json({ message: "Title is required" });
+    if (!content) return res.status(400).json({ message: "Content is required" });
+    if (!category) return res.status(400).json({ message: "Category is required" });
+    if (!language) return res.status(400).json({ message: "Language is required" });
+    if (!location) return res.status(400).json({ message: "Location is required" });
+
+    // ✅ Generate base slug (Hindi/English auto handled)
+    const baseSlug = generateSlug(title);
 
     if (!baseSlug) {
-      return res.status(400).send({ message: "Slug generation failed" });
+      return res.status(400).json({ message: "Slug generation failed" });
     }
 
-    // 🔁 Ensure uniqueness
+    // ✅ Ensure UNIQUE slug
     let slug = baseSlug;
     let count = 1;
 
@@ -48,62 +153,58 @@ export const createPostController = async (req, res) => {
       slug = `${baseSlug}-${count++}`;
     }
 
-const post = new postModel({
-  title,
-  content,
-  category,
-  author: req.user.id,
-  language,
-  location,
-  slug,
-  tags: tags ? tags.split(",") : [],
-  isFeatured: isFeatured === "true",
+    // ✅ Create post
+    const post = new postModel({
+      title,
+      content,
+      category,
+      author: req.user.id,
+      language,
+      location,
+      slug,
+      tags: tags ? tags.split(",") : [],
+      isFeatured: isFeatured === "true",
+      status: "pending",
+      isPublished: false,
+    });
 
-  // 🔒 FORCE moderation
-  status: "pending",
-  isPublished: false
-});
-
-
+    // ✅ Image upload (safe)
     if (image) {
       const fileBuffer = fs.readFileSync(image.path);
 
       const response = await imagekit.upload({
         file: fileBuffer,
         fileName: image.originalname,
-        folder: '/posts',
+        folder: "/posts",
       });
 
-      const optimizedImageUrl = imagekit.url({
+      post.image = imagekit.url({
         path: response.filePath,
         transformation: [
-          { quality: 'auto' },
-          { format: 'webp' },
-          { width: '1280' },
+          { quality: "auto" },
+          { format: "webp" },
+          { width: "1280" },
         ],
       });
-
-      post.image = optimizedImageUrl;
     }
 
-           console.log("TITLE:", title);
-console.log("GENERATED SLUG:", slug);
+    console.log("TITLE:", title);
+    console.log("FINAL SLUG:", slug);
 
     await post.save();
 
-    res.status(201).send({
+    res.status(201).json({
       success: true,
       message: "Post submitted for admin approval",
       post,
     });
   } catch (error) {
-  console.error("Create Post Error:", error.message, error.stack);
-  res.status(500).send({
-    success: false,
-    message: "Error creating post",
-    error: error.message,
-  });
-}
+    console.error("Create Post Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error creating post",
+    });
+  }
 };
 
 
