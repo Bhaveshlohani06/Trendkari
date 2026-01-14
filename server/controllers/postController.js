@@ -6,9 +6,10 @@ import fs from "fs";
 import formidable from "formidable";
 import { imagekit } from "../config/imaegkit.js";
 import main from '../config/gemini.js';
-import { generateSlug } from '../helper/slugGenerator.js';
-import { hindiToRoman } from '../utils/slugify.js';
-import {transliterate} from "transliteration";
+//import { generateSlug } from '../helper/slugGenerator.js';
+import { generateSlug } from '../utils/slugify.js';
+// import { hindiToRoman } from '../utils/slugify.js';
+// import {transliterate} from "transliteration";
 
 
 //
@@ -138,20 +139,19 @@ export const createPostController = async (req, res) => {
     if (!language) return res.status(400).json({ message: "Language is required" });
     if (!location) return res.status(400).json({ message: "Location is required" });
 
-    // ✅ Generate base slug (Hindi/English auto handled)
-    const baseSlug = generateSlug(title);
+  const baseSlug = generateSlug(title);
 
-    if (!baseSlug) {
-      return res.status(400).json({ message: "Slug generation failed" });
-    }
+if (!baseSlug) {
+  return res.status(400).json({ message: "Slug generation failed" });
+}
 
-    // ✅ Ensure UNIQUE slug
-    let slug = baseSlug;
-    let count = 1;
+// Ensure uniqueness
+let slug = baseSlug;
+let count = 1;
 
-    while (await postModel.exists({ slug })) {
-      slug = `${baseSlug}-${count++}`;
-    }
+while (await postModel.exists({ slug })) {
+  slug = `${baseSlug}-${count++}`;
+}
 
     // ✅ Create post
     const post = new postModel({
