@@ -1,6 +1,11 @@
 importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
 importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js");
 
+import { getMessaging, onMessage } from "firebase/messaging";
+
+import React from "react";
+import { toast as showToast } from "react-hot-toast";
+
 firebase.initializeApp({
  apiKey: "AIzaSyAlmRM9AlAFrWUw7fAp1UrXyUiu8iUjet8",
   authDomain: "trendkari-22b1a.firebaseapp.com",
@@ -11,18 +16,33 @@ firebase.initializeApp({
   measurementId: "G-HMS0TBEYNP"
 });
 
-const messaging = firebase.messaging();
+// const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage(payload => {
-  const title = payload.notification?.title || "Trendkari";
+// messaging.onBackgroundMessage(payload => {
+//   const title = payload.notification?.title || "Trendkari";
 
-  self.registration.showNotification(title, {
-    body: payload.notification?.body || "New update",
-    icon: "/icon-192.png",
-    data: payload.data || {},
-    requireInteraction: true
-  });
+//   self.registration.showNotification(title, {
+//     body: payload.notification?.body || "New update",
+//     icon: "/icon-192.png",
+//     data: payload.data || {},
+//     requireInteraction: true
+//   });
+// });
+
+
+export const messaging = getMessaging(firebaseApp);
+
+onMessage(messaging, (payload) => {
+  console.log("🔔 Foreground message:", payload);
+
+  // Show custom notification
+  showToastNotification(
+    payload.notification?.title,
+    payload.notification?.body
+  );
 });
+
+
 
 self.addEventListener("notificationclick", event => {
   event.notification.close();
@@ -30,3 +50,15 @@ self.addEventListener("notificationclick", event => {
     clients.openWindow(event.notification.data?.link || "/")
   );
 });
+
+
+
+
+const showToastNotification = (title, body) => {
+  toast(
+    <div>
+      <strong>{title}</strong>
+      <p>{body}</p>
+    </div>
+  );
+};

@@ -10,6 +10,9 @@ import main from '../config/gemini.js';
 import { generateSlug } from '../utils/slugify.js';
 // import { hindiToRoman } from '../utils/slugify.js';
 // import {transliterate} from "transliteration";
+import Notification from '../models/Notification.js';
+import { sendBroadcastPush } from '../controllers/notification.js';
+
 
 
 //
@@ -407,13 +410,74 @@ export const getAllPostsAdmin = async (req, res) => {
 };
 
   // APPROVE OR REJECT POST
-    export const approvePost = async (req, res) => {
-  await postModel.findByIdAndUpdate(req.params.id, {
-    status: "approved",
-    isPublished: true,
-  });
 
-  res.json({ success: true, message: "Post approved" });
+
+//     export const approvePost = async (req, res) => {
+//   await postModel.findByIdAndUpdate(req.params.id, {
+//     status: "approved",
+//     isPublished: true,
+//   }
+// );
+//   res.json({ success: true, message: "Post approved" });
+// };
+
+
+export const approvePost = async (req, res) => {
+  try {
+    // 1️⃣ Approve post and GET updated post
+    const post = await postModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: "approved",
+        isPublished: true,
+      },
+      { new: true } // 🔥 IMPORTANT
+    );
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
+
+    // 2️⃣ Save notification
+ const notification = await Notification.create({
+  title: "नई खबर प्रकाशित हुई 📰",
+  body: post.title,
+  type: "post",
+  postId: post._id,
+  city: post.city,
+  area: post.area,
+  link: `https://www.trendkari.in/${post.city}/article/${post.slug}`,
+});
+
+console.log("✅ Notification saved:", notification);
+
+
+    // 3️⃣ Send push (do NOT block approval if it fails)
+    sendBroadcastPush({
+       title: "नई खबर",
+      body: post.title,
+      platform: "web",
+      link: notification.link,
+    }).catch(err =>
+      console.error("Push failed:", err.message)
+    );
+
+    // 4️⃣ Response
+    res.json({
+      success: true,
+      message: "Post approved & notification sent",
+    });
+
+  } catch (error) {
+    console.error("Approve post error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
 };
 
 
