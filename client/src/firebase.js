@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { getMessaging, getToken } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAlmRM9AlAFrWUw7fAp1UrXyUiu8iUjet8",
@@ -21,4 +22,68 @@ export const setUpRecaptcha = (number) => {
   });
 
   return signInWithPhoneNumber(auth, number, recaptcha);
+};
+
+
+
+// Initialize Firebase Cloud Messaging
+export const messaging = getMessaging(app);
+
+// Ask permission & get token
+// export const requestNotificationPermission = async () => {
+//   try {
+//     const permission = await Notification.requestPermission();
+
+//     if (permission !== "granted") {
+//       console.log("Notification permission denied");
+//       return null;
+//     }
+
+//     const token = await getToken(messaging, {
+//       vapidKey: "import.meta.env.VITE_FIREBASE_VAPID_KEY",
+//     });
+
+//     console.log(
+//   "VAPID KEY VALUE:",
+//   import.meta.env.VITE_FIREBASE_VAPID_KEY,
+//   typeof import.meta.env.VITE_FIREBASE_VAPID_KEY,
+//   import.meta.env.VITE_FIREBASE_VAPID_KEY?.length
+// );
+
+//     console.log("FCM Token:", token);
+//     return token;
+//   } catch (error) {
+//     console.error("FCM error:", error);
+//     return null;
+//   }
+// };
+
+
+// Ask permission & get token
+export const requestNotificationPermission = async () => {
+  try {
+    const permission = await Notification.requestPermission();
+
+    if (permission !== "granted") {
+      console.log("Notification permission denied");
+      return null;
+    }
+
+    console.log(
+      "VAPID KEY VALUE:",
+      import.meta.env.VITE_FIREBASE_VAPID_KEY,
+      typeof import.meta.env.VITE_FIREBASE_VAPID_KEY,
+      import.meta.env.VITE_FIREBASE_VAPID_KEY?.length
+    );
+
+    const token = await getToken(messaging, {
+      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    });
+
+    console.log("✅ FCM Token:", token);
+    return token;
+  } catch (error) {
+    console.error("❌ FCM error:", error);
+    return null;
+  }
 };

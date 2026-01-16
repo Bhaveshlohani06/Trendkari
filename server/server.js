@@ -15,6 +15,9 @@ import passport from 'passport';
 import './config/passport.js'; // import the strategy config
 import session from 'express-session';
 import mobileAuthRoutes from './routes/mobileRoutes.js';
+import "./config/firebase.js";
+import notificationRoutes from './routes/notificationRoutes.js';
+import debugPushRoutes from './routes/debugPushRoutes.js';
 
 
 dotenv.config(); // Load environment variables
@@ -86,6 +89,9 @@ app.use('/api/v1/search', searchRoutes);
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/weather', weatherRoutes);
 app.use("/api/v1/mobile", mobileAuthRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/debug-push", debugPushRoutes);
+
 
 app.get("/api/ping", (req, res) => {
   res.json({ message: "Backend working" });

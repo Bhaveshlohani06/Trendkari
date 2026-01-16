@@ -9,11 +9,17 @@ import { FaLaughSquint, FaLandmark } from 'react-icons/fa';
 import { Carousel } from 'react-bootstrap';
 import MiniCard from '../Components/MiniCard';
 import API from '../../utils/api';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';  
 import { useAuth } from '../context/auth';
 import AdBanner from '../Components/AdBanner';
+import { useLocation } from '../context/LocationContext.jsx';
+import { requestNotificationPermission } from '../firebase';
 
 const { Option } = Select;
+
+
+
+
 
 const Home = () => {
   const [auth] = useAuth();
@@ -21,9 +27,19 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   
   // Location state
-  const [selectedLocation, setSelectedLocation] = useState('kota');
+  // const [selectedLocation, setSelectedLocation] = useState('kota');
   const [weather, setWeather] = useState(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
+    const { location, changeLocation } = useLocation();
+  const [selectedLocation, setSelectedLocation] = useState(location);
+
+
+  
+
+    useEffect(() => {
+    requestNotificationPermission();
+  }, []);
+
 
   // Define cities
   const cities = [
@@ -35,44 +51,63 @@ const Home = () => {
   ];
 
   // Fetch posts by location
-  const fetchPostsByLocation = async (location) => {
-    try {
-      setLoading(true);
-      const { data } = await API.get(`/post/get-posts`);
+  // const fetchPostsByLocation = async (location) => {
+  //   try {
+  //     setLoading(true);
+  //     const { data } = await API.get(`/post/get-posts`);
       
-      if (data?.success && data.posts) {  
-        // Filter posts by location
-        const filteredPosts = data.posts.filter(post => {
-          if (!post.location) return false;
+  //     if (data?.success && data.posts) {  
+  //       // Filter posts by location
+  //       const filteredPosts = data.posts.filter(post => {
+  //         if (!post.location) return false;
           
-          const postLocation = post.location.toLowerCase().trim();
-          const targetLocation = location.toLowerCase().trim();
+  //         const postLocation = post.location.toLowerCase().trim();
+  //         const targetLocation = location.toLowerCase().trim();
           
-          // Handle different location naming conventions
-          if (targetLocation === 'kota' && postLocation === 'kota') {
-            return true;
-          }
+  //         // Handle different location naming conventions
+  //         if (targetLocation === 'kota' && postLocation === 'kota') {
+  //           return true;
+  //         }
           
-          if (targetLocation === 'kota-rural' && (postLocation === 'rural' || postLocation === 'gramin')) {
-            return true;
-          }
+  //         if (targetLocation === 'kota-rural' && (postLocation === 'rural' || postLocation === 'gramin')) {
+  //           return true;
+  //         }
           
-          if (targetLocation === 'ramganjmandi' && postLocation.includes('ramganj')) {
-            return true;
-          }
+  //         if (targetLocation === 'ramganjmandi' && postLocation.includes('ramganj')) {
+  //           return true;
+  //         }
           
-          return postLocation === targetLocation;
-        });
+  //         return postLocation === targetLocation;
+  //       });
         
-        setBlogs(filteredPosts);
-      }
-    } catch (error) {
-      console.log("Error fetching posts:", error);
-      toast.error("Failed to load posts");
-    } finally {
-      setLoading(false);
+  //       setBlogs(filteredPosts);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error fetching posts:", error);
+  //     toast.error("Failed to load posts");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+
+  const fetchPostsByLocation = async (location) => {
+  try {
+    setLoading(true);
+    const { data } = await API.get(
+      `/post/get-posts?location=${location}`
+    );
+
+    if (data?.success) {
+      setBlogs(data.posts);
     }
-  };
+  } catch (error) {
+    toast.error("Failed to load posts");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   // Get weather data
   const getWeatherByCity = async (city) => {
@@ -113,10 +148,9 @@ const Home = () => {
   };
 
   // Initialize
-  useEffect(() => {
-    fetchPostsByLocation(selectedLocation);
-    getWeatherByCity(selectedLocation);
-  }, []);
+useEffect(() => {
+  fetchPostsByLocation(location);
+}, [location]);
 
   // Get current city info
   const getCurrentCity = () => cities.find(c => c.value === selectedLocation);
@@ -135,48 +169,34 @@ const Home = () => {
   };
 
   return (
-    <Layout>
+    <Layout
+      title="Home - Trendkari"
+      description="Stay updated with the latest news and articles from Trendkari. Explore insights on local events, government updates, business trends, and community stories tailored for Kota and surrounding areas."
+      keywords="Trendkari, News, Articles, Local Events, Government Updates, Business Trends, Community Stories, Kota News, Rajasthan News"  
+    >
       {/* Location Header with Weather */}
       <div className="location-header py-3" style={{
         backgroundColor: getCurrentCity()?.color || "#1E3A8A",
+        width: "25%",
+        height: "60px",
         color: "white",
+        borderRadius: "8px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: "20px",
       }}>
         <div className="container">
           <div className="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            {/* City Info with Weather */}
-            <div className="d-flex align-items-center">
-              <FiMapPin className="me-2 fs-5" />
-              <div>
-                <h5 className="mb-0 fw-bold">{getCurrentCity()?.label} News</h5>
-                <small className="opacity-75">Hyperlocal updates from your area</small>
-                
-                {/* Weather Display */}
-                <div className="d-flex align-items-center gap-2 mt-1 small">
-                  {weatherLoading ? (
-                    <span className="opacity-75">Loading weather…</span>
-                  ) : weather ? (
-                    <>
-                      {getWeatherIcon(weather.condition)}
-                      <span>
-                        {weather.temp}°C · {weather.condition}
-                      </span>
-                      <span className="opacity-50">
-                        • Feels like {weather.feelsLike}°C
-                      </span>
-                    </>
-                  ) : (
-                    <span className="opacity-75">Weather unavailable</span>
-                  )}
-                </div>
-              </div>
-            </div>
 
             {/* Location Selector */}
             <Select
               value={selectedLocation}
               onChange={handleLocationChange}
-              style={{ width: 220 }}
+              style={{ width: 200 }}
               suffixIcon={<FiMapPin />}
+              backgroundColor="white"
+              textColor="black"
               dropdownStyle={{ backgroundColor: "white" }}
             >
               {cities.map((city) => (
@@ -194,12 +214,13 @@ const Home = () => {
                 </Option>
               ))}
             </Select>
+            
           </div>
         </div>
       </div>
 
       {/* Location Tabs */}
-      <div className="container-fluid bg-light py-2">
+      {/* <div className="container-fluid bg-light py-2">
         <div className="container">
           <div className="d-flex overflow-auto">
             {cities.map(city => (
@@ -219,7 +240,7 @@ const Home = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="container mt-4">
         {/* Posts Carousel */}

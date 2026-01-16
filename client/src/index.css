@@ -175,3 +175,25 @@ h5,
 h6 {
   color: var(--text-color);
 }
+
+
+.location-select {
+  min-width: 200px;
+}
+
+.location-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dark .location-select .ant-select-selector {
+  background-color: #1f2937 !important;
+  color: #fff !important;
+  border-color: #374151 !important;
+}
+
+.dark-dropdown {
+  background-color: #1f2937 !important;
+  color: #fff;
+}

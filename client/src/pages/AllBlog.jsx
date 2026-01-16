@@ -81,6 +81,7 @@ const AllBlogs = () => {
                         <img
                           src={post.image}
                           alt={post.title}
+                          loading="lazy"
                           className="img-fluid rounded-start h-100 object-fit-cover"
                           style={{ maxHeight: '200px', objectFit: 'contain' }}
                         />

@@ -18,20 +18,19 @@ const Layout = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showWhatsappPopup, setShowWhatsappPopup] = useState(false);
+    const [location, setLocation] = useState(
+    localStorage.getItem("preferredLocation") || "kota"
+  );
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
-  /* 🔔 WhatsApp popup logic */
-// useEffect(() => {
-//   if (!shouldShowWhatsappPopup()) return;
 
-//   const timer = setTimeout(() => {
-//     setShowWhatsappPopup(true);
-//   }, 500);
-
-//   return () => clearTimeout(timer);
-// }, []);
+  
+  const handleLocationChange = (value) => {
+    setLocation(value);
+    localStorage.setItem("preferredLocation", value);
+  };
 
 useEffect(() => {
   if (!shouldShowWhatsappPopup()) return;
@@ -75,7 +74,10 @@ const handleClosePopup = () => {
       )}
 
       {/* Header */}
-      <Header toggleSidebar={toggleSidebar} />
+      <Header toggleSidebar={toggleSidebar}
+       selectedLocation={location}
+        onLocationChange={handleLocationChange}
+      />
 
 
 
