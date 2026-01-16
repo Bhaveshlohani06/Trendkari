@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { getMessaging, getToken } from "firebase/messaging";
+import API from "../utils/api";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAlmRM9AlAFrWUw7fAp1UrXyUiu8iUjet8",
@@ -60,7 +61,36 @@ export const messaging = getMessaging(app);
 
 
 // Ask permission & get token
-export const requestNotificationPermission = async () => {
+// export const requestNotificationPermission = async () => {
+//   try {
+//     const permission = await Notification.requestPermission();
+
+//     if (permission !== "granted") {
+//       console.log("Notification permission denied");
+//       return null;
+//     }
+
+//     console.log(
+//       "VAPID KEY VALUE:",
+//       import.meta.env.VITE_FIREBASE_VAPID_KEY,
+//       typeof import.meta.env.VITE_FIREBASE_VAPID_KEY,
+//       import.meta.env.VITE_FIREBASE_VAPID_KEY?.length
+//     );
+
+//     const token = await getToken(messaging, {
+//       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+//     });
+
+//     console.log("✅ FCM Token:", token);
+//     return token;
+//   } catch (error) {
+//     console.error("❌ FCM error:", error);
+//     return null;
+//   }
+// };
+
+
+export const requestNotificationPermission = async (user) => {
   try {
     const permission = await Notification.requestPermission();
 
@@ -69,21 +99,32 @@ export const requestNotificationPermission = async () => {
       return null;
     }
 
-    console.log(
-      "VAPID KEY VALUE:",
-      import.meta.env.VITE_FIREBASE_VAPID_KEY,
-      typeof import.meta.env.VITE_FIREBASE_VAPID_KEY,
-      import.meta.env.VITE_FIREBASE_VAPID_KEY?.length
-    );
-
     const token = await getToken(messaging, {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     });
 
+    if (!token) {
+      console.log("No FCM token generated");
+      return null;
+    }
+
     console.log("✅ FCM Token:", token);
+
+    // ✅ USING YOUR API UTILS
+    await API.post("/notifications/register", {
+      token,
+      userId: user?._id || null,
+      city: user?.city || "Kota",
+      platform: "web",
+    });
+
+    console.log("✅ Token saved to backend");
+
     return token;
   } catch (error) {
     console.error("❌ FCM error:", error);
     return null;
   }
 };
+
+
