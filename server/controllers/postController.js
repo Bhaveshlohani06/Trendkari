@@ -11,7 +11,7 @@ import { generateSlug } from '../utils/slugify.js';
 // import { hindiToRoman } from '../utils/slugify.js';
 // import {transliterate} from "transliteration";
 import Notification from '../models/Notification.js';
-import { sendBroadcastPush } from '../controllers/notification.js';
+import { sendBroadcastPush } from './notificationController.js';
 import { broadcastPush } from '../helper/pushService.js';
 
 

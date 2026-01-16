@@ -15,6 +15,7 @@ import {
 import { FaBars, FaSearch, FaPen } from "react-icons/fa";
 import API from '../../utils/api'
 import { useTheme } from "../context/ThemeContext.jsx";
+import NotificationBell from "../Components/NotificationBell.jsx";
 
 
 const Header = ({ toggleSidebar }) => {
@@ -249,6 +250,8 @@ toast.success('Content generated and humanized!');
             </Navbar.Brand> */}
 
 
+
+
                     {/* Location Selector */}
                        
           </div>
@@ -275,6 +278,9 @@ toast.success('Content generated and humanized!');
     >
       {theme === "dark" ? "☀ Light" : "🌙 Dark"}
     </Button>
+
+                      <NotificationBell />
+
 
             {/* Writing Icon */}
             {auth?.user && (

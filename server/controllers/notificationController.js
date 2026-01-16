@@ -1,5 +1,6 @@
   import NotificationToken from "../models/NotificationToken.js";
   import admin from "firebase-admin";
+  import Notification from "../models/Notification.js";
 
   import { broadcastPush } from "../helper/pushService.js";
   /**
@@ -179,5 +180,35 @@ export const sendBroadcastPush = async (req, res) => {
   } catch (error) {
     console.error("❌ Broadcast error:", error);
     res.status(500).json({ success: false });
+  }
+};
+
+
+export const getNotifications = async (req, res) => {
+  try {
+    const { limit = 10, city } = req.query;
+
+    const filter = {};
+
+    // Optional: city-based notifications
+    if (city) {
+      filter.city = city;
+    }
+
+    const notifications = await Notification.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+
+    res.json({
+      success: true,
+      notifications,
+    });
+
+  } catch (error) {
+    console.error("Get notifications error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };

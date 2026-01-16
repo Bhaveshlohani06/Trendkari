@@ -1,7 +1,8 @@
 import express from "express";
-import { registerNotificationToken } from "../controllers/notification.js";
-import { sendTestPush } from "../controllers/notification.js";
-import { sendBroadcastPush } from "../controllers/notification.js";
+import { registerNotificationToken } from "../controllers/notificationController.js";
+import { sendTestPush } from "../controllers/notificationController.js";
+import { sendBroadcastPush } from "../controllers/notificationController.js";
+import { getNotifications } from "../controllers/notificationController.js";
 
 const router = express.Router();
 
@@ -9,6 +10,9 @@ const router = express.Router();
 router.post("/register", registerNotificationToken);
 router.post("/test", sendTestPush);
 router.post("/broadcast", sendBroadcastPush);
+
+// 🔔 Fetch notifications for bell
+router.get("/", getNotifications);
 
 
 
