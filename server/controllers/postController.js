@@ -12,6 +12,7 @@ import { generateSlug } from '../utils/slugify.js';
 // import {transliterate} from "transliteration";
 import Notification from '../models/Notification.js';
 import { sendBroadcastPush } from '../controllers/notification.js';
+import { broadcastPush } from '../helper/pushService.js';
 
 
 
@@ -422,61 +423,105 @@ export const getAllPostsAdmin = async (req, res) => {
 // };
 
 
+// export const approvePost = async (req, res) => {
+//   try {
+//     // 1️⃣ Approve post and GET updated post
+//     const post = await postModel.findByIdAndUpdate(
+//       req.params.id,
+//       {
+//         status: "approved",
+//         isPublished: true,
+//       },
+//       { new: true } // 🔥 IMPORTANT
+//     );
+
+//     if (!post) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Post not found",
+//       });
+//     }
+
+//     // 2️⃣ Save notification
+//  const notification = await Notification.create({
+//   title: "नई खबर प्रकाशित हुई 📰",
+//   body: post.title,
+//   type: "post",
+//   postId: post._id,
+//   city: post.city,
+//   area: post.area,
+//   link: `https://www.trendkari.in/${post.city}/article/${post.slug}`,
+// });
+
+// console.log("✅ Notification saved:", notification);
+
+
+//     // 3️⃣ Send push (do NOT block approval if it fails)
+//     sendBroadcastPush({
+//        title: "नई खबर",
+//       body: post.title,
+//       platform: "web",
+//       link: notification.link,
+//     }).catch(err =>
+//       console.error("Push failed:", err.message)
+//     );
+
+//     // 4️⃣ Response
+//     res.json({
+//       success: true,
+//       message: "Post approved & notification sent",
+//     });
+
+//   } catch (error) {
+//     console.error("Approve post error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
+
+
 export const approvePost = async (req, res) => {
   try {
-    // 1️⃣ Approve post and GET updated post
     const post = await postModel.findByIdAndUpdate(
       req.params.id,
-      {
-        status: "approved",
-        isPublished: true,
-      },
-      { new: true } // 🔥 IMPORTANT
+      { status: "approved", isPublished: true },
+      { new: true }
     );
 
     if (!post) {
-      return res.status(404).json({
-        success: false,
-        message: "Post not found",
-      });
+      return res.status(404).json({ success: false });
     }
 
-    // 2️⃣ Save notification
- const notification = await Notification.create({
-  title: "नई खबर प्रकाशित हुई 📰",
-  body: post.title,
-  type: "post",
-  postId: post._id,
-  city: post.city,
-  area: post.area,
-  link: `https://www.trendkari.in/${post.city}/article/${post.slug}`,
-});
+    const link = `https://www.trendkari.in/${post.city}/article/${post.slug}`;
 
-console.log("✅ Notification saved:", notification);
+    await Notification.create({
+      title: "नई खबर प्रकाशित हुई 📰",
+      body: post.title,
+      type: "post",
+      postId: post._id,
+      city: post.city,
+      area: post.area,
+      link,
+    });
 
-
-    // 3️⃣ Send push (do NOT block approval if it fails)
-    sendBroadcastPush({
-       title: "नई खबर",
+    // ✅ THIS WORKS
+    broadcastPush({
+      title: "नई खबर",
       body: post.title,
       platform: "web",
-      link: notification.link,
-    }).catch(err =>
-      console.error("Push failed:", err.message)
-    );
+      link,
+    }).catch(console.error);
 
-    // 4️⃣ Response
     res.json({
       success: true,
-      message: "Post approved & notification sent",
+      message: "Post approved & broadcast sent",
     });
 
   } catch (error) {
-    console.error("Approve post error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    console.error(error);
+    res.status(500).json({ success: false });
   }
 };
 

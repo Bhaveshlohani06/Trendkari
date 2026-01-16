@@ -1,7 +1,7 @@
   import NotificationToken from "../models/NotificationToken.js";
   import admin from "firebase-admin";
 
-
+  import { broadcastPush } from "../helper/pushService.js";
   /**
    * Register or update FCM token
    * POST /api/v1/notifications/register
@@ -170,90 +170,12 @@ export const registerNotificationToken = async (req, res) => {
 
 export const sendBroadcastPush = async (req, res) => {
   try {
-    const { title, body, platform = "web" } = req.body;
-
-    if (!title || !body) {
-      return res.status(400).json({
-        success: false,
-        message: "title and body required",
-      });
-    }
-
-    // 1️⃣ Fetch valid tokens by platform
-    const tokens = await NotificationToken.find(
-      { isValid: true, platform },
-      { token: 1, _id: 0 }
-    ).lean();
-
-    if (tokens.length === 0) {
-      return res.json({
-        success: true,
-        message: "No active users",
-      });
-    }
-
-    // 2️⃣ Build base message
-    const message = {
-      tokens: tokens.map(t => t.token),
-      notification: { title, body },
-    };
-
-    // 3️⃣ Platform-specific payload
-    if (platform === "web") {
-      message.webpush = {
-        headers: { Urgency: "high" },
-        notification: {
-          icon: "https://trendkari.in/icons/icon-192.png",
-        },
-        fcmOptions: {
-          link: "https://trendkari.in",
-        },
-      };
-    }
-
-    if (platform === "android") {
-      message.android = {
-        priority: "high",
-        notification: {
-          channelId: "default_channel",
-          sound: "default",
-        },
-      };
-    }
-
-    // 4️⃣ Send broadcast
-    const response = await admin.messaging().sendEachForMulticast(message);
-
-    console.log("📢 Broadcast:", response.successCount, "sent");
-
-    // 5️⃣ Cleanup invalid tokens
-    const invalidTokens = [];
-
-    response.responses.forEach((resp, idx) => {
-      if (!resp.success) {
-        const code = resp.error?.code;
-        if (
-          code === "messaging/invalid-registration-token" ||
-          code === "messaging/registration-token-not-registered"
-        ) {
-          invalidTokens.push(tokens[idx].token);
-        }
-      }
-    });
-
-    if (invalidTokens.length) {
-      await NotificationToken.updateMany(
-        { token: { $in: invalidTokens } },
-        { isValid: false }
-      );
-    }
+    await broadcastPush(req.body);
 
     res.json({
       success: true,
-      sent: response.successCount,
-      failed: response.failureCount,
+      message: "Broadcast sent",
     });
-
   } catch (error) {
     console.error("❌ Broadcast error:", error);
     res.status(500).json({ success: false });
