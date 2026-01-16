@@ -11,30 +11,22 @@ firebase.initializeApp({
   measurementId: "G-HMS0TBEYNP"
 });
 
-    
-
-// const messaging = firebase.messaging();
-
-// messaging.onBackgroundMessage(function (payload) { 
-//   console.log("Background message received:", payload);
-
-//   self.registration.showNotification(payload.notification.title, {
-//     body: payload.notification.body,
-//     icon: "/logo.png",
-//   });
-// });
-
 const messaging = firebase.messaging();
 
-messaging.onBackgroundMessage((payload) => {
-  console.log("Background message received:", payload);
-
+messaging.onBackgroundMessage(payload => {
   const title = payload.notification?.title || "Trendkari";
-  const options = {
-    body: payload.notification?.body || "New update",
-    icon: payload.notification?.icon || "/icon-192.png",
-    requireInteraction: true
-  };
 
-  self.registration.showNotification(title, options);
+  self.registration.showNotification(title, {
+    body: payload.notification?.body || "New update",
+    icon: "/icon-192.png",
+    data: payload.data || {},
+    requireInteraction: true
+  });
+});
+
+self.addEventListener("notificationclick", event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data?.link || "/")
+  );
 });

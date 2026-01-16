@@ -11,6 +11,10 @@ import { BrowserRouter } from 'react-router-dom'
 import { AuthProvider } from './context/auth.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx'; 
 import { LocationProvider } from './context/LocationContext.jsx';
+import { initForegroundNotifications } from "../src/notification.js";
+
+initForegroundNotifications();
+
 
 
 // ✅ REGISTER SERVICE WORKER HERE

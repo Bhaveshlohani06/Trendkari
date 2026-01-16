@@ -33,37 +33,35 @@ export const messaging = getMessaging(app);
 
 export const requestNotificationPermission = async (user) => {
   try {
-    const permission = await Notification.requestPermission();
+    if (!("Notification" in window)) return null;
 
-    if (permission !== "granted") {
-      console.log("Notification permission denied");
+    if (Notification.permission === "denied") {
+      console.warn("Notifications denied — guide user to settings");
       return null;
+    }
+
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") return null;
     }
 
     const token = await getToken(messaging, {
       vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
     });
 
-    if (!token) {
-      console.log("No FCM token generated");
-      return null;
-    }
+    if (!token) return null;
 
-    console.log("✅ FCM Token:", token);
-
-    // ✅ USING YOUR API UTILS
     await API.post("/notifications/register", {
       token,
-      userId: user?._id || null,
       city: user?.city || "Kota",
       platform: "web",
+      appVersion: import.meta.env.VITE_APP_VERSION || "1.0.0",
     });
 
-    console.log("✅ Token saved to backend");
-
     return token;
-  } catch (error) {
-    console.error("❌ FCM error:", error);
+
+  } catch (err) {
+    console.error("FCM error:", err);
     return null;
   }
 };
