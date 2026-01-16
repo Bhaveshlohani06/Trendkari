@@ -7,9 +7,9 @@ import "bootstrap/dist/js/bootstrap.bundle.min";
 import App from './App.jsx'
 import './index.css'; 
 
-import { BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/auth.jsx';
-import { ThemeProvider } from './context/ThemeContext.jsx'; 
+import { ThemeProvider } from './context/ThemeContext.jsx';
 import { LocationProvider } from './context/LocationContext.jsx';
 import { initForegroundNotifications } from "../src/notification.js";
 
