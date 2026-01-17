@@ -8,6 +8,7 @@ import { Container, Row, Col } from "react-bootstrap";
 
 import { shouldShowWhatsappPopup } from "../Components/HelperFunction";
 import WhatsappPopup from "../Components/WhatsappPopup";
+import StickyFooterNav from "./StickyFooternav";
 
 const Layout = ({
   children,
@@ -97,7 +98,18 @@ const handleClosePopup = () => {
       </Container>
 
       {/* Footer */}
-      <Footer />
+
+      {/* <Footer /> */}
+
+      
+
+      <StickyFooterNav
+  onCreatePost={() => setShowModal(true)}
+  onOpenSearch={() => setShowSearchModal(true)}
+/>
+
+
+
 
   
     </>

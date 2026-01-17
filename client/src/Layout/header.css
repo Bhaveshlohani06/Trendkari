@@ -1,0 +1,92 @@
+/* ========== HEADER ROOT ========== */
+.tk-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 56px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ========== LOGO ========== */
+.tk-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* ========== CITY SCROLLER ========== */
+.tk-city-scroll {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tk-city-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ========== CITY ITEM ========== */
+.tk-city {
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  padding-bottom: 4px;
+  transition: all 0.2s ease;
+}
+
+.tk-city:hover {
+  color: var(--text);
+}
+
+/* ACTIVE CITY */
+.tk-city.active {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent);
+}
+
+/* ========== RIGHT ACTIONS ========== */
+.tk-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tk-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.tk-icon:hover {
+  transform: scale(1.1);
+}
+
+/* ========== DARK MODE SUPPORT ========== */
+:root {
+  --bg: #ffffff;
+  --text: #111111;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #111111;
+}
+
+[data-theme="dark"] {
+  --bg: #0f0f0f;
+  --text: #ffffff;
+  --muted: #9ca3af;
+  --border: #262626;
+  --accent: #ffffff;
+}
