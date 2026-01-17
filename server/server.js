@@ -42,6 +42,8 @@ const allowedOrigins = [
 `https://trendkari.onrender.com`,
   'https://www.trendkari.in',
   'https://trendkari.in',
+    "https://trendkari-e2uzitjrf-bhavesh-lohanis-projects.vercel.app"
+
 ];
 
 
