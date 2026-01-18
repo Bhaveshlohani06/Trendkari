@@ -9,7 +9,7 @@ const Editor = ({ onChange, initialData = null }) => {
 
     editorRef.current = new EditorJS({
       holder: "editorjs",
-      placeholder: "यहाँ समाचार लिखें...",
+      placeholder: "यहाँ अपनी बात लिखें...",
       data: initialData, // ✅ for edit post
 
       async onChange() {
