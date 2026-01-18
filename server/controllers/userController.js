@@ -1,56 +1,182 @@
-// controllers/userController.js
+import mongoose from "mongoose";
 import User from "../models/usermodel.js";
 
-// Get users to follow (excluding current user and already followed users)
-export const getUsersToFollow = async (req, res) => {
+/* =====================================================
+   GET SUGGESTED USERS
+   GET /api/user/suggested
+   ===================================================== */
+export const getSuggestedUsers = async (req, res) => {
   try {
-    const currentUserId = req.user._id;
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const limit = parseInt(req.query.limit) || 5;
+    const excludeCurrentUser = req.query.excludeCurrentUser !== "false";
+    const currentUserId = req.user?._id;
 
-    // Get current user to check who they're already following
-    const currentUser = await User.findById(currentUserId).select('following');
-    
-    // Add current user to exclude them from the list
-    const excludedUsers = [...currentUser.following, currentUserId];
+    let query = {};
 
-    // Get suggested users (excluding already followed users and current user)
-    const suggestedUsers = await User.find({
-      _id: { $nin: excludedUsers }
-    })
-    .select('name username avatar bio followers following')
-    .sort({ 
-      // Sort by number of followers (popularity)
-      followers: -1 
-    })
-    .skip(skip)
-    .limit(limit);
+    if (excludeCurrentUser && currentUserId) {
+      query._id = { $ne: currentUserId };
+    }
 
-    // Format the response
-    const usersWithStats = suggestedUsers.map(user => ({
-      _id: user._id,
-      name: user.name,
-      username: user.username,
-      avatar: user.avatar,
-      bio: user.bio,
-      followersCount: user.followers.length,
-      followingCount: user.following.length
-    }));
+    const users = await User.find(query)
+      .limit(limit)
+      .select("name avatar bio followers preferences.categories")
+      .sort({ followers: -1 });
 
     res.status(200).json({
       success: true,
-      users: usersWithStats,
-      page,
-      limit,
-      hasMore: suggestedUsers.length === limit
+      users,
     });
   } catch (error) {
-    console.error('Error fetching users to follow:', error);
+    console.error("getSuggestedUsers error:", error);
     res.status(500).json({
       success: false,
-      message: 'Error fetching users to follow'
+      message: "Server error",
     });
   }
 };
 
+/* =====================================================
+   GET ALL USERS (FILTER + PAGINATION)
+   GET /api/user
+   ===================================================== */
+export const getAllUsers = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const search = req.query.search || "";
+    const category = req.query.category || "all";
+
+    const skip = (page - 1) * limit;
+    const currentUserId = req.user?._id;
+
+    let query = {};
+
+    // Exclude current user
+    if (currentUserId) {
+      query._id = { $ne: currentUserId };
+    }
+
+    // Search filter
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { bio: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Category filter (from preferences.categories)
+    if (category !== "all") {
+      query["preferences.categories"] = category;
+    }
+
+    const users = await User.find(query)
+      .skip(skip)
+      .limit(limit)
+      .select(
+        "name avatar bio followers following preferences.categories createdAt"
+      )
+      .sort({ followers: -1 });
+
+    const total = await User.countDocuments(query);
+    const hasMore = total > skip + users.length;
+
+    res.status(200).json({
+      success: true,
+      users,
+      total,
+      hasMore,
+      page,
+    });
+  } catch (error) {
+    console.error("getAllUsers error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
+
+/* =====================================================
+   FOLLOW USER
+   POST /api/user/:userId/follow
+   ===================================================== */
+export const followUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user._id;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+      });
+    }
+
+    if (userId === String(currentUserId)) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot follow yourself",
+      });
+    }
+
+    // Add to following
+    await User.findByIdAndUpdate(currentUserId, {
+      $addToSet: { following: userId },
+    });
+
+    // Add to followers
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: { followers: currentUserId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User followed successfully",
+    });
+  } catch (error) {
+    console.error("followUser error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Follow failed",
+    });
+  }
+};
+
+/* =====================================================
+   UNFOLLOW USER
+   POST /api/user/:userId/unfollow
+   ===================================================== */
+export const unfollowUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user._id;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid user ID",
+      });
+    }
+
+    // Remove from following
+    await User.findByIdAndUpdate(currentUserId, {
+      $pull: { following: userId },
+    });
+
+    // Remove from followers
+    await User.findByIdAndUpdate(userId, {
+      $pull: { followers: currentUserId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User unfollowed successfully",
+    });
+  } catch (error) {
+    console.error("unfollowUser error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Unfollow failed",
+    });
+  }
+};

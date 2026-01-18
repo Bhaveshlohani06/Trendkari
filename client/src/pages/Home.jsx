@@ -459,6 +459,308 @@
 // export default Home;
 
 
+// import React, { useEffect, useRef, useState } from "react";
+// import Layout from "../Layout/Layout";
+// import { Skeleton } from "antd";
+// import toast from "react-hot-toast";
+// import { Carousel } from "react-bootstrap";
+// import { Link } from "react-router-dom";
+// import API from "../../utils/api";
+
+// import BlogCard from "../Components/BlogCard";
+// import MiniCard from "../Components/MiniCard";
+// import { useLocation } from "../context/LocationContext.jsx";
+
+// import {
+//   FiSun,
+//   FiCloud,
+//   FiCloudRain,
+// } from "react-icons/fi";
+// import {
+//   BsBuilding,
+// } from "react-icons/bs";
+// import { FaLandmark } from "react-icons/fa";
+// import CITY_CONFIG from "../../config/cityConfig.js";
+
+// /* ---------------- CITY CONFIG ---------------- */
+
+// const CITIES = [
+//   { label: "कोटा", value: "kota", color: "#1E3A8A" },
+//   { label: "रामगंजमंडी", value: "ramganjmandi", color: "#059669" },
+//   { label: "सांगोद", value: "sangod", color: "#7C3AED" },
+//   { label: "लाडपुरा", value: "ladpura", color: "#0EA5E9" },
+//   { label: "ग्रामीण कोटा", value: "rural-kota", color: "#EA580C" },
+// ];
+
+// /* ---------------- HOME PAGE ---------------- */
+
+// const Home = () => {
+//   const { location } = useLocation();
+
+//   /* ---------- POST STATES ---------- */
+//   const [blogs, setBlogs] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(true);
+//   const [loading, setLoading] = useState(false);
+
+//   /* ---------- WEATHER ---------- */
+//   const [weather, setWeather] = useState(null);
+
+//   /* ---------- LAZY LOADER REF ---------- */
+//   const loaderRef = useRef(null);
+
+//   /* ---------- FETCH POSTS ---------- */
+//   const fetchPosts = async (pageNo = 1) => {
+//     if (loading || !hasMore) return;
+
+//     try {
+//       setLoading(true);
+
+//       const { data } = await API.get(
+//         `/post/get-posts?location=${location}&page=${pageNo}&limit=12`
+//       );
+
+//       if (!data?.posts || data.posts.length === 0) {
+//         setHasMore(false);
+//         return;
+//       }
+
+//       setBlogs((prev) => [...prev, ...data.posts]);
+//       setPage(pageNo + 1);
+//     } catch (err) {
+//       console.error(err);
+//       toast.error("पोस्ट लोड नहीं हो पाईं");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   /* ---------- RESET ON CITY CHANGE ---------- */
+//   useEffect(() => {
+//     setBlogs([]);
+//     setPage(1);
+//     setHasMore(true);
+//     fetchPosts(1);
+//     fetchWeather(location);
+//   }, [location]);
+
+//   /* ---------- LAZY LOAD OBSERVER ---------- */
+//   useEffect(() => {
+//     const observer = new IntersectionObserver(
+//       (entries) => {
+//         if (
+//           entries[0].isIntersecting &&
+//           hasMore &&
+//           !loading
+//         ) {
+//           fetchPosts(page);
+//         }
+//       },
+//       { threshold: 1 }
+//     );
+
+//     if (loaderRef.current) {
+//       observer.observe(loaderRef.current);
+//     }
+
+//     return () => observer.disconnect();
+//   }, [page, hasMore, loading]);
+
+//   /* ---------- WEATHER ---------- */
+//   const fetchWeather = async (city) => {
+//     try {
+//       const { data } = await API.get(`/weather?city=${city}`);
+//       setWeather(data);
+//     } catch {
+//       setWeather(null);
+//     }
+//   };
+
+//   const getWeatherIcon = () => {
+//     if (!weather?.condition) return <FiSun />;
+//     const text = weather.condition.toLowerCase();
+//     if (text.includes("rain")) return <FiCloudRain />;
+//     if (text.includes("cloud")) return <FiCloud />;
+//     return <FiSun />;
+//   };
+
+//   const currentCity = CITIES.find((c) => c.value === location);
+
+//   /* ---------- CAROUSEL LOGIC ---------- */
+//   const carouselSlides = [];
+//   for (let i = 0; i < blogs.length; i += 3) {
+//     carouselSlides.push(blogs.slice(i, i + 3));
+//   }
+
+//   /* ---------- CATEGORY FILTER ---------- */
+//   const getPostsByCategory = (slug) =>
+//     blogs.filter((p) => p.category?.slug === slug).slice(0, 4);
+
+//   /* ---------------- JSX ---------------- */
+
+
+//   // ------------------ Small Cards ------------------
+// // const InfoCards = () => {
+// // return (
+// // <div className="info-cards">
+// // <div className="info-card breaking">
+// // <h3>Breaking News</h3>
+// // <p>Latest and verified updates from your city</p>
+// // </div>
+// // <div className="info-card festival">
+// // <h3>Big Festival</h3>
+// // <p>Festivals, fairs and major cultural events</p>
+// // </div>
+// // <div className="info-card emergency">
+// // <h3>Emergency Alert</h3>
+// // <p>Weather, health & urgent public notices</p>
+// // </div>
+// // </div>
+// // );
+// // };
+
+
+// // // ------------------ Post Card ------------------
+// // const PostCard = ({ post }) => {
+// // return (
+// // <div className="post-card">
+// // <img src={post.thumbnail} alt={post.title} />
+// // <div className="post-content">
+// // <h2>{post.title}</h2>
+// // <p>{post.excerpt}</p>
+// // <span className="meta">
+// // {post.city} • {new Date(post.createdAt).toLocaleDateString()}
+// // </span>
+// // </div>
+// // </div>
+// // );
+// // };
+
+//   return (
+//     <Layout title="Trendkari | Today's City News">
+      
+//       {/* ---------------- CITY BANNER ---------------- */}
+//     <div
+//   className="city-banner"
+// >
+//   <h4 className="mb-1">
+//     आज {currentCity?.label} में क्या हो रहा है
+//   </h4>
+
+//   {weather && (
+//     <small>
+//       {getWeatherIcon()} {weather.temp}°C | {weather.condition}
+//     </small>
+//   )}
+// </div>
+
+//       {/* Info Cards */}
+// {/* <InfoCards /> */}
+
+
+//       {/* ---------------- TOP STORIES ---------------- */}
+//       {/* <section className="mb-5">
+//         <h5 className="fw-bold mb-3">
+//           {currentCity?.label} की बड़ी खबरें
+//         </h5>
+
+//         {blogs.length === 0 && loading ? (
+//           <Skeleton active paragraph={{ rows: 4 }} />
+//         ) : (
+//           <Carousel>
+//             {carouselSlides.map((slide, i) => (
+//               <Carousel.Item key={i}>
+//                 <div className="row g-4">
+//                   {slide.map((post) => (
+//                     <div className="col-md-4" key={post._id}>
+//                       <BlogCard post={post} />
+//                     </div>
+//                   ))}
+//                 </div>
+//               </Carousel.Item>
+//             ))}
+//           </Carousel>
+//         )}
+//       </section> */}
+
+//       {/* Desktop */}
+// <div className="d-none d-md-block">
+//   <Carousel>...</Carousel>
+// </div>
+
+// {/* Mobile */}
+// <div className="d-md-none overflow-auto d-flex gap-3 pb-2">
+//   {blogs.slice(0, 6).map(post => (
+//     <div key={post._id} style={{ minWidth: 260 }}>
+//       <BlogCard post={post} />
+//     </div>
+//   ))}
+// </div>
+
+
+//       {/* ---------------- GOVERNMENT ---------------- */}
+//       <section className="mb-5">
+//         <div className="d-flex align-items-center mb-3">
+//           <BsBuilding className="me-2" />
+//           <h5 className="fw-bold m-0">सरकारी अपडेट</h5>
+//         </div>
+
+//         <div className="row g-4">
+//           {getPostsByCategory("government").map((post) => (
+//             <div className="col-md-3" key={post._id}>
+//               <div className="card h-100 shadow-sm">
+//                 <div className="card-body">
+//                   <FaLandmark className="text-primary mb-2" />
+//                   <h6 className="fw-bold">{post.title}</h6>
+//                   <Link
+//                     to={`/article/${post.slug}`}
+//                     className="small text-primary"
+//                   >
+//                     पूरा पढ़ें →
+//                   </Link>
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </section>
+
+//       {/* ---------------- ALL POSTS ---------------- */}
+//       <section className="mb-5">
+//         <h5 className="fw-bold mb-3">
+//           {currentCity?.label} की सभी खबरें
+//         </h5>
+
+//         <div className="row g-4">
+//           {blogs.map((post) => (
+//             <div className="col-md-3" key={post._id}>
+//               <BlogCard post={post} />
+//             </div>
+//           ))}
+//         </div>
+//       </section>
+
+//       {/* ---------------- LAZY LOADER ---------------- */}
+//       {hasMore && (
+//         <div ref={loaderRef} className="text-center py-4">
+//           {loading && <Skeleton active paragraph={{ rows: 3 }} />}
+//         </div>
+//       )}
+
+//       {!hasMore && (
+//         <p className="text-center text-muted">
+//           आपने सभी खबरें देख लीं
+//         </p>
+//       )}
+//     </Layout>
+//   );
+// };
+
+// export default Home;
+
+
+
+
 import React, { useEffect, useRef, useState } from "react";
 import Layout from "../Layout/Layout";
 import { Skeleton } from "antd";
@@ -466,23 +768,11 @@ import toast from "react-hot-toast";
 import { Carousel } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import API from "../../utils/api";
-
 import BlogCard from "../Components/BlogCard";
-import MiniCard from "../Components/MiniCard";
 import { useLocation } from "../context/LocationContext.jsx";
-
-import {
-  FiSun,
-  FiCloud,
-  FiCloudRain,
-} from "react-icons/fi";
-import {
-  BsBuilding,
-} from "react-icons/bs";
+import { FiSun, FiCloud, FiCloudRain } from "react-icons/fi";
+import { BsBuilding } from "react-icons/bs";
 import { FaLandmark } from "react-icons/fa";
-import CITY_CONFIG from "../../config/cityConfig.js";
-
-/* ---------------- CITY CONFIG ---------------- */
 
 const CITIES = [
   { label: "कोटा", value: "kota", color: "#1E3A8A" },
@@ -492,39 +782,31 @@ const CITIES = [
   { label: "ग्रामीण कोटा", value: "rural-kota", color: "#EA580C" },
 ];
 
-/* ---------------- HOME PAGE ---------------- */
-
 const Home = () => {
   const { location } = useLocation();
-
-  /* ---------- POST STATES ---------- */
   const [blogs, setBlogs] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  /* ---------- WEATHER ---------- */
+  
   const [weather, setWeather] = useState(null);
-
-  /* ---------- LAZY LOADER REF ---------- */
   const loaderRef = useRef(null);
 
-  /* ---------- FETCH POSTS ---------- */
+  const [suggestedUsers, setSuggestedUsers] = useState([]);
+
+  const currentCity = CITIES.find((c) => c.value === location);
+
   const fetchPosts = async (pageNo = 1) => {
     if (loading || !hasMore) return;
-
     try {
       setLoading(true);
-
-      const { data } = await API.get(
-        `/post/get-posts?location=${location}&page=${pageNo}&limit=12`
-      );
-
+      const { data } = await API.get(`/post/get-posts?location=${location}&page=${pageNo}&limit=12`);
       if (!data?.posts || data.posts.length === 0) {
         setHasMore(false);
         return;
       }
-
       setBlogs((prev) => [...prev, ...data.posts]);
       setPage(pageNo + 1);
     } catch (err) {
@@ -535,38 +817,6 @@ const Home = () => {
     }
   };
 
-  /* ---------- RESET ON CITY CHANGE ---------- */
-  useEffect(() => {
-    setBlogs([]);
-    setPage(1);
-    setHasMore(true);
-    fetchPosts(1);
-    fetchWeather(location);
-  }, [location]);
-
-  /* ---------- LAZY LOAD OBSERVER ---------- */
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          hasMore &&
-          !loading
-        ) {
-          fetchPosts(page);
-        }
-      },
-      { threshold: 1 }
-    );
-
-    if (loaderRef.current) {
-      observer.observe(loaderRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [page, hasMore, loading]);
-
-  /* ---------- WEATHER ---------- */
   const fetchWeather = async (city) => {
     try {
       const { data } = await API.get(`/weather?city=${city}`);
@@ -576,6 +826,73 @@ const Home = () => {
     }
   };
 
+  // const fetchSuggestedUsers = async () => {
+  //   try {
+  //     const { data } = await API.get("/user/users-to-follow");
+  //     if (data.success) setSuggestedUsers(data.users);
+  //   } catch {
+  //     setSuggestedUsers([]);
+  //   }
+  // };
+
+const fetchSuggestedUsers = async () => {
+  try {
+    setLoading(true);
+
+    const { data } = await API.get("/users/suggested", {
+      params: {
+        limit: 5,
+        excludeCurrentUser: true,
+      },
+    });
+
+    setSuggestedUsers(data || []);
+    setError(null);
+  } catch (err) {
+    console.error("Error fetching suggested users:", err);
+    setError("Failed to load suggested users");
+    setSuggestedUsers([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const handleFollow = async (userId) => {
+  try {
+    await API.post(`/users/${userId}/follow`);
+
+    // Remove followed user from suggestions
+    setSuggestedUsers((prev) =>
+      prev.filter((user) => user._id !== userId)
+    );
+  } catch (error) {
+    console.error("Follow error:", error);
+    toast.error("Follow करने में समस्या आई");
+  }
+};
+
+
+  useEffect(() => {
+    setBlogs([]);
+    setPage(1);
+    setHasMore(true);
+    fetchPosts(1);
+    fetchWeather(location);
+    fetchSuggestedUsers();
+  }, [location]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) fetchPosts(page);
+      },
+      { threshold: 1 }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [page, hasMore, loading]);
+
   const getWeatherIcon = () => {
     if (!weather?.condition) return <FiSun />;
     const text = weather.condition.toLowerCase();
@@ -584,86 +901,24 @@ const Home = () => {
     return <FiSun />;
   };
 
-  const currentCity = CITIES.find((c) => c.value === location);
+  const getPostsByCategory = (slug) => blogs.filter((p) => p.category?.slug === slug).slice(0, 4);
 
-  /* ---------- CAROUSEL LOGIC ---------- */
   const carouselSlides = [];
   for (let i = 0; i < blogs.length; i += 3) {
     carouselSlides.push(blogs.slice(i, i + 3));
   }
 
-  /* ---------- CATEGORY FILTER ---------- */
-  const getPostsByCategory = (slug) =>
-    blogs.filter((p) => p.category?.slug === slug).slice(0, 4);
-
-  /* ---------------- JSX ---------------- */
-
-
-  // ------------------ Small Cards ------------------
-// const InfoCards = () => {
-// return (
-// <div className="info-cards">
-// <div className="info-card breaking">
-// <h3>Breaking News</h3>
-// <p>Latest and verified updates from your city</p>
-// </div>
-// <div className="info-card festival">
-// <h3>Big Festival</h3>
-// <p>Festivals, fairs and major cultural events</p>
-// </div>
-// <div className="info-card emergency">
-// <h3>Emergency Alert</h3>
-// <p>Weather, health & urgent public notices</p>
-// </div>
-// </div>
-// );
-// };
-
-
-// // ------------------ Post Card ------------------
-// const PostCard = ({ post }) => {
-// return (
-// <div className="post-card">
-// <img src={post.thumbnail} alt={post.title} />
-// <div className="post-content">
-// <h2>{post.title}</h2>
-// <p>{post.excerpt}</p>
-// <span className="meta">
-// {post.city} • {new Date(post.createdAt).toLocaleDateString()}
-// </span>
-// </div>
-// </div>
-// );
-// };
-
   return (
     <Layout title="Trendkari | Today's City News">
-      
-      {/* ---------------- CITY BANNER ---------------- */}
-    <div
-  className="city-banner"
->
-  <h4 className="mb-1">
-    आज {currentCity?.label} में क्या हो रहा है
-  </h4>
+      {/* CITY BANNER */}
+      <div className="city-banner mb-4 p-3 bg-light rounded">
+        <h4 className="mb-1">आज {currentCity?.label} में क्या हो रहा है</h4>
+        {weather && <small>{getWeatherIcon()} {weather.temp}°C | {weather.condition}</small>}
+      </div>
 
-  {weather && (
-    <small>
-      {getWeatherIcon()} {weather.temp}°C | {weather.condition}
-    </small>
-  )}
-</div>
-
-      {/* Info Cards */}
-{/* <InfoCards /> */}
-
-
-      {/* ---------------- TOP STORIES ---------------- */}
+      {/* TOP STORIES */}
       <section className="mb-5">
-        <h5 className="fw-bold mb-3">
-          {currentCity?.label} की बड़ी खबरें
-        </h5>
-
+        <h5 className="fw-bold mb-3">{currentCity?.label} की बड़ी खबरें</h5>
         {blogs.length === 0 && loading ? (
           <Skeleton active paragraph={{ rows: 4 }} />
         ) : (
@@ -683,13 +938,98 @@ const Home = () => {
         )}
       </section>
 
-      {/* ---------------- GOVERNMENT ---------------- */}
+      {/* FOLLOW SOURCES */}
+      {/* <section className="mb-5">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5 className="fw-bold m-0">स्थानीय पत्रकार और स्रोत</h5>
+          <Link to="/follow" className="small text-primary">सभी देखें →</Link>
+        </div>
+        <div className="d-flex gap-3 overflow-auto pb-2">
+          {suggestedUsers.map(user => (
+            <div key={user._id} className="card shadow-sm border-0" style={{ minWidth: 220 }}>
+              <div className="card-body text-center">
+                <img src={user.profilePic || "/avatar.png"} className="rounded-circle mb-2" width={60} height={60} />
+                <h6 className="fw-bold mb-1">{user.name}</h6>
+                <small className="text-muted">{user.bio}</small>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section> */}
+
+       <section className="mb-5">
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h5 className="fw-bold m-0">स्थानीय पत्रकार और स्रोत</h5>
+        <Link to="/follow" className="small text-primary text-decoration-none">
+          सभी देखें →
+        </Link>
+      </div>
+      
+      {error && (
+        <div className="alert alert-warning small">
+          {error}
+        </div>
+      )}
+      
+      {loading ? (
+        <div className="d-flex gap-3 overflow-auto pb-2">
+          {[1,2,3,4,5].map(i => (
+            <div key={i} className="card shadow-sm border-0" style={{ minWidth: 220 }}>
+              <div className="card-body text-center">
+                <div className="rounded-circle mb-2 mx-auto bg-light" style={{ width: 60, height: 60 }} />
+                <div className="placeholder-glow">
+                  <h6 className="placeholder col-8 mx-auto mb-1"></h6>
+                  <small className="placeholder col-10 mx-auto"></small>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="d-flex gap-3 overflow-auto pb-3">
+          {suggestedUsers.map(user => (
+            <div key={user._id} className="card shadow-sm border-0" style={{ minWidth: 220 }}>
+              <div className="card-body text-center p-3">
+                <img 
+                  src={user.profilePic || "/avatar.png"} 
+                  className="rounded-circle mb-2 border" 
+                  width={60} 
+                  height={60}
+                  alt={user.name}
+                  onError={(e) => {
+                    e.target.src = "/avatar.png";
+                  }}
+                />
+                <h6 className="fw-bold mb-1 text-truncate">{user.name}</h6>
+                <small className="text-muted d-block mb-2 text-truncate">{user.bio}</small>
+                <div className="d-flex justify-content-between align-items-center small text-muted mb-2">
+                  <span>👥 {user.followers || 0} फॉलोअर्स</span>
+                </div>
+                <button 
+                  className="btn btn-sm btn-outline-primary w-100"
+                  onClick={() => handleFollow(user._id)}
+                >
+                  फॉलो करें
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      {suggestedUsers.length === 0 && !loading && (
+        <div className="text-center py-4 border rounded">
+          <p className="text-muted mb-0">कोई सुझाव उपलब्ध नहीं है</p>
+        </div>
+      )}
+    </section>
+
+      {/* GOVERNMENT UPDATES */}
       <section className="mb-5">
         <div className="d-flex align-items-center mb-3">
           <BsBuilding className="me-2" />
           <h5 className="fw-bold m-0">सरकारी अपडेट</h5>
         </div>
-
         <div className="row g-4">
           {getPostsByCategory("government").map((post) => (
             <div className="col-md-3" key={post._id}>
@@ -697,12 +1037,7 @@ const Home = () => {
                 <div className="card-body">
                   <FaLandmark className="text-primary mb-2" />
                   <h6 className="fw-bold">{post.title}</h6>
-                  <Link
-                    to={`/article/${post.slug}`}
-                    className="small text-primary"
-                  >
-                    पूरा पढ़ें →
-                  </Link>
+                  <Link to={`/article/${post.slug}`} className="small text-primary">पूरा पढ़ें →</Link>
                 </div>
               </div>
             </div>
@@ -710,12 +1045,9 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ---------------- ALL POSTS ---------------- */}
+      {/* ALL POSTS */}
       <section className="mb-5">
-        <h5 className="fw-bold mb-3">
-          {currentCity?.label} की सभी खबरें
-        </h5>
-
+        <h5 className="fw-bold mb-3">{currentCity?.label} की सभी खबरें</h5>
         <div className="row g-4">
           {blogs.map((post) => (
             <div className="col-md-3" key={post._id}>
@@ -725,20 +1057,17 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ---------------- LAZY LOADER ---------------- */}
+      {/* LAZY LOADER */}
       {hasMore && (
         <div ref={loaderRef} className="text-center py-4">
           {loading && <Skeleton active paragraph={{ rows: 3 }} />}
         </div>
       )}
 
-      {!hasMore && (
-        <p className="text-center text-muted">
-          आपने सभी खबरें देख लीं
-        </p>
-      )}
+      {!hasMore && <p className="text-center text-muted">आपने सभी खबरें देख लीं</p>}
     </Layout>
   );
 };
 
 export default Home;
+
