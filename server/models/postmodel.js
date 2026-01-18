@@ -19,7 +19,7 @@ const postSchema = new mongoose.Schema(
       trim: true
     },
     content: {
-      type: String,
+  type: mongoose.Schema.Types.Mixed,
       required: true,
     },
     image: {

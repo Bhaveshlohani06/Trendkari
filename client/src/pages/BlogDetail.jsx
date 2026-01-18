@@ -5,6 +5,7 @@ import MiniCard from "../Components/MiniCard";
 import API from "../../utils/api";
 import * as timeago from "timeago.js";
 import { FaHeart, FaShareAlt } from "react-icons/fa";
+import EditorContent from "../Components/EditorContent";
 
 const BlogDetail = () => {
   const { slug, location: routeLocation } = useParams();
@@ -123,10 +124,8 @@ const BlogDetail = () => {
             )}
 
             {/* CONTENT */}
-            <div
-              className="blog-content mb-4"
-              dangerouslySetInnerHTML={{ __html: post.content }}
-            />
+            <EditorContent content={post.content} />
+
 
             {/* ACTIONS */}
             <div className="d-flex gap-4 mb-5 text-muted">

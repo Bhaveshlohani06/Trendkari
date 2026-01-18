@@ -143,6 +143,10 @@ export const createPostController = async (req, res) => {
     if (!language) return res.status(400).json({ message: "Language is required" });
     if (!location) return res.status(400).json({ message: "Location is required" });
 
+
+    const parsedContent =
+  typeof content === "string" ? JSON.parse(content) : content;
+    // ✅ Slug generation
   const baseSlug = generateSlug(title);
 
 if (!baseSlug) {
@@ -160,7 +164,7 @@ while (await postModel.exists({ slug })) {
     // ✅ Create post
     const post = new postModel({
       title,
-      content,
+      content: parsedContent,
       category,
       author: req.user.id,
       language,

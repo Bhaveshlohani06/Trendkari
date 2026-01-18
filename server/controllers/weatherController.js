@@ -62,6 +62,7 @@ export async function getWeather(req, res) {
     return res.json(saved);
   } catch (error) {
     console.error("Weather API error:", error.message);
+    console.log(error.response?.data);
     return res.status(500).json({ error: "Failed to fetch weather" });
   }
 }

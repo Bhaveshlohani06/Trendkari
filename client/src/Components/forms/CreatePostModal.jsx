@@ -12,7 +12,7 @@ const CreatePostModal = ({ show, onClose }) => {
 
   /* ---------------- STATES ---------------- */
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState(null);
   const [category, setCategory] = useState("");
   const [language, setLanguage] = useState("hi");
   const [location, setLocation] = useState("kota");
@@ -55,7 +55,7 @@ const CreatePostModal = ({ show, onClose }) => {
 
       const postData = new FormData();
       postData.append("title", title);
-      postData.append("content", content);
+      postData.append("content", JSON.stringify(content)); // 🔥 FIX
       postData.append("category", category);
       postData.append("language", language);
       postData.append("location", location);
