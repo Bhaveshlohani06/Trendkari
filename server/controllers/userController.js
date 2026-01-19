@@ -5,22 +5,66 @@ import User from "../models/usermodel.js";
    GET SUGGESTED USERS
    GET /api/user/suggested
    ===================================================== */
+// export const getSuggestedUsers = async (req, res) => {
+//   try {
+//     const limit = parseInt(req.query.limit) || 5;
+//     const excludeCurrentUser = req.query.excludeCurrentUser !== "false";
+//     const currentUserId = req.user?._id;
+
+//     let query = {};
+
+//     if (excludeCurrentUser && currentUserId) {
+//       query._id = { $ne: currentUserId };
+//     }
+
+//     const users = await User.find(query)
+//       .limit(limit)
+//       .select("name avatar bio followers preferences.categories")
+//       .sort({ followers: -1 });
+
+//     res.status(200).json({
+//       success: true,
+//       users,
+//     });
+//   } catch (error) {
+//     console.error("getSuggestedUsers error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
+
 export const getSuggestedUsers = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 5;
-    const excludeCurrentUser = req.query.excludeCurrentUser !== "false";
+    const limit = Number(req.query.limit) || 5;
     const currentUserId = req.user?._id;
 
-    let query = {};
+    const currentUser = await User.findById(currentUserId).select("following");
 
-    if (excludeCurrentUser && currentUserId) {
-      query._id = { $ne: currentUserId };
-    }
+    const excludeIds = [
+      currentUserId,
+      ...(currentUser?.following || []),
+    ];
 
-    const users = await User.find(query)
-      .limit(limit)
-      .select("name avatar bio followers preferences.categories")
-      .sort({ followers: -1 });
+    const users = await User.aggregate([
+      {
+        $match: {
+          _id: { $nin: excludeIds },
+        },
+      },
+      { $sample: { size: limit } }, // 🎯 random users
+      {
+        $project: {
+          name: 1,
+          avatar: 1,
+          bio: 1,
+          followersCount: {
+            $size: { $ifNull: ["$followers", []] },
+          },
+        },
+      },
+    ]);
 
     res.status(200).json({
       success: true,
@@ -34,6 +78,8 @@ export const getSuggestedUsers = async (req, res) => {
     });
   }
 };
+
+
 
 /* =====================================================
    GET ALL USERS (FILTER + PAGINATION)

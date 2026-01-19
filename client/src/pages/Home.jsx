@@ -860,10 +860,16 @@ const Home = () => {
 
 
   // Fetch suggested users with proper error handling
+  
   const fetchSuggestedUsers = async () => {
     try {
       setLoadingUsers(true);
-      const response = await API.get("/user/suggested");
+      const response = await API.get("/user/suggested",{
+         params: {
+        t: Date.now(), // 🔥 forces fresh response
+      },
+
+    });
       
       // Handle different response structures
       if (response.data?.users) {
@@ -884,6 +890,13 @@ const Home = () => {
 
   const handleFollow = async (userId) => {
   try {
+  
+    //login in
+    if (!localStorage.getItem("token")) {
+      toast.error("कृपया पहले लॉगिन करें");
+      return;
+    }
+
     await API.post(`/user/${userId}/follow`);
 
     // Remove followed user from suggestions
@@ -981,7 +994,7 @@ const Home = () => {
         </div>
       </section> */}
 
-       <section className="mb-5">
+       {/* <section className="mb-5">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h5 className="fw-bold m-0">स्थानीय पत्रकार और स्रोत</h5>
         <Link to="/follow" className="small text-primary text-decoration-none">
@@ -1046,7 +1059,112 @@ const Home = () => {
           <p className="text-muted mb-0">कोई सुझाव उपलब्ध नहीं है</p>
         </div>
       )}
-    </section>
+    </section> */}
+
+<section className="mb-5">
+  <div className="d-flex justify-content-between align-items-center mb-3">
+    <h5 className="fw-bold m-0">स्थानीय पत्रकार और स्रोत</h5>
+    <Link to="/users" className="small text-primary text-decoration-none">
+      सभी देखें →
+    </Link>
+  </div>
+
+  {error && <div className="alert alert-warning small">{error}</div>}
+
+  <div className="d-flex gap-3 overflow-auto pb-2">
+
+    {/* LOADING */}
+    {loading &&
+      [1, 2, 3, 4, 5].map(i => (
+        <div
+          key={i}
+          className="card shadow-sm border-0"
+          style={{ minWidth: 200, height: 200 }}
+        >
+          <div className="card-body d-flex flex-column align-items-center justify-content-center">
+            <div className="rounded-circle bg-light mb-3" style={{ width: 60, height: 60 }} />
+            <div className="placeholder-glow w-100 text-center">
+              <span className="placeholder col-6"></span>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+
+    {/* USER CARDS */}
+    {!loading &&
+      suggestedUsers.map(user => (
+        <Link
+          key={user._id}
+          to={`/dashboard/user/profile/${user._id}`}
+          className="card shadow-sm border-0 text-decoration-none text-dark"
+          style={{ minWidth: 200, height: 200 }}
+        >
+          <div className="card-body d-flex flex-column align-items-center justify-content-between p-3">
+
+            {/* AVATAR */}
+            <div
+              className="rounded-circle border overflow-hidden d-flex align-items-center justify-content-center"
+              style={{ width: 60, height: 60 }}
+            >
+              <img
+                src={user.avatar?.startsWith("http") ? user.avatar : "/avatar.png"}
+                alt={user.name}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => (e.target.src = "/avatar.png")}
+              />
+            </div>
+
+            {/* NAME */}
+            <h6
+              className="fw-bold text-center text-truncate w-100 m-0"
+              title={user.name}
+            >
+              {user.name}
+            </h6>
+
+            {/* FOLLOW BUTTON (STOP NAVIGATION) */}
+            <button
+              className="btn btn-sm btn-outline-primary w-100"
+              onClick={(e) => {
+                e.preventDefault(); // ⛔ stop Link
+                e.stopPropagation(); // ⛔ stop bubbling
+                handleFollow(user._id);
+              }}
+            >
+              फॉलो करें
+            </button>
+
+          </div>
+        </Link>
+      ))
+    }
+
+    {/* SEE ALL */}
+    {!loading && (
+      <Link
+        to="/users"
+        className="card shadow-sm border-0 text-decoration-none"
+        style={{ minWidth: 200, height: 200 }}
+      >
+        <div className="card-body d-flex flex-column justify-content-center align-items-center text-primary fw-bold">
+          <span style={{ fontSize: 26 }}>→</span>
+          सभी प्रोफाइल देखें
+        </div>
+      </Link>
+    )}
+
+  </div>
+
+  {!loading && suggestedUsers.length === 0 && (
+    <div className="text-center py-4 border rounded">
+      <p className="text-muted mb-0">कोई सुझाव उपलब्ध नहीं है</p>
+    </div>
+  )}
+</section>
+
+
+
 
       {/* GOVERNMENT UPDATES */}
       <section className="mb-5">

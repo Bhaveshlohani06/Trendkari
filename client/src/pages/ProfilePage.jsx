@@ -421,7 +421,7 @@ const UserProfile = () => {
                       width={150} 
                       height={150}
                       className="border border-3 border-primary object-fit-cover"
-                      onError={(e) => {
+                      onError={(e) => { 
                         e.target.src = "/default-avatar.png";
                       }}
                     />
