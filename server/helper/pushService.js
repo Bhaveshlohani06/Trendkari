@@ -10,6 +10,13 @@ export const broadcastPush = async ({
 }) => {
   if (!title || !body) return;
 
+  console.log("Broadcasting push notification:", {
+    title,
+    body,
+    platform,
+    link,
+  });
+
   const tokens = await NotificationToken.find(
     { isValid: true, platform },
     { token: 1, _id: 0 }
@@ -38,3 +45,4 @@ export const broadcastPush = async ({
 
   return admin.messaging().sendEachForMulticast(message);
 };
+ 

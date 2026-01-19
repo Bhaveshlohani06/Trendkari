@@ -12,7 +12,7 @@ const router = express.Router();
 /* ================= USER DISCOVERY ================= */
 
 // Suggested users
-router.get("/suggested", requireSignIn, getSuggestedUsers);
+router.get("/suggested", getSuggestedUsers);
 
 // Get all users (pagination + filter)
 router.get("/", requireSignIn, getAllUsers);

@@ -790,6 +790,7 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [loadingUsers, setLoadingUsers] = useState(false);
   
   const [weather, setWeather] = useState(null);
   const loaderRef = useRef(null);
@@ -835,32 +836,55 @@ const Home = () => {
   //   }
   // };
 
-const fetchSuggestedUsers = async () => {
-  try {
-    setLoading(true);
+// const fetchSuggestedUsers = async () => {
+//   try {
+//     setLoading(true);
 
-    const { data } = await API.get("/users/suggested", {
-      params: {
-        limit: 5,
-        excludeCurrentUser: true,
-      },
-    });
+//     const { data } = await API.get("/user/suggested", {
+//       params: {
+//         limit: 5,
+//         excludeCurrentUser: true,
+//       },
+//     });
 
-    setSuggestedUsers(data || []);
-    setError(null);
-  } catch (err) {
-    console.error("Error fetching suggested users:", err);
-    setError("Failed to load suggested users");
-    setSuggestedUsers([]);
-  } finally {
-    setLoading(false);
-  }
-};
+//     setSuggestedUsers(data || []);
+//     setError(null);
+//   } catch (err) {
+//     console.error("Error fetching suggested users:", err);
+//     setError("Failed to load suggested users");
+//     setSuggestedUsers([]);
+//   } finally {
+//     setLoading(false);
+//   }
+// };
+
+
+  // Fetch suggested users with proper error handling
+  const fetchSuggestedUsers = async () => {
+    try {
+      setLoadingUsers(true);
+      const response = await API.get("/user/suggested");
+      
+      // Handle different response structures
+      if (response.data?.users) {
+        setSuggestedUsers(response.data.users);
+      } else if (Array.isArray(response.data)) {
+        setSuggestedUsers(response.data);
+      } else {
+        setSuggestedUsers([]);
+      }
+    } catch (err) {
+      console.error("Error fetching suggested users:", err);
+      setSuggestedUsers([]);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
 
   const handleFollow = async (userId) => {
   try {
-    await API.post(`/users/${userId}/follow`);
+    await API.post(`/user/${userId}/follow`);
 
     // Remove followed user from suggestions
     setSuggestedUsers((prev) =>
@@ -1070,4 +1094,7 @@ const fetchSuggestedUsers = async () => {
 };
 
 export default Home;
+
+
+
 
