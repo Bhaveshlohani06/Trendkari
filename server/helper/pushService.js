@@ -43,6 +43,28 @@ export const broadcastPush = async ({
     };
   }
 
-  return admin.messaging().sendEachForMulticast(message);
+const response = await admin.messaging().sendEachForMulticast(message);
+
+response.responses.forEach(async (resp, index) => {
+  if (!resp.success) {
+    const failedToken = tokens[index].token;
+
+    console.error(
+      "Invalid token:",
+      failedToken,
+      resp.error?.code
+    );
+
+    await NotificationToken.updateOne(
+      { token: failedToken },
+      { isValid: false }
+    );
+  }
+});
+
+console.log(
+  `Push sent: ${response.successCount} success, ${response.failureCount} failed`
+);
+
 };
  
