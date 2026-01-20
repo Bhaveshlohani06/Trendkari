@@ -174,6 +174,7 @@ import Posts from "./pages/Admin/Posts";
 /* Utils */
 import DashboardRedirect from "./pages/DashboardRedirect.";
 import DashboardLayout from "./pages/DashboardLayout";
+import Users from "./Components/Users";
 
 
 const TRACKING_ID = "G-CGG172MEXZ";
@@ -208,6 +209,8 @@ const App = () => {
         <Route path="/article" element={<Blog />} />
         <Route path="/explore" element={<AllBlogs />} />
 
+
+
         {/* Blog detail (normal + location based) */}
         <Route path="/article/:slug" element={<BlogDetail />} />
         <Route path="/:location/article/:slug" element={<BlogDetail />} />
@@ -229,8 +232,11 @@ const App = () => {
         <Route path="/auth-success" element={<AuthSuccess />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        {/* ================= DASHBOARD ROUTES ================= */}
+
 
         
+        <Route path="/users" element={<Users/>}/>
 
 
        <Route path="/dashboard" element={<DashboardLayout />}>
@@ -241,6 +247,7 @@ const App = () => {
   {/* USER ROUTES */}
   <Route path="user" element={<PrivateRoute />}>
     <Route index element={<UserDashboard />} />
+
     <Route path="profile/:userId" element={<UserProfile />} />
     <Route path="edit-profile/:userId" element={<EditProfile />} />
   </Route>

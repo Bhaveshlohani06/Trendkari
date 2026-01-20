@@ -85,24 +85,83 @@ export const getSuggestedUsers = async (req, res) => {
    GET ALL USERS (FILTER + PAGINATION)
    GET /api/user
    ===================================================== */
+// export const getAllUsers = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page);
+//     const limit = parseInt(req.query.limit);
+//     const search = req.query.search || "";
+//     const category = req.query.category || "all";
+
+//     const skip = (page - 1) * limit;
+//     const currentUserId = req.user?._id;
+
+//     let query = {};
+
+//     // Exclude current user
+//     if (currentUserId) {
+//       query._id = { $ne: currentUserId };
+//     }
+
+//     // Search filter
+//     if (search) {
+//       query.$or = [
+//         { name: { $regex: search, $options: "i" } },
+//         { bio: { $regex: search, $options: "i" } },
+//       ];
+//     }
+
+//     // Category filter (from preferences.categories)
+//     if (category !== "all") {
+//       query["preferences.categories"] = category;
+//     }
+
+//     const users = await User.find(query)
+//       .skip(skip)
+//       .limit(limit)
+//       .select(
+//         "name avatar bio followers following preferences.categories createdAt"
+//       )
+//       .sort({ followers: -1 });
+
+//     const total = await User.countDocuments(query);
+//     const hasMore = total > skip + users.length;
+
+//     res.status(200).json({
+//       success: true,
+//       users,
+//       total,
+//       hasMore,
+//       page,
+//     });
+//   } catch (error) {
+//     console.error("getAllUsers error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Server error",
+//     });
+//   }
+// };
+
+
 export const getAllUsers = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const search = req.query.search || "";
+    // ✅ SAFE DEFAULTS
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const search = req.query.search?.trim() || "";
     const category = req.query.category || "all";
 
     const skip = (page - 1) * limit;
     const currentUserId = req.user?._id;
 
-    let query = {};
+    const query = {};
 
-    // Exclude current user
+    // 🚫 Exclude current user
     if (currentUserId) {
       query._id = { $ne: currentUserId };
     }
 
-    // Search filter
+    // 🔍 Search (name + bio)
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -110,28 +169,34 @@ export const getAllUsers = async (req, res) => {
       ];
     }
 
-    // Category filter (from preferences.categories)
+    // 🏷 Category filter (array-safe)
     if (category !== "all") {
-      query["preferences.categories"] = category;
+      query["preferences.categories"] = { $in: [category] };
     }
 
+    // 📦 MAIN QUERY
     const users = await User.find(query)
-      .skip(skip)
-      .limit(limit)
       .select(
         "name avatar bio followers following preferences.categories createdAt"
       )
-      .sort({ followers: -1 });
+      .sort({ createdAt: -1 }) // stable & predictable
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
+    // 🔢 Counts
     const total = await User.countDocuments(query);
-    const hasMore = total > skip + users.length;
+    const hasMore = skip + users.length < total;
 
     res.status(200).json({
       success: true,
       users,
-      total,
-      hasMore,
-      page,
+      pagination: {
+        total,
+        page,
+        limit,
+        hasMore,
+      },
     });
   } catch (error) {
     console.error("getAllUsers error:", error);

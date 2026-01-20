@@ -189,7 +189,7 @@ const SearchModal = ({ show, onHide }) => {
                     <h6>Users</h6>
                     <ListGroup variant="flush">
                       {results.results.users.slice(0, 5).map(user => (
-                        <ListGroup.Item key={user._id} action as={Link} to={`/profile/${user._id}`} onClick={onHide}>
+                        <ListGroup.Item key={user._id} action as={Link} to={`/dashboard/user/profile/${user._id}`} onClick={onHide}>
                           <div className="d-flex align-items-center">
                             <img 
                               src={user.avatar || '/default-avatar.png'} 

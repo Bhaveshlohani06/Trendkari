@@ -827,36 +827,6 @@ const Home = () => {
     }
   };
 
-  // const fetchSuggestedUsers = async () => {
-  //   try {
-  //     const { data } = await API.get("/user/users-to-follow");
-  //     if (data.success) setSuggestedUsers(data.users);
-  //   } catch {
-  //     setSuggestedUsers([]);
-  //   }
-  // };
-
-// const fetchSuggestedUsers = async () => {
-//   try {
-//     setLoading(true);
-
-//     const { data } = await API.get("/user/suggested", {
-//       params: {
-//         limit: 5,
-//         excludeCurrentUser: true,
-//       },
-//     });
-
-//     setSuggestedUsers(data || []);
-//     setError(null);
-//   } catch (err) {
-//     console.error("Error fetching suggested users:", err);
-//     setError("Failed to load suggested users");
-//     setSuggestedUsers([]);
-//   } finally {
-//     setLoading(false);
-//   }
-// };
 
 
   // Fetch suggested users with proper error handling
@@ -1141,7 +1111,7 @@ const Home = () => {
     }
 
     {/* SEE ALL */}
-    {!loading && (
+    {/* {!loading && (
       <Link
         to="/users"
         className="card shadow-sm border-0 text-decoration-none"
@@ -1152,7 +1122,7 @@ const Home = () => {
           सभी प्रोफाइल देखें
         </div>
       </Link>
-    )}
+    )} */}
 
   </div>
 
