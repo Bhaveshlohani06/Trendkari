@@ -541,7 +541,7 @@ const UserProfile = () => {
                       className="border-bottom"
                     />
                   )}
-                  <Card.Body className="d-flex flex-column">
+                  {/* <Card.Body className="d-flex flex-column">
                     <Card.Title>{post.title}</Card.Title>
                     <Card.Text className="flex-grow-1">
                       {post.content?.replace(/<[^>]*>/g, '').slice(0, 100)}...
@@ -594,7 +594,7 @@ const UserProfile = () => {
                         <FaShareAlt className="me-1" /> Share
                       </Button>
                     )}
-                  </Card.Body>
+                  </Card.Body> */}
                 </Card>
               </Col>
             ))}
