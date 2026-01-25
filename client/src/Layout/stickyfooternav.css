@@ -5,8 +5,8 @@
   right: 0;
 
   height: 64px;
-  background: var(--bg-surface);
-  border-top: 1px solid var(--border-color);
+  background: var(--footer-bg);
+  border-top: 2px solid var(--footer-border);
 
   display: flex;
   justify-content: space-around;
@@ -23,12 +23,13 @@
   gap: 4px;
 
   font-size: 11px;
-  color: var(--text-primary);
+  color: var(--footer-text);
   text-decoration: none;
 }
 
 .footer-item svg {
   font-size: 18px;
+  color: var(--footer-icon);
 }
 
 /* Active route */
@@ -43,7 +44,7 @@
   border-radius: 50%;
 
   background: var(--city-accent, #2563eb);
-  color: #fff;
+  color: #ffffff;
   border: none;
 
   display: flex;
@@ -61,5 +62,3 @@
   border: none;
   padding: 0;
 }
-
-

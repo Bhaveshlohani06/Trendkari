@@ -201,3 +201,19 @@ h6 {
 
 /* Home page CSS */
 
+
+/* Light mode (default) */
+:root {
+  --footer-bg: #ffffff;
+  --footer-border: #e5e7eb;
+  --footer-text: #111827;
+  --footer-icon: #111827;
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  --footer-bg: #000000;
+  --footer-border: #1f2937;
+  --footer-text: #e5e7eb;
+  --footer-icon: #e5e7eb;
+}

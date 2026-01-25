@@ -3,6 +3,7 @@ import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth
 import { getMessaging, getToken } from "firebase/messaging";
 import API from "../utils/api";
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyAlmRM9AlAFrWUw7fAp1UrXyUiu8iUjet8",
   authDomain: "trendkari-22b1a.firebaseapp.com",

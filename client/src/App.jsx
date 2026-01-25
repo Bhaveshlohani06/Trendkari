@@ -127,7 +127,7 @@
 
 
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import ReactGA from "react-ga4";
 import "antd/dist/reset.css";
@@ -176,6 +176,11 @@ import DashboardRedirect from "./pages/DashboardRedirect.";
 import DashboardLayout from "./pages/DashboardLayout";
 import Users from "./Components/Users";
 
+import {
+  initForegroundNotifications,
+  requestNotificationPermission
+} from "../src/notification.js";
+
 
 const TRACKING_ID = "G-CGG172MEXZ";
 
@@ -193,9 +198,25 @@ const RouteChangeTracker = () => {
   return null;
 };
 
+// const App = () => {
+//   useEffect(() => {
+//     ReactGA.initialize(TRACKING_ID);
+//   }, []);
+
 const App = () => {
   useEffect(() => {
     ReactGA.initialize(TRACKING_ID);
+  }, []);
+
+  const notificationInitialized = useRef(false);
+
+  useEffect(() => {
+    if (notificationInitialized.current) return;
+
+    notificationInitialized.current = true;
+
+    requestNotificationPermission();
+    initForegroundNotifications();
   }, []);
 
   return (
