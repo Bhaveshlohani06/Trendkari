@@ -4,6 +4,8 @@
 
   import { broadcastPush } from "../helper/pushService.js";
   import UserNotification from "../models/userNotification.js";
+  import User from "../models/usermodel.js";
+  import postmodel from "../models/postmodel.js";
 
   /**
    * Register or update FCM token
@@ -220,10 +222,10 @@ export const getNotifications = async (req, res) => {
 
 export const getUserNotifications = async (req, res) => {
   const notifications = await UserNotification.find({
-    user: req.user._id,
+   user: req.user._id,
   })
     .populate("sender", "name avatar")
-    .populate("post", "title")
+    .populate("PostId", "title slug")
     .sort({ createdAt: -1 })
     .limit(20);
 

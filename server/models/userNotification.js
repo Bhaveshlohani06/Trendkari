@@ -19,9 +19,9 @@ const userNotificationSchema = new mongoose.Schema(
       required: true,
     },
 
-    post: {
+    PostId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "post",
+      ref: "Post",
     },
 
     message: {

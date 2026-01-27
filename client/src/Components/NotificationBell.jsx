@@ -167,79 +167,218 @@
 
 
 
+// import { useEffect, useState } from "react";
+// import { FaBell } from "react-icons/fa";
+// import API from "../../utils/api";
+// import { socket } from "../../utils/socket";
+
+
+// const NotificationBell = () => {
+//   const [open, setOpen] = useState(false);
+//   const [notifications, setNotifications] = useState([]);
+
+//   const unreadCount = notifications.filter(n => !n.isSeen).length;
+
+//   const fetchNotifications = async () => {
+//     const { data } = await API.get("/notifications/");
+//     if (data.success) setNotifications(data.notifications);
+//   };
+
+//   useEffect(() => {
+//     const auth = localStorage.getItem("auth");
+//   if (auth) fetchNotifications();
+//   }, []);
+
+//   // 🔴 Live socket notification
+//   useEffect(() => {
+//     socket.on("new-notification", (notif) => {
+//       setNotifications(prev => [notif, ...prev]);
+//     });
+
+//     return () => socket.off("new-notification");
+//   }, []);
+
+//   const handleOpen = async () => {
+//     setOpen(!open);
+//     if (!open) {
+//       await API.patch("/notifications/seen-all");
+//       setNotifications(prev =>
+//         prev.map(n => ({ ...n, isSeen: true }))
+//       );
+//     }
+//   };
+
+//   const handleClick = async (n) => {
+//     await API.patch(`/notifications/read/${n._id}`);
+//     window.location.href = `/article/${n.post}`;
+//   };
+
+//   return (
+//     <div className="position-relative">
+//       <button onClick={handleOpen} className="btn bg-transparent border-0">
+//         <FaBell size={20} />
+//         {unreadCount > 0 && (
+//           <span className="badge bg-danger position-absolute top-0 start-100">
+//             {unreadCount}
+//           </span>
+//         )}
+//       </button>
+
+//       {open && (
+//         <div className="dropdown-menu show p-2 shadow" style={{ width: 320 }}>
+//           <strong>Notifications</strong>
+
+//           {notifications.length === 0 && (
+//             <div className="text-muted mt-2">No notifications</div>
+//           )}
+
+//           {notifications.map(n => (
+//             <div
+//               key={n._id}
+//               onClick={() => handleClick(n)}
+//               className={`p-2 mt-2 rounded ${!n.isRead ? "bg-light" : ""}`}
+//               style={{ cursor: "pointer" }}
+//             >
+//               <div>{n.message}</div>
+//               <small className="text-muted">
+//                 {new Date(n.createdAt).toLocaleString()}
+//               </small>
+//             </div>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default NotificationBell;
+
+
+
+
 import { useEffect, useState } from "react";
 import { FaBell } from "react-icons/fa";
 import API from "../../utils/api";
 import { socket } from "../../utils/socket";
-
+import { useAuth } from "../context/auth";
 
 const NotificationBell = () => {
+  const [auth] = useAuth();
+
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.isSeen).length;
+  // ✅ Correct unread count
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
+  /* ================= FETCH ================= */
   const fetchNotifications = async () => {
-    const { data } = await API.get("/notifications/");
-    if (data.success) setNotifications(data.notifications);
+    try {
+      const { data } = await API.get("/notifications");
+      if (data?.success) {
+        setNotifications(data.notifications);
+        setLoaded(true);
+      }
+    } catch (err) {
+      console.error("Notification fetch error:", err?.response?.data || err);
+    }
   };
 
+  // 🔐 Fetch ONLY when auth is ready
   useEffect(() => {
-    const auth = localStorage.getItem("auth");
-  if (auth) fetchNotifications();
-  }, []);
+    if (auth?.token && !loaded) {
+      fetchNotifications();
+    }
+  }, [auth?.token]);
 
-  // 🔴 Live socket notification
+  /* ================= SOCKET ================= */
   useEffect(() => {
-    socket.on("new-notification", (notif) => {
+    if (!auth?.user?._id) return;
+
+    // join user room
+    socket.emit("join-user", auth.user._id);
+
+    socket.on("new-notification", notif => {
       setNotifications(prev => [notif, ...prev]);
     });
 
-    return () => socket.off("new-notification");
-  }, []);
+    return () => {
+      socket.off("new-notification");
+    };
+  }, [auth?.user?._id]);
 
+  /* ================= UI ACTIONS ================= */
   const handleOpen = async () => {
-    setOpen(!open);
-    if (!open) {
-      await API.patch("/notifications/seen-all");
-      setNotifications(prev =>
-        prev.map(n => ({ ...n, isSeen: true }))
-      );
+    setOpen(prev => !prev);
+
+    // mark all seen when opening
+    if (!open && unreadCount > 0) {
+      try {
+        await API.patch("/notifications/seen-all");
+        setNotifications(prev =>
+          prev.map(n => ({ ...n, isRead: true }))
+        );
+      } catch (err) {
+        console.error("Seen-all failed:", err);
+      }
     }
   };
 
   const handleClick = async (n) => {
-    await API.patch(`/notifications/read/${n._id}`);
-    window.location.href = `/article/${n.post}`;
+    try {
+      if (!n.isRead) {
+        await API.patch(`/notifications/read/${n._id}`);
+      }
+
+      // redirect safely
+      if (n.post?._id) {
+        window.location.href = `/post/${n.post._id}`;
+      }
+    } catch (err) {
+      console.error("Read notification failed:", err);
+    }
   };
+
+  /* ================= RENDER ================= */
+  if (!auth?.token) return null;
 
   return (
     <div className="position-relative">
-      <button onClick={handleOpen} className="btn bg-transparent border-0">
+      <button
+        onClick={handleOpen}
+        className="btn bg-transparent border-0 position-relative"
+      >
         <FaBell size={20} />
+
         {unreadCount > 0 && (
-          <span className="badge bg-danger position-absolute top-0 start-100">
+          <span className="badge bg-danger position-absolute top-0 start-100 translate-middle">
             {unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="dropdown-menu show p-2 shadow" style={{ width: 320 }}>
-          <strong>Notifications</strong>
+        <div
+          className="dropdown-menu show shadow p-2"
+          style={{ width: 320, right: 0, maxHeight: 400, overflowY: "auto" }}
+        >
+          <strong className="px-2 d-block mb-2">Notifications</strong>
 
           {notifications.length === 0 && (
-            <div className="text-muted mt-2">No notifications</div>
+            <div className="text-muted px-2">No notifications</div>
           )}
 
           {notifications.map(n => (
             <div
               key={n._id}
               onClick={() => handleClick(n)}
-              className={`p-2 mt-2 rounded ${!n.isRead ? "bg-light" : ""}`}
+              className={`p-2 rounded mb-1 ${
+                !n.isRead ? "bg-light" : ""
+              }`}
               style={{ cursor: "pointer" }}
             >
-              <div>{n.message}</div>
+              <div className="fw-medium">{n.message}</div>
               <small className="text-muted">
                 {new Date(n.createdAt).toLocaleString()}
               </small>
@@ -252,3 +391,4 @@ const NotificationBell = () => {
 };
 
 export default NotificationBell;
+

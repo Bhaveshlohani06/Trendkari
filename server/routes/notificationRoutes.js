@@ -46,6 +46,8 @@ import {
   markAllSeen,
 } from "../controllers/notificationController.js";
 
+
+
 const router = express.Router();
 
 /* ================= PUSH (FCM) ================= */
