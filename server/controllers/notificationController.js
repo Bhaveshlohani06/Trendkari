@@ -3,6 +3,8 @@
   import Notification from "../models/Notification.js";
 
   import { broadcastPush } from "../helper/pushService.js";
+  import UserNotification from "../models/userNotification.js";
+
   /**
    * Register or update FCM token
    * POST /api/v1/notifications/register
@@ -211,4 +213,30 @@ export const getNotifications = async (req, res) => {
       message: "Server error",
     });
   }
+};
+
+
+
+
+export const getUserNotifications = async (req, res) => {
+  const notifications = await UserNotification.find({
+    user: req.user._id,
+  })
+    .populate("sender", "name avatar")
+    .populate("post", "title")
+    .sort({ createdAt: -1 })
+    .limit(20);
+
+  res.json({ success: true, notifications });
+};
+
+
+
+
+export const markNotificationRead = async (req, res) => {
+  await UserNotification.findByIdAndUpdate(req.params.id, {
+    isRead: true,
+  });
+
+  res.json({ success: true });
 };

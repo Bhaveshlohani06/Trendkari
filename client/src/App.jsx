@@ -132,6 +132,9 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import ReactGA from "react-ga4";
 import "antd/dist/reset.css";
 
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 /* Common */
 import ScrollToTop from "./Components/ScrollToTop";
 
@@ -181,6 +184,9 @@ import {
   requestNotificationPermission
 } from "../src/notification.js";
 
+import EditPost from "./Components/forms/Editpost";
+
+// Your GA Measurement ID
 
 const TRACKING_ID = "G-CGG172MEXZ";
 
@@ -223,6 +229,15 @@ const App = () => {
     <>
       <RouteChangeTracker />
       <ScrollToTop />
+
+          <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+      />
 
       <Routes>
         {/* ================= PUBLIC ROUTES ================= */}
@@ -273,6 +288,10 @@ const App = () => {
 
     <Route path="profile/:userId" element={<UserProfile />} />
     <Route path="edit-profile/:userId" element={<EditProfile />} />
+
+
+    <Route path="edit-post/:slug" element={<EditPost />} />
+
   </Route>
 
   {/* ADMIN ROUTES */}

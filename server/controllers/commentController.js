@@ -1,6 +1,8 @@
 import sanitizeHtml from "sanitize-html";
 import Comment from "../models/commentmodel.js";
 import Post from "../models/postmodel.js"; // or your actual post model
+import userNotification from "../models/userNotification.js";
+import { broadcastPush } from "../helper/pushService.js";
 
 // helper to find post by slug once
 async function findPostBySlug(slug) {
@@ -129,3 +131,8 @@ export const updateComment = async (req, res) => {
     return res.status(400).json({ error: err.message });
   }
 };
+
+
+
+// LIKE / UNLIKE POST
+

@@ -5,7 +5,9 @@ import toast from "react-hot-toast";
 import { Carousel } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import API from "../../utils/api";
-import BlogCard from "../Components/BlogCard";
+// import BlogCard from "../Components/BlogCard";
+
+import BlogCard from "../Components/BlogCard.jsx";
 import { useLocation } from "../context/LocationContext.jsx";
 import { FiSun, FiCloud, FiCloudRain } from "react-icons/fi";
 import { BsBuilding } from "react-icons/bs";

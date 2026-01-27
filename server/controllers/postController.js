@@ -13,6 +13,9 @@ import { generateSlug } from '../utils/slugify.js';
 import Notification from '../models/Notification.js';
 import { sendBroadcastPush } from './notificationController.js';
 import { broadcastPush } from '../helper/pushService.js';
+// import { hindiToRoman } from '../utils/hindiToRoman.js';
+// import { sendPushNotification } from '../utils/pushNotification.js';
+import User from "../models/usermodel.js";
 
 
 
@@ -543,40 +546,144 @@ export const rejectPost = async (req, res) => {
 
 
 // UPDATE POST
+// export const updatePostController = async (req, res) => {
+//   try {
+//     const { title, description, content, category, tags, status, isFeatured } = req.body;
+
+//     const post = await postModel.findById(req.params.id);
+//     if (!post) return res.status(404).send({ message: "Post not found" });
+
+//     // Update fields
+//     if (title) {
+//       post.title = title;
+//       post.slug = slugify(title.toString(), { lower: true, strict: false });
+//     }
+//     post.description = description || post.description;
+//     post.content = content || post.content;
+//     post.category = category || post.category;
+//     post.tags = tags ? JSON.parse(tags).map(tag => tag.trim().toLowerCase()) : post.tags;
+//       if (req.user.role === "admin" && status) {
+//       post.status = status;
+//         }
+//     if (typeof isFeatured !== "undefined") {
+//       post.isFeatured = isFeatured === "true" || isFeatured === true;
+//     }
+//     post.author = req.user.id || post.author;
+
+//     // Handle new image if uploaded
+//     if (req.file) {
+//       const fileBuffer = fs.readFileSync(req.file.path);
+//       const response = await imagekit.upload({
+//         file: fileBuffer,
+//         fileName: req.file.originalname,
+//         folder: "/posts",
+//       });
+
+//       const optimizedImageUrl = imagekit.url({
+//         path: response.filePath,
+//         transformation: [
+//           { quality: "auto" },
+//           { format: "webp" },
+//           { width: "1280" },
+//         ],
+//       });
+
+//       post.image = optimizedImageUrl;
+//     }
+
+//     await post.save();
+
+//     res.status(200).send({
+//       success: true,
+//       message: "Post updated successfully",
+//       post,
+//     });
+//   } catch (error) {
+//     console.error("Update Post Error:", error);
+//     res.status(500).send({ success: false, error: error.message });
+//   }
+// };
+
+
 export const updatePostController = async (req, res) => {
   try {
-    const { title, description, content, category, tags, status, isFeatured } = req.body;
+    const {
+      title,
+      content,
+      category,
+      language,
+      location,
+      tags,
+      isFeatured,
+      status, // admin only
+    } = req.body;
 
+    const image = req.file;
+
+    // 🔎 Fetch post
     const post = await postModel.findById(req.params.id);
-    if (!post) return res.status(404).send({ message: "Post not found" });
-
-    // Update fields
-    if (title) {
-      post.title = title;
-      post.slug = slugify(title.toString(), { lower: true, strict: false });
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
     }
-    post.description = description || post.description;
-    post.content = content || post.content;
-    post.category = category || post.category;
-    post.tags = tags ? JSON.parse(tags).map(tag => tag.trim().toLowerCase()) : post.tags;
-      if (req.user.role === "admin" && status) {
-      post.status = status;
-        }
+
+    // 🔐 Ownership check (optional but recommended)
+    if (
+      post.author.toString() !== req.user.id &&
+      req.user.role !== "admin"
+    ) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    // 📝 Update fields
+    if (title && title !== post.title) {
+      const baseSlug = generateSlug(title);
+      let slug = baseSlug;
+      let count = 1;
+
+      while (await postModel.exists({ slug, _id: { $ne: post._id } })) {
+        slug = `${baseSlug}-${count++}`;
+      }
+
+      post.title = title;
+      post.slug = slug;
+    }
+
+    if (content) {
+      post.content =
+        typeof content === "string" ? JSON.parse(content) : content;
+    }
+
+    if (category) post.category = category;
+    if (language) post.language = language;
+    if (location) post.location = location;
+
+    if (tags) {
+      post.tags = Array.isArray(tags)
+        ? tags
+        : tags.split(",").map(tag => tag.trim().toLowerCase());
+    }
+
     if (typeof isFeatured !== "undefined") {
       post.isFeatured = isFeatured === "true" || isFeatured === true;
     }
-    post.author = req.user.id || post.author;
 
-    // Handle new image if uploaded
-    if (req.file) {
-      const fileBuffer = fs.readFileSync(req.file.path);
+    // 🛂 Admin-only controls
+    if (req.user.role === "admin" && status) {
+      post.status = status;
+      post.isPublished = status === "approved";
+    }
+
+    // 🖼 Image upload
+    if (image) {
+      const fileBuffer = fs.readFileSync(image.path);
+
       const response = await imagekit.upload({
         file: fileBuffer,
-        fileName: req.file.originalname,
+        fileName: image.originalname,
         folder: "/posts",
       });
 
-      const optimizedImageUrl = imagekit.url({
+      post.image = imagekit.url({
         path: response.filePath,
         transformation: [
           { quality: "auto" },
@@ -584,22 +691,25 @@ export const updatePostController = async (req, res) => {
           { width: "1280" },
         ],
       });
-
-      post.image = optimizedImageUrl;
     }
 
     await post.save();
 
-    res.status(200).send({
+    res.status(200).json({
       success: true,
       message: "Post updated successfully",
       post,
     });
   } catch (error) {
     console.error("Update Post Error:", error);
-    res.status(500).send({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Error updating post",
+      error: error.message,
+    });
   }
 };
+
 
 
 // DELETE POST

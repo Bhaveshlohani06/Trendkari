@@ -1,0 +1,150 @@
+/* UserProfile.css */
+.profile-header-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-cover {
+  height: 200px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+}
+
+.avatar-container {
+  position: relative;
+  margin-top: -75px;
+  margin-bottom: 20px;
+}
+
+.avatar-img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.avatar-img:hover {
+  transform: scale(1.05);
+}
+
+.admin-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: white;
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.stats-row .stat-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stats-row .stat-card:hover {
+  background: #e9ecef;
+  transform: translateY(-2px);
+}
+
+.post-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid #e9ecef;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+  border-color: #007bff;
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  transition: transform 0.2s ease;
+}
+
+.editor-toolbar {
+  background-color: #f8f9fa;
+  border-color: #dee2e6;
+}
+
+.editor-content {
+  min-height: 300px;
+  outline: none;
+}
+
+.editor-content[data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: #6c757d;
+  opacity: 0.6;
+}
+
+/* Custom badge styles */
+.badge-admin {
+  background: linear-gradient(45deg, #dc3545, #e35d6a);
+}
+
+.badge-premium {
+  background: linear-gradient(45deg, #ffc107, #ffd54f);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .avatar-container {
+    margin-top: -50px;
+  }
+  
+  .avatar-img {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-cover {
+    height: 150px;
+  }
+}
+
+/* Animation for loading */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.profile-header-card,
+.card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Status indicator dots */
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.status-published { background-color: #28a745; }
+.status-pending { background-color: #ffc107; }
+.status-draft { background-color: #6c757d; }

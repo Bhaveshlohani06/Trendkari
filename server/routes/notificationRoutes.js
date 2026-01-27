@@ -3,6 +3,10 @@ import { registerNotificationToken } from "../controllers/notificationController
 import { sendTestPush } from "../controllers/notificationController.js";
 import { sendBroadcastPush } from "../controllers/notificationController.js";
 import { getNotifications } from "../controllers/notificationController.js";
+import { requireSignIn } from "../middleware/authMiddleware.js";
+import { getUserNotifications } from "../controllers/notificationController.js";
+import { markNotificationRead } from "../controllers/notificationController.js";
+// import { markAllRead } from "../controllers/notificationController.js"; 
 
 const router = express.Router();
 
@@ -12,7 +16,15 @@ router.post("/test", sendTestPush);
 router.post("/broadcast", sendBroadcastPush);
 
 // 🔔 Fetch notifications for bell
-router.get("/", getNotifications);
+// router.get("/", getNotifications);
+
+
+
+
+router.get("/", requireSignIn, getUserNotifications);
+router.patch("/read/:id", requireSignIn, markNotificationRead);
+// router.patch("/read-all", requireSignIn, markAllRead);
+
 
 
 

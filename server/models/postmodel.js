@@ -76,8 +76,28 @@ const postSchema = new mongoose.Schema(
     enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
+        likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+    ],
+
+    commentsCount: {
+      type: Number,
+      default: 0,
+    },
+
+    likesCount: {
+      type: Number,
+      default: 0,
+    },
+
   },
   { timestamps: true }
 );
 
+
+postSchema.index({ author: 1 });
+postSchema.index({ likes: 1 });
 export default mongoose.model("Post", postSchema);

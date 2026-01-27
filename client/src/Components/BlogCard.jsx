@@ -101,11 +101,16 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import * as timeago from 'timeago.js';
 import { FaHeart, FaShareAlt, FaBookmark } from "react-icons/fa";
+import LikeButton from './LikeButton.jsx';
+import { useAuth } from '../context/auth.jsx';
 
 const BlogCard = ({ post }) => {
   const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
+  const [auth] = useAuth();
+const userId = auth?.user?._id;
+
 
   const handleLike = (e) => {
     e.stopPropagation();
@@ -169,7 +174,7 @@ const BlogCard = ({ post }) => {
             ) : "Unknown"}
           </small>
 
-          <div className="d-flex align-items-center gap-3">
+          {/* <div className="d-flex align-items-center gap-3">
             <FaHeart
               onClick={handleLike}
               style={{ cursor: "pointer", color: liked ? "red" : "#aaa" }}
@@ -182,7 +187,15 @@ const BlogCard = ({ post }) => {
               onClick={handleShare}
               style={{ cursor: "pointer", color: "#aaa" }}
             />
-          </div>
+          </div> */}
+
+
+<LikeButton
+  postId={post._id}
+  initialLiked={Boolean(userId && post.likes?.includes(userId))}
+  initialCount={post.likes?.length || 0}/>
+
+
         </div>
       </div>
     </div>
@@ -190,3 +203,5 @@ const BlogCard = ({ post }) => {
 };
 
 export default BlogCard;
+
+

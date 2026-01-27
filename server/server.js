@@ -18,6 +18,7 @@ import mobileAuthRoutes from './routes/mobileRoutes.js';
 import "./config/firebase.js";
 import notificationRoutes from './routes/notificationRoutes.js';
 import debugPushRoutes from './routes/debugPushRoutes.js';
+import likeRoutes from './routes/likeRoutes.js';
 
 
 dotenv.config(); // Load environment variables
@@ -93,6 +94,8 @@ app.use('/api/v1/weather', weatherRoutes);
 app.use("/api/v1/mobile", mobileAuthRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/debug-push", debugPushRoutes);
+app.use("/api/v1/likes", likeRoutes);
+
 
 
 app.get("/api/ping", (req, res) => {
