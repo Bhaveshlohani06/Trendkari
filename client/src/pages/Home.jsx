@@ -5,13 +5,12 @@ import toast from "react-hot-toast";
 import { Carousel } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import API from "../../utils/api";
-// import BlogCard from "../Components/BlogCard";
-
 import BlogCard from "../Components/BlogCard.jsx";
 import { useLocation } from "../context/LocationContext.jsx";
 import { FiSun, FiCloud, FiCloudRain } from "react-icons/fi";
 import { BsBuilding } from "react-icons/bs";
 import { FaLandmark } from "react-icons/fa";
+import MiniCard from "../Components/MiniCard.jsx";
 
 const CITIES = [
   { label: "कोटा", value: "kota", color: "#1E3A8A" },
@@ -163,7 +162,7 @@ const Home = () => {
       </div>
 
       {/* TOP STORIES */}
-      <section className="mb-5">
+      {/* <section className="mb-5">
         <h5 className="fw-bold mb-3">{currentCity?.label} की बड़ी खबरें</h5>
         {blogs.length === 0 && loading ? (
           <Skeleton active paragraph={{ rows: 4 }} />
@@ -182,7 +181,10 @@ const Home = () => {
             ))}
           </Carousel>
         )}
-      </section>
+      </section> */}
+
+
+      
 
       {/* FOLLOW SOURCES */}
 
@@ -200,7 +202,7 @@ const Home = () => {
 
     {/* LOADING */}
     {loading &&
-      [1, 2, 3, 4, 5].map(i => (
+      [1, 2, 3, 4, 5, 7, 8,].map(i => (
         <div
           key={i}
           className="card shadow-sm border-0"
@@ -266,7 +268,7 @@ const Home = () => {
     }
 
     {/* SEE ALL */}
-    {/* {!loading && (
+    {!loading && (
       <Link
         to="/users"
         className="card shadow-sm border-0 text-decoration-none"
@@ -277,7 +279,7 @@ const Home = () => {
           सभी प्रोफाइल देखें
         </div>
       </Link>
-    )} */}
+    )}
 
   </div>
 
@@ -317,8 +319,11 @@ const Home = () => {
         <h5 className="fw-bold mb-3">{currentCity?.label} की सभी खबरें</h5>
         <div className="row g-4">
           {blogs.map((post) => (
-            <div className="col-md-3" key={post._id}>
-              <BlogCard post={post} />
+            <div className="col-md-6" key={post._id}>
+              {/* <BlogCard post={post} /> */}
+              <MiniCard post={post} />
+
+
             </div>
           ))}
         </div>

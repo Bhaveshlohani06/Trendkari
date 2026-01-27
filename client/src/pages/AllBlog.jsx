@@ -162,33 +162,250 @@
 
 
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Link } from "react-router-dom";
-import Layout from "../Layout/Layout";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-import API from "../../utils/api";
-import { formatTimeAgo } from "../../utils/timeago";
+// import React, { useEffect, useState } from "react";
+// import Layout from "../Layout/Layout";
+// import MiniCard from "../Components/MiniCard";
+// import API from "../../utils/api";
 
-const PAGE_LIMIT = 10; // posts per fetch
+// const ExplorePage = () => {
+//   const [posts, setPosts] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   // Fetch all posts at once
+//   const fetchAllPosts = async () => {
+//     try {
+//       const { data } = await API.get("/post/get-posts?status=approved");
+//       if (data?.success) {
+//         setPosts(data.posts || []);
+//       }
+//     } catch (err) {
+//       console.error("Error:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchAllPosts();
+//   }, []);
+
+//   // Remove post
+//   const handleRemovePost = (postId) => {
+//     setPosts(prev => prev.filter(post => post._id !== postId));
+//   };
+
+//   return (
+//     <Layout title="Explore | Trendkari">
+//       <div className="container py-4">
+//         {/* Simple Heading */}
+//         <div className="mb-4">
+//           <h1 className="fw-bold">Explore Kota District</h1>
+//           <p className="text-muted">All posts from every city</p>
+//         </div>
+
+//         {/* Loading */}
+//         {loading && (
+//           <div className="text-center py-5">
+//             <div className="spinner-border" role="status">
+//               <span className="visually-hidden">Loading...</span>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* Posts Grid */}
+//         <div className="row g-3">
+//           {posts.map((post) => (
+//             <div className="col-md-6 col-lg-4" key={post._id}>
+//               <MiniCard 
+//                 post={post} 
+//                 showCloseButton={true} 
+//                 onRemove={handleRemovePost}
+//               />
+//             </div>
+//           ))}
+//         </div>
+
+//         {/* No Posts */}
+//         {!loading && posts.length === 0 && (
+//           <div className="text-center py-5">
+//             <p className="text-muted">No posts to show</p>
+//           </div>
+//         )}
+//       </div>
+//     </Layout>
+//   );
+// };
+
+// export default ExplorePage;
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState, useRef, useCallback } from "react";
+// import Layout from "../Layout/Layout";
+// import MiniCard from "../Components/MiniCard";
+// import API from "../../utils/api";
+
+
+// const ExplorePage = () => {
+//   const [posts, setPosts] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [loading, setLoading] = useState(false);
+//   const [hasMore, setHasMore] = useState(true);
+
+//   const observer = useRef();
+
+//   // 📥 Fetch posts
+//   const fetchPosts = async () => {
+//     if (!hasMore) return;
+
+//     setLoading(true);
+//     try {
+//       const { data } = await API.get(
+//         `/post/get-posts?status=approved`
+//       );
+
+//       if (data?.success) {
+//         setPosts(prev => [...prev, ...(data.posts || [])]);
+//         setHasMore(data.hasMore);
+//       }
+//     } catch (err) {
+//       console.error("Fetch error:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // 🔁 Fetch on page change
+//   useEffect(() => {
+//     fetchPosts();
+//   }, [page]);
+
+//   // 👀 Observer callback
+//   const lastPostRef = useCallback(node => {
+//     if (loading) return;
+
+//     if (observer.current) observer.current.disconnect();
+
+//     observer.current = new IntersectionObserver(entries => {
+//       if (entries[0].isIntersecting && hasMore) {
+//         setPage(prev => prev + 1);
+//       }
+//     });
+
+//     if (node) observer.current.observe(node);
+//   }, [loading, hasMore]);
+
+//   // ❌ Remove post locally
+//   const handleRemovePost = (postId) => {
+//     setPosts(prev => prev.filter(p => p._id !== postId));
+//   };
+
+//   return (
+//     <Layout title="Explore | Trendkari">
+//       <div className="container py-4">
+//         <div className="mb-4">
+//           <h1 className="fw-bold">Explore Kota District</h1>
+//           <p className="text-muted">All posts from every city</p>
+//         </div>
+
+//         <div className="row g-3">
+//           {posts.map((post, index) => {
+//             const isLast = index === posts.length - 1;
+
+//             return (
+//               <div
+//                 className="col-md-6 col-lg-4"
+//                 key={post._id}
+//                 ref={isLast ? lastPostRef : null}
+//               >
+//                 <MiniCard
+//                   post={post}
+//                   showCloseButton
+//                   onRemove={handleRemovePost}
+//                 />
+//               </div>
+//             );
+//           })}
+//         </div>
+
+//         {loading && (
+//           <div className="text-center py-4">
+//             <div className="spinner-border" />
+//           </div>
+//         )}
+
+//         {!hasMore && !loading && (
+//           <div className="text-center py-4 text-muted">
+//             You’ve reached the end 🚀
+//           </div>
+//         )}
+//       </div>
+//     </Layout>
+//   );
+// };
+
+// export default ExplorePage;
+
+
+
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import Layout from "../Layout/Layout";
+import MiniCard from "../Components/MiniCard";
+import API from "../../utils/api";
+
+const LIMIT = 9; // cards per fetch
 
 const ExplorePage = () => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [hasMore, setHasMore] = useState(true);
 
-  const observer = useRef();
+  const observer = useRef(null);
 
+  // 📥 Fetch posts
+  const fetchPosts = async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    try {
+      const { data } = await API.get(
+        `/post/get-posts?status=approved&page=${page}&limit=${LIMIT}`
+      );
+
+      if (data?.success) {
+        setPosts(prev => [...prev, ...data.posts]);
+        setHasMore(data.hasMore);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔁 Fetch on page change
+  useEffect(() => {
+    fetchPosts();
+  }, [page]);
+
+  // 👀 Intersection Observer
   const lastPostRef = useCallback(
-    (node) => {
+    node => {
       if (loading) return;
+
       if (observer.current) observer.current.disconnect();
 
-      observer.current = new IntersectionObserver((entries) => {
+      observer.current = new IntersectionObserver(entries => {
         if (entries[0].isIntersecting && hasMore) {
-          setPage((prev) => prev + 1);
+          setPage(prev => prev + 1);
         }
       });
 
@@ -197,117 +414,50 @@ const ExplorePage = () => {
     [loading, hasMore]
   );
 
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      const { data } = await API.get(
-        `/post/get-posts?page=${page}&limit=${PAGE_LIMIT}`
-      );
-
-      if (data?.success) {
-        setPosts((prev) => [...prev, ...data.posts]);
-        setHasMore(data.posts.length === PAGE_LIMIT);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load posts");
-    } finally {
-      setLoading(false);
-    }
+  // ❌ Remove post locally
+  const handleRemovePost = (postId) => {
+    setPosts(prev => prev.filter(p => p._id !== postId));
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, [page]);
-
-  const BlogSkeleton = () => (
-    <div className="card mb-4 border-0 shadow-sm">
-      <div className="row g-0">
-        <div className="col-md-4">
-          <Skeleton height={200} />
-        </div>
-        <div className="col-md-8 p-3">
-          <Skeleton width="80%" />
-          <Skeleton width="40%" />
-          <Skeleton width="60%" />
-        </div>
-      </div>
-    </div>
-  );
-
   return (
-    <Layout>
-      <div className="container py-5">
-        <div className="text-center mb-5">
-          <h1 className="fw-bold display-6">Explore Kota District</h1>
-          <p className="text-muted">Latest updates from all tehsils</p>
+    <Layout title="Explore | Trendkari">
+      <div className="container py-4">
+        <div className="mb-4">
+          <h1 className="fw-bold">Explore Kota District</h1>
+          <p className="text-muted">All posts from every city</p>
         </div>
 
-        {error && (
-          <div className="alert alert-danger text-center">{error}</div>
+        <div className="row g-3">
+          {posts.map((post, index) => {
+            const isLast = index === posts.length - 1;
+
+            return (
+              <div
+                className="col-md-6 col-lg-4"
+                key={post._id}
+                ref={isLast ? lastPostRef : null}
+              >
+                <MiniCard
+                  post={post}
+                  showCloseButton
+                  onRemove={handleRemovePost}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {loading && (
+          <div className="text-center py-4">
+            <div className="spinner-border" />
+          </div>
         )}
 
-        <div className="row justify-content-center">
-          <div className="col-lg-8">
-            {posts.map((post, index) => {
-              const isLast = index === posts.length - 1;
-
-              return (
-                <Link
-                  key={post._id}
-                  to={`/${post.location}/article/${post.slug}`}
-                  ref={isLast ? lastPostRef : null}
-                  className="text-decoration-none text-dark"
-                >
-                  <div className="card explore-card mb-4 border-0 shadow-sm">
-                    <div className="row g-0 align-items-center">
-                      {post.image && (
-                        <div className="col-md-4">
-                          <img
-                            src={post.image}
-                            alt={post.title}
-                            loading="lazy"
-                            className="img-fluid explore-image rounded-start"
-                          />
-                        </div>
-                      )}
-
-                      <div className="col-md-8">
-                        <div className="card-body">
-                          <div className="d-flex justify-content-between text-muted small mb-2">
-                            <span className="badge bg-light text-dark">
-                              {post.location}
-                            </span>
-                            <span>{formatTimeAgo(post.createdAt)}</span>
-                          </div>
-
-                          <h5 className="fw-bold explore-title mb-1">
-                            {post.title}
-                          </h5>
-
-                          <div className="text-muted small">
-                            {post?.author?.name || "Trendkari"}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-
-            {loading && [...Array(3)].map((_, i) => <BlogSkeleton key={i} />)}
-
-            {!hasMore && (
-              <div className="text-center my-5">
-                <p className="text-muted">You’ve reached the end</p>
-                <Link to="/blog/categories" className="btn btn-outline-dark">
-                  Browse Categories
-                </Link>
-              </div>
-            )}
+        {!hasMore && !loading && (
+          <div className="text-center py-4 text-muted">
+            You’ve reached the end 🚀
           </div>
-        </div>
+        )}
       </div>
     </Layout>
   );

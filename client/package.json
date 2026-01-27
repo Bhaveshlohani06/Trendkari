@@ -24,7 +24,7 @@
     "bootstrap": "^5.3.7",
     "editorjs-html": "^4.0.5",
     "firebase": "^12.8.0",
-    "framer-motion": "^12.23.9",
+    "framer-motion": "^12.29.2",
     "lucide-react": "^0.527.0",
     "marked": "^16.1.1",
     "react": "^19.1.0",
