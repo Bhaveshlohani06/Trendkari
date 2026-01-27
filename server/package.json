@@ -36,6 +36,7 @@
     "passport-google-oauth20": "^2.0.0",
     "sanitize-html": "^2.17.0",
     "slugify": "^1.6.6",
+    "socket.io": "^4.8.3",
     "transliterate": "^1.0.1"
   }
 }

@@ -19,6 +19,8 @@ import "./config/firebase.js";
 import notificationRoutes from './routes/notificationRoutes.js';
 import debugPushRoutes from './routes/debugPushRoutes.js';
 import likeRoutes from './routes/likeRoutes.js';
+import { initSocket } from './utils/socket.js';
+import http from 'http';
 
 
 dotenv.config(); // Load environment variables
@@ -28,6 +30,7 @@ dotenv.config(); // Load environment variables
 
 
 const app = express();
+const server = http.createServer(app);
 
 connectDB(); // Connect to MongoDB
 
@@ -96,6 +99,9 @@ app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/debug-push", debugPushRoutes);
 app.use("/api/v1/likes", likeRoutes);
 
+
+// 🔥 INIT SOCKET
+initSocket(server);
 
 
 app.get("/api/ping", (req, res) => {

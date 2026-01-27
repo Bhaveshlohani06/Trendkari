@@ -240,3 +240,15 @@ export const markNotificationRead = async (req, res) => {
 
   res.json({ success: true });
 };
+
+
+
+/* Mark ALL as seen (bell opened) */
+export const markAllSeen = async (req, res) => {
+  await UserNotification.updateMany(
+    { user: req.user._id, isSeen: false },
+    { isSeen: true }
+  );
+
+  res.json({ success: true });
+};

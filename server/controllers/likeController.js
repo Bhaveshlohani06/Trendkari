@@ -1,14 +1,81 @@
 import postModel from "../models/postmodel.js"; // or your actual post model
 import userNotification from "../models/userNotification.js";
 import { broadcastPush } from "../helper/pushService.js";
+import { getIO } from "../utils/socket.js";
+
+
+// export const toggleLikePost = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const { postId } = req.params;
+
+//     const post = await postModel.findById(postId).populate("author", "_id name");
+
+//     if (!post) {
+//       return res.status(404).json({ success: false, message: "Post not found" });
+//     }
+
+//     const alreadyLiked = post.likes.includes(userId);
+
+//     if (alreadyLiked) {
+//       // UNLIKE
+//       post.likes.pull(userId);
+//       post.likesCount -= 1;
+
+//       await post.save();
+
+//       return res.json({
+//         success: true,
+//         liked: false,
+//         likesCount: post.likesCount,
+//       });
+//     }
+
+//     // LIKE
+//     post.likes.push(userId);
+//     post.likesCount += 1;
+
+//     await post.save();
+
+//     // 🔔 Push Notification (do not notify self)
+//  if (post.author.toString() !== req.user._id.toString()) {
+//   await userNotification.create({
+//     user: post.author,
+//     sender: req.user._id,
+//     type: "LIKE",
+//     post: post._id,
+//     message: `${req.user.name} liked your post`,
+//   });
+
+//   // Push notification (FCM)
+//   await broadcastPush({
+//     userId: post.author,
+//     title: "New Like",
+//     body: `${req.user.name} liked your post`,
+//     link: `/post/${post._id}`,
+//   });
+// }
+
+//     return res.json({
+//       success: true,
+//       liked: true,
+//       likesCount: post.likesCount,
+//     });
+//   } catch (error) {
+//     console.error("Like error:", error);
+//     res.status(500).json({ success: false, message: "Server error" });
+//   }
+// };
+
 
 
 export const toggleLikePost = async (req, res) => {
   try {
+    const io = getIO();
     const userId = req.user._id;
     const { postId } = req.params;
 
-    const post = await postModel.findById(postId).populate("author", "_id name");
+    const post = await postModel.findById(postId);
 
     if (!post) {
       return res.status(404).json({ success: false, message: "Post not found" });
@@ -17,54 +84,46 @@ export const toggleLikePost = async (req, res) => {
     const alreadyLiked = post.likes.includes(userId);
 
     if (alreadyLiked) {
-      // UNLIKE
       post.likes.pull(userId);
-      post.likesCount -= 1;
+    } else {
+      post.likes.push(userId);
+    }
 
-      await post.save();
+    post.likesCount = post.likes.length;
+    await post.save();
 
-      return res.json({
-        success: true,
-        liked: false,
-        likesCount: post.likesCount,
+    // 🔴 LIVE LIKE UPDATE
+    io.to(`post:${postId}`).emit("post-like-updated", {
+      postId,
+      likesCount: post.likesCount,
+    });
+
+    // 🔔 NOTIFICATION (NOT SELF)
+    if (!alreadyLiked && post.author.toString() !== userId.toString()) {
+      await userNotification.create({
+        user: post.author,
+        sender: userId,
+        type: "LIKE",
+        post: postId,
+        message: `${req.user.name} liked your post`,
+      });
+
+      io.to(`user:${post.author}`).emit("notification", {
+        type: "LIKE",
+        postId,
+        message: `${req.user.name} liked your post`,
       });
     }
 
-    // LIKE
-    post.likes.push(userId);
-    post.likesCount += 1;
-
-    await post.save();
-
-    // 🔔 Push Notification (do not notify self)
- if (post.author.toString() !== req.user._id.toString()) {
-  await userNotification.create({
-    user: post.author,
-    sender: req.user._id,
-    type: "LIKE",
-    post: post._id,
-    message: `${req.user.name} liked your post`,
-  });
-
-  // Push notification (FCM)
-  await broadcastPush({
-    userId: post.author,
-    title: "New Like",
-    body: `${req.user.name} liked your post`,
-    link: `/post/${post._id}`,
-  });
-}
-
     return res.json({
       success: true,
-      liked: true,
+      liked: !alreadyLiked,
       likesCount: post.likesCount,
     });
-  } catch (error) {
-    console.error("Like error:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+
+  } catch (err) {
+    console.error("Like error:", err);
+    res.status(500).json({ success: false });
   }
 };
-
-
 
