@@ -355,12 +355,128 @@
 
 
 
+// import React, { useEffect, useState, useRef, useCallback } from "react";
+// import Layout from "../Layout/Layout";
+// import MiniCard from "../Components/MiniCard";
+// import API from "../../utils/api";
+
+// const LIMIT = 9; // cards per fetch
+
+// const ExplorePage = () => {
+//   const [posts, setPosts] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [loading, setLoading] = useState(false);
+//   const [hasMore, setHasMore] = useState(true);
+
+//   const observer = useRef(null);
+
+//   // 📥 Fetch posts
+//   const fetchPosts = async () => {
+//     if (loading || !hasMore) return;
+
+//     setLoading(true);
+//     try {
+//       const { data } = await API.get(
+//         `/post/get-posts?status=approved&page=${page}&limit=${LIMIT}`
+//       );
+
+//       if (data?.success) {
+//         setPosts(prev => [...prev, ...data.posts]);
+//         setHasMore(data.hasMore);
+//       }
+//     } catch (err) {
+//       console.error("Fetch error:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   // 🔁 Fetch on page change
+//   useEffect(() => {
+//     fetchPosts();
+//   }, [page]);
+
+//   // 👀 Intersection Observer
+//   const lastPostRef = useCallback(
+//     node => {
+//       if (loading) return;
+
+//       if (observer.current) observer.current.disconnect();
+
+//       observer.current = new IntersectionObserver(entries => {
+//         if (entries[0].isIntersecting && hasMore) {
+//           setPage(prev => prev + 1);
+//         }
+//       });
+
+//       if (node) observer.current.observe(node);
+//     },
+//     [loading, hasMore]
+//   );
+
+//   // ❌ Remove post locally
+//   const handleRemovePost = (postId) => {
+//     setPosts(prev => prev.filter(p => p._id !== postId));
+//   };
+
+//   return (
+//     <Layout title="Explore | Trendkari">
+//       <div className="container py-4">
+//         <div className="mb-4">
+//           <h1 className="fw-bold">Explore Kota District</h1>
+//           <p className="text-muted">All posts from every city</p>
+//         </div>
+
+//         <div className="row g-3">
+//           {posts.map((post, index) => {
+//             const isLast = index === posts.length - 1;
+
+//             return (
+//               <div
+//                 className="col-md-6 col-lg-4"
+//                 key={post._id}
+//                 ref={isLast ? lastPostRef : null}
+//               >
+//                 <MiniCard
+//                   post={post}
+//                   showCloseButton
+//                   onRemove={handleRemovePost}
+//                 />
+//               </div>
+//             );
+//           })}
+//         </div>
+
+//         {loading && (
+//           <div className="text-center py-4">
+//             <div className="spinner-border" />
+//           </div>
+//         )}
+
+//         {!hasMore && !loading && (
+//           <div className="text-center py-4 text-muted">
+//             You’ve reached the end 🚀
+//           </div>
+//         )}
+//       </div>
+//     </Layout>
+//   );
+// };
+
+// export default ExplorePage;
+
+
+
+
+
+
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import Layout from "../Layout/Layout";
 import MiniCard from "../Components/MiniCard";
 import API from "../../utils/api";
 
-const LIMIT = 9; // cards per fetch
+const LIMIT = 9;
 
 const ExplorePage = () => {
   const [posts, setPosts] = useState([]);
@@ -370,20 +486,24 @@ const ExplorePage = () => {
 
   const observer = useRef(null);
 
-  // 📥 Fetch posts
+  // 📥 Fetch posts (DIRECT pagination like Home)
   const fetchPosts = async () => {
     if (loading || !hasMore) return;
 
-    setLoading(true);
     try {
+      setLoading(true);
+
       const { data } = await API.get(
         `/post/get-posts?status=approved&page=${page}&limit=${LIMIT}`
       );
 
-      if (data?.success) {
-        setPosts(prev => [...prev, ...data.posts]);
-        setHasMore(data.hasMore);
+      if (!data?.posts || data.posts.length === 0) {
+        setHasMore(false);
+        return;
       }
+
+      setPosts(prev => [...prev, ...data.posts]);
+      setPage(prev => prev + 1);
     } catch (err) {
       console.error("Fetch error:", err);
     } finally {
@@ -391,30 +511,36 @@ const ExplorePage = () => {
     }
   };
 
-  // 🔁 Fetch on page change
+  // 🔁 Initial fetch
   useEffect(() => {
     fetchPosts();
-  }, [page]);
+  }, []);
 
-  // 👀 Intersection Observer
+  // 👀 Observer (FIXED)
   const lastPostRef = useCallback(
     node => {
-      if (loading) return;
+      if (loading || !hasMore) return;
 
       if (observer.current) observer.current.disconnect();
 
-      observer.current = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage(prev => prev + 1);
+      observer.current = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting) {
+            fetchPosts(); // 🔥 DIRECT fetch
+          }
+        },
+        {
+          root: null,
+          rootMargin: "200px", // 🔑 LOAD EARLY
+          threshold: 0,
         }
-      });
+      );
 
       if (node) observer.current.observe(node);
     },
     [loading, hasMore]
   );
 
-  // ❌ Remove post locally
   const handleRemovePost = (postId) => {
     setPosts(prev => prev.filter(p => p._id !== postId));
   };
@@ -453,9 +579,9 @@ const ExplorePage = () => {
           </div>
         )}
 
-        {!hasMore && !loading && (
+        {!hasMore && (
           <div className="text-center py-4 text-muted">
-            You’ve reached the end 🚀
+            No more stories to load
           </div>
         )}
       </div>
@@ -464,3 +590,4 @@ const ExplorePage = () => {
 };
 
 export default ExplorePage;
+
