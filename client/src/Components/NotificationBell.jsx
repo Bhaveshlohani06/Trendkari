@@ -273,17 +273,30 @@ const NotificationBell = () => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   /* ================= FETCH ================= */
-  const fetchNotifications = async () => {
-    try {
-      const { data } = await API.get("/notifications");
-      if (data?.success) {
-        setNotifications(data.notifications);
-        setLoaded(true);
-      }
-    } catch (err) {
-      console.error("Notification fetch error:", err?.response?.data || err);
+const fetchNotifications = async () => {
+  try {
+    const authData = JSON.parse(localStorage.getItem("auth"));
+
+    if (!authData?.token) return;
+
+    const { data } = await API.get("/notifications", {
+      headers: {
+        Authorization: `Bearer ${authData.token}`,
+      },
+    });
+
+    if (data?.success) {
+      setNotifications(data.notifications);
+      setLoaded(true);
     }
-  };
+  } catch (err) {
+    console.error(
+      "Notification fetch error:",
+      err?.response?.data || err
+    );
+  }
+};
+
 
   // 🔐 Fetch ONLY when auth is ready
   useEffect(() => {

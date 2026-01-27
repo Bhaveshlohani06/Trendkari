@@ -101,15 +101,19 @@ const AuthProvider = ({ children }) => {
 
   // 🔌 STEP 7: SOCKET USER JOIN
   useEffect(() => {
-    if (auth?.user?._id) {
-      socket.connect();
-      socket.emit("join-user", auth.user._id);
-    }
-
-    return () => {
-      socket.disconnect();
+  if (auth?.token) {
+    socket.auth = {
+      token: auth.token,
     };
-  }, [auth?.user?._id]);
+
+    socket.connect();
+  }
+
+  return () => {
+    socket.disconnect();
+  };
+}, [auth?.token]);
+
 
   return (
     <AuthContext.Provider value={[auth, setAuth]}>

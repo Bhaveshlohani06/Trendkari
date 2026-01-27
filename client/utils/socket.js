@@ -7,15 +7,10 @@
 
 import { io } from "socket.io-client";
 
-const auth = JSON.parse(localStorage.getItem("auth"));
+const BACKEND_URL =
+  import.meta.env.VITE_PRO_BASE_URL || "http://localhost:8080";
 
-export const socket = io(import.meta.env.VITE_API_URL, {
+export const socket = io(BACKEND_URL, {
   transports: ["websocket"],
-  auth: {
-    token: auth?.token,
-  },
+  autoConnect: false,
 });
-
-if (auth?.user?._id) {
-  socket.emit("join", auth.user._id);
-}
