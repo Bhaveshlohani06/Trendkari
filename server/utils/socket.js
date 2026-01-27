@@ -15,6 +15,7 @@ export const initSocket = (httpServer) => {
 
     // User personal room
     socket.on("join-user", (userId) => {
+        if (!userId) return;
       socket.join(`user:${userId}`);
     });
 

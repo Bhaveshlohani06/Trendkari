@@ -172,6 +172,7 @@ import { FaBell } from "react-icons/fa";
 import API from "../../utils/api";
 import { socket } from "../../utils/socket";
 
+
 const NotificationBell = () => {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -179,12 +180,13 @@ const NotificationBell = () => {
   const unreadCount = notifications.filter(n => !n.isSeen).length;
 
   const fetchNotifications = async () => {
-    const { data } = await API.get("/notifications");
+    const { data } = await API.get("/notifications/");
     if (data.success) setNotifications(data.notifications);
   };
 
   useEffect(() => {
-    fetchNotifications();
+    const auth = localStorage.getItem("auth");
+  if (auth) fetchNotifications();
   }, []);
 
   // 🔴 Live socket notification
