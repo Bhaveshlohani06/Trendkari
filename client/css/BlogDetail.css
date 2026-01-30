@@ -1,0 +1,53 @@
+.suggested-carousel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.suggested-carousel::-webkit-scrollbar {
+  display: none;
+}
+
+.suggested-card {
+  width: 140px;
+  min-height: 170px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.suggested-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
+.see-all-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f0f4ff, #ffffff);
+  border: 1px dashed #cfd8ff;
+}
+
+.see-all-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.see-all-arrow {
+  font-size: 28px;
+  color: #0d6efd;
+}
+
+
+.comment-box textarea {
+  resize: none;
+  border-radius: 12px;
+}
+
+.comment-item {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
+}
