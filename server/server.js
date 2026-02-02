@@ -229,7 +229,7 @@ app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/debug-push", debugPushRoutes);
 app.use("/api/v1/likes", likeRoutes);
 
-app.get("/api/ping", (req, res) => {
+app.get("/api/ping", (req, res) => {  
   res.json({ message: "Backend working" });
 });
 

@@ -1398,7 +1398,7 @@ useEffect(() => {
     fetchRelatedPosts(1);
     
     // Fetch categories
-    API.get('/categories').then(({ data }) => {
+    API.get('/category/categories').then(({ data }) => {
       if (data?.success) setCategories(data.categories);
     });
   }, [post?._id]);
