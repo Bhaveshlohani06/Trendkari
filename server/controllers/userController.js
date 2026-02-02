@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import User from "../models/usermodel.js";
 import Notification from "../models/userNotification.js";
-import { getIO } from "../socket.js";
+import { getIO } from "../utils/socket.js";
 import { broadcastPush } from "../helper/pushService.js";
 
 
