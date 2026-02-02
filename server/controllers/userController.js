@@ -277,7 +277,7 @@ export const followUser = async (req, res) => {
 
     // 🔔 Notification
     await UserNotification.create({
-      recipient: userId,
+        user: userId,              // ✅ receiver
       sender: currentUserId,
       type: "FOLLOW",
       message: `${req.user.name} started following you`,

@@ -1291,21 +1291,39 @@ const [followLoading, setFollowLoading] = useState({});
   }, [slug]);
 
   /* ================= COMMENTS ================= */
-  const fetchComments = async () => {
-    try {
-      const { data } = await API.get(`/posts/${post._id}/comments`);
-      if (data?.success) {
-        setComments(data.comments);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+//   const fetchComments = async () => {
+//     try {
+//       const { data } = await API.get(`/posts/${post.slug}/comments`);
+//       if (data?.success) {
+//         setComments(data.comments);
+//       }
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
 
-  useEffect(() => {
-    if (!post?._id) return;
-    fetchComments();
-  }, [post?._id]);
+// useEffect(() => {
+//   if (!post?.slug) return; 
+//   fetchComments();
+// }, [post?.slug]);
+
+
+
+const fetchComments = async () => {
+  if (!post?.slug) return;
+  try {
+    const { data } = await API.get(`/posts/${post.slug}/comments`);
+    if (data?.success) setComments(data.comments);
+  } catch (err) {
+    console.error("Failed to fetch comments:", err);
+  }
+};
+
+useEffect(() => {
+  fetchComments(); 
+}, [post?.slug]);
+
+
 
   const submitComment = async (e) => {
     e.preventDefault();
@@ -1321,7 +1339,7 @@ const [followLoading, setFollowLoading] = useState({});
 
     try {
       const { data } = await API.post(
-        `/posts/${post._id}/comments`,
+        `/posts/${post.slug}/comments`,
         { content: commentText.trim() }
       );
 
@@ -1733,7 +1751,7 @@ const [followLoading, setFollowLoading] = useState({});
             </div>
 
             {/* Inline CTA */}
-            <Card className="mb-5 border-primary bg-gradient-light">
+            {/* <Card className="mb-5 border-primary bg-gradient-light">
               <Card.Body className="text-center py-4">
                 <FaBookOpen size={32} className="text-primary mb-3" />
                 <h5 className="fw-bold">Want more from {post.location?.split(',')[0] || "your area"}?</h5>
@@ -1744,7 +1762,7 @@ const [followLoading, setFollowLoading] = useState({});
                   Follow {post.location?.split(',')[0] || "Location"}
                 </Button>
               </Card.Body>
-            </Card>
+            </Card> */}
 
             {/* Engagement Bar */}
             <div className="engagement-bar d-flex justify-content-between align-items-center border-top border-bottom py-3 mb-5">
@@ -1766,14 +1784,16 @@ const [followLoading, setFollowLoading] = useState({});
                 </Button>
               </div>
               <div className="d-flex gap-2">
-                <Button 
+
+                {/* <Button 
                   variant={isSaved ? "warning" : "outline-secondary"}
                   className="rounded-pill"
                   onClick={handleSave}
                 >
                   <FaBookmark className="me-2" />
                   {isSaved ? "Saved" : "Save"}
-                </Button>
+                </Button> */}
+
                 <Button 
                   variant="outline-primary" 
                   className="rounded-pill"
@@ -1786,7 +1806,7 @@ const [followLoading, setFollowLoading] = useState({});
             </div>
 
             {/* Location Selector */}
-            <div className="mb-5">
+            {/* <div className="mb-5">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold mb-0">
                   <FaMapMarkerAlt className="me-2 text-primary" />
@@ -1800,17 +1820,10 @@ const [followLoading, setFollowLoading] = useState({});
               <p className="text-muted mb-4">
                 Stories from your selected area. Change location to see different content.
               </p>
-            </div>
+            </div> */}
 
             {/* Smart Feed Section - Suggested Posts */}
-            <SmartFeedSection
-              posts={smartFeedPosts}
-              title="Suggested for You"
-              subtitle="Based on your location and interests"
-              loading={loadingRelated}
-              onLoadMore={handleLoadMore}
-              hasMore={hasMore}
-            />
+      
 
             {/* Comments Section */}
             <section ref={commentsRef} className="comments-section mt-5 pt-5 border-top">
@@ -1878,7 +1891,18 @@ const [followLoading, setFollowLoading] = useState({});
                 </div>
               )}
             </section>
+
           </Col>
+
+
+                <SmartFeedSection
+              posts={smartFeedPosts}
+              title="Suggested for You"
+              subtitle="Based on your location and interests"
+              loading={loadingRelated}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMore}
+            />
 
           {/* Sidebar */}
           <Col lg={4}>

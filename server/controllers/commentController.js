@@ -1,8 +1,15 @@
 import sanitizeHtml from "sanitize-html";
 import Comment from "../models/commentmodel.js";
-import Post from "../models/postmodel.js"; // or your actual post model
-import userNotification from "../models/userNotification.js";
+import Post from "../models/postmodel.js"; 
+//import user from "../models/userModel.js";
+import { getIO } from "../utils/socket.js";
+import UserNotification from "../models/userNotification.js";
 import { broadcastPush } from "../helper/pushService.js";
+
+
+
+
+
 
 // helper to find post by slug once
 async function findPostBySlug(slug) {
@@ -12,42 +19,91 @@ async function findPostBySlug(slug) {
 }
 
 // POST /api/v1/posts/:slug/comments
+
+
+
+
+// Find post by slug with author info
+async function findPostWithAuthor(slug) {
+  return await Post.findOne({ slug })
+    .populate("author", "_id name pushToken")
+    .lean();
+}
+
 export const createComment = async (req, res) => {
   try {
     const { slug } = req.params;
     const { content, parentId } = req.body;
 
+    // Validate content
     if (!content || !content.trim()) {
       return res.status(400).json({ error: "Comment cannot be empty" });
     }
 
-    const post = await findPostBySlug(slug);
+    // Find post with author populated
+    const post = await findPostWithAuthor(slug);
+    if (!post) return res.status(404).json({ error: "Post not found" });
 
-    // sanitize to avoid XSS
-    const clean = sanitizeHtml(content, {
+    // Sanitize comment
+    const cleanContent = sanitizeHtml(content, {
       allowedTags: [],
       allowedAttributes: {},
-      disallowedTagsMode: "discard"
+      disallowedTagsMode: "discard",
     }).trim();
 
+    // Create comment
     const comment = await Comment.create({
       post: post._id,
       author: req.user._id,
-      content: clean,
-      parent: parentId || null
+      content: cleanContent,
+      parent: parentId || null,
     });
 
-    // Optionally increment a counter on Post
-    // await Post.findByIdAndUpdate(post._id, { $inc: { commentsCount: 1 } });
-
-    const populated = await Comment.findById(comment._id)
-      .populate("author", "name avatar") // adapt to your user fields
+    // Populate author for response
+    const populatedComment = await Comment.findById(comment._id)
+      .populate("author", "name avatar")
       .lean();
 
-    return res.json({ ok: true, comment: populated });
+    // 🔔 Notify post author (skip if commenter is author)
+    if (post.author._id.toString() !== req.user._id.toString()) {
+      const message = `${req.user.name} commented on your post`;
+
+      // 1️⃣ Save notification in DB
+      await UserNotification.create({
+        user: post.author._id,
+        sender: req.user._id,
+        type: "COMMENT",
+        PostId: post._id,
+        message,
+      });
+
+      // 2️⃣ Socket.io notification
+      const io = getIO();
+      io.to(`user:${post.author._id}`).emit("notification", {
+        type: "COMMENT",
+        postId: post._id,
+        message,
+      });
+
+      // 3️⃣ Push notification if pushToken exists
+      if (post.author.pushToken) {
+        await broadcastPush({
+          token: post.author.pushToken,
+          title: "New Comment 💬",
+          body: message,
+          data: {
+            postId: post._id.toString(),
+            slug,
+            type: "COMMENT",
+          },
+        });
+      }
+    }
+
+    return res.status(201).json({ ok: true, comment: populatedComment });
   } catch (err) {
     console.error("createComment error:", err);
-    return res.status(400).json({ error: err.message });
+    return res.status(500).json({ error: "Server error" });
   }
 };
 

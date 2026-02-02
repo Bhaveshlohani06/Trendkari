@@ -220,7 +220,7 @@ app.use("/api/v1/auth", authrouter);
 app.use("/api/v1/category", categoryroutes);
 app.use("/api/v1/post", postRoutes);
 app.use("/api/v1/horoscope", horoscopeRoutes);
-app.use("/api/v1", commentRoutes);
+app.use("/api/v1/comment", commentRoutes);
 app.use("/api/v1/search", searchRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/weather", weatherRoutes);
