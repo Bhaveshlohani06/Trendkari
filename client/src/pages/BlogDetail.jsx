@@ -1309,51 +1309,79 @@ const [followLoading, setFollowLoading] = useState({});
 
 
 
+// const fetchComments = async () => {
+//   if (!post?.slug) return;
+//   try {
+//     const { data } = await API.get(`/comment/posts/${post.slug}/comments`);
+
+//             console.log("COMMENTS RESPONSE:", data); // 🔥 DEBUG
+
+
+//     if (data?.success) setComments(data.comments);
+
+
+//   } catch (err) {
+//     console.error("Failed to fetch comments:", err);
+//   }
+// };
+
 const fetchComments = async () => {
   if (!post?.slug) return;
+
   try {
-    const { data } = await API.get(`/comment/posts/${post.slug}/comments`);
-    if (data?.success) setComments(data.comments);
+    const { data } = await API.get(
+      `/comment/posts/${post.slug}/comments`
+    );
+
+    console.log("🔥 COMMENTS FROM API:", data);
+
+
+        setComments(Array.isArray(data.items) ? data.items : []);
+
+
   } catch (err) {
-    console.error("Failed to fetch comments:", err);
+    console.error("Fetch comments error:", err);
   }
 };
 
+
+
 useEffect(() => {
-  fetchComments(); 
+  fetchComments();
 }, [post?.slug]);
 
 
 
-  const submitComment = async (e) => {
-    e.preventDefault();
+const submitComment = async (e) => {
+  e.preventDefault();
 
-    if (!auth?.user) {
-      toast.error("Login to comment");
-      return;
+  if (!auth?.user) {
+    toast.error("Login to comment");
+    return;
+  }
+
+  if (!commentText.trim()) return;
+
+  setPostingComment(true);
+
+  try {
+    const { data } = await API.post(
+      `/comment/posts/${post.slug}/comments`,
+      { content: commentText.trim() }
+    );
+
+    if (data?.success) {
+      setCommentText("");
+      setComments((prev) => [data.comment, ...prev]); // ⚡ instant UI
+      toast.success("Comment added");
     }
 
-    if (!commentText.trim()) return;
-
-    setPostingComment(true);
-
-    try {
-      const { data } = await API.post(
-        `/comment/posts/${post.slug}/comments`,
-        { content: commentText.trim() }
-      );
-
-      if (data?.success) {
-        setCommentText("");
-        await fetchComments();
-        toast.success("Comment added");
-      }
-    } catch {
-      toast.error("Failed to post comment");
-    } finally {
-      setPostingComment(false);
-    }
-  };
+  } catch (err) {
+    toast.error("Failed to post comment");
+  } finally {
+    setPostingComment(false);
+  }
+};
 
   /* ================= RELATED & SUGGESTED POSTS ================= */
   const fetchRelatedPosts = async (pageNum) => {

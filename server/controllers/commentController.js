@@ -108,30 +108,63 @@ export const createComment = async (req, res) => {
 };
 
 // GET /api/v1/posts/:slug/comments?limit=20&cursor=commentId
+// export const listComments = async (req, res) => {
+//   try {
+//     const { slug } = req.params;
+//     const { limit = 20, cursor } = req.query;
+
+//     const post = await findPostBySlug(slug);
+
+//     const query = { post: post._id, status: "published" };
+//     if (cursor) query._id = { $lt: cursor }; // keyset pagination
+
+//     const docs = await Comment.find(query)
+//       .sort({ _id: -1 })
+//       .limit(Number(limit))
+//       .populate("author", "name avatar")
+//       .lean();
+
+//     const nextCursor = docs.length ? docs[docs.length - 1]._id : null;
+
+//     return res.json({ ok: true, items: docs, nextCursor });
+//   } catch (err) {
+//     console.error("listComments error:", err);
+//     return res.status(400).json({ error: err.message });
+//   }
+// };
+
+
 export const listComments = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { limit = 20, cursor } = req.query;
 
     const post = await findPostBySlug(slug);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found",
+      });
+    }
 
-    const query = { post: post._id, status: "published" };
-    if (cursor) query._id = { $lt: cursor }; // keyset pagination
-
-    const docs = await Comment.find(query)
-      .sort({ _id: -1 })
-      .limit(Number(limit))
+    const comments = await Comment.find({ post: post._id })
       .populate("author", "name avatar")
+      .sort({ createdAt: -1 })
       .lean();
 
-    const nextCursor = docs.length ? docs[docs.length - 1]._id : null;
+    return res.json({
+      success: true,
+      comments,
+    });
 
-    return res.json({ ok: true, items: docs, nextCursor });
   } catch (err) {
     console.error("listComments error:", err);
-    return res.status(400).json({ error: err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
+
 
 // DELETE /api/v1/comments/:id  (author or admin only)
 export const deleteComment = async (req, res) => {
