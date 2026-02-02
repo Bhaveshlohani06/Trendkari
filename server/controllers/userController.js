@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import User from "../models/usermodel.js";
-import Notification from "../models/userNotification.js";
+import UserNotification from "../models/userNotification.js";
 import { getIO } from "../utils/socket.js";
 import { broadcastPush } from "../helper/pushService.js";
 
@@ -276,7 +276,7 @@ export const followUser = async (req, res) => {
     });
 
     // 🔔 Notification
-    await Notification.create({
+    await UserNotification.create({
       recipient: userId,
       sender: currentUserId,
       type: "FOLLOW",
