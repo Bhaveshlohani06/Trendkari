@@ -1312,7 +1312,7 @@ const [followLoading, setFollowLoading] = useState({});
 const fetchComments = async () => {
   if (!post?.slug) return;
   try {
-    const { data } = await API.get(`/posts/${post.slug}/comments`);
+    const { data } = await API.get(`/comment/posts/${post.slug}/comments`);
     if (data?.success) setComments(data.comments);
   } catch (err) {
     console.error("Failed to fetch comments:", err);
@@ -1339,7 +1339,7 @@ useEffect(() => {
 
     try {
       const { data } = await API.post(
-        `/posts/${post.slug}/comments`,
+        `/comment/posts/${post.slug}/comments`,
         { content: commentText.trim() }
       );
 
