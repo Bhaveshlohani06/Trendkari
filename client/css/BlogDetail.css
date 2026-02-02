@@ -1,4 +1,4 @@
-.suggested-carousel {
+/* .suggested-carousel {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -50,4 +50,164 @@
 .comment-item {
   padding-bottom: 12px;
   border-bottom: 1px solid #eee;
+} */
+
+
+
+
+
+/* Reading progress bar */
+.reading-progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1030;
+  height: 3px;
+}
+
+.reading-progress-container .progress-bar {
+  background: linear-gradient(90deg, #4299e1, #667eea) !important;
+  transition: width 0.3s ease;
+}
+
+/* Floating actions */
+.floating-actions {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1040;
+  animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Sticky sidebar */
+.sticky-sidebar {
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+/* Hide scrollbar but allow scrolling */
+.sticky-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sticky-sidebar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.sticky-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+/* Hover effects */
+.hover-lift {
+  transition: all 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Article content styles */
+.article-content {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #2d3748;
+}
+
+.article-content h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+  color: #1a202c;
+}
+
+.article-content p {
+  margin-bottom: 1.5rem;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .floating-actions {
+    bottom: 5rem;
+    right: 1rem;
+    left: 1rem;
+  }
+  
+  .floating-actions > div {
+    justify-content: space-around;
+    width: 100%;
+  }
+  
+  .reading-progress-container {
+    top: 56px; /* Below mobile navbar */
+  }
+  
+  .sticky-sidebar {
+    position: relative;
+    top: 0;
+  }
+}
+
+/* Smooth transitions */
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+/* Suggested users carousel */
+.suggested-carousel::-webkit-scrollbar {
+  height: 4px;
+}
+
+.suggested-carousel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.suggested-carousel::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+/* Engagement bar */
+.engagement-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1025;
+  background: white;
+  margin-top: -1rem;
+  margin-bottom: 2rem !important;
 }

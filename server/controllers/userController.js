@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 import User from "../models/usermodel.js";
+import Notification from "../models/userNotification.js";
+import { getIO } from "../socket.js";
+import { broadcastPush } from "../helper/pushService.js";
+
 
 /* =====================================================
    GET SUGGESTED USERS
@@ -53,7 +57,7 @@ export const getSuggestedUsers = async (req, res) => {
           _id: { $nin: excludeIds },
         },
       },
-      { $sample: { size: limit } }, // 🎯 random users
+      { $sample: { size: limit } }, 
       {
         $project: {
           name: 1,
@@ -211,45 +215,96 @@ export const getAllUsers = async (req, res) => {
    FOLLOW USER
    POST /api/user/:userId/follow
    ===================================================== */
+// export const followUser = async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const currentUserId = req.user._id;
+
+//     if (!mongoose.Types.ObjectId.isValid(userId)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid user ID",
+//       });
+//     }
+
+//     if (userId === String(currentUserId)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "You cannot follow yourself",
+//       });
+//     }
+
+//     // Add to following
+//     await User.findByIdAndUpdate(currentUserId, {
+//       $addToSet: { following: userId },
+//     });
+
+//     // Add to followers
+//     await User.findByIdAndUpdate(userId, {
+//       $addToSet: { followers: currentUserId },
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "User followed successfully",
+//     });
+//   } catch (error) {
+//     console.error("followUser error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Follow failed",
+//     });
+//   }
+// };
+
+
 export const followUser = async (req, res) => {
   try {
     const { userId } = req.params;
     const currentUserId = req.user._id;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
-
     if (userId === String(currentUserId)) {
-      return res.status(400).json({
-        success: false,
-        message: "You cannot follow yourself",
-      });
+      return res.status(400).json({ success: false });
     }
 
-    // Add to following
     await User.findByIdAndUpdate(currentUserId, {
       $addToSet: { following: userId },
     });
 
-    // Add to followers
     await User.findByIdAndUpdate(userId, {
       $addToSet: { followers: currentUserId },
     });
 
-    res.status(200).json({
-      success: true,
-      message: "User followed successfully",
+    // 🔔 Notification
+    await Notification.create({
+      recipient: userId,
+      sender: currentUserId,
+      type: "FOLLOW",
+      message: `${req.user.name} started following you`,
     });
-  } catch (error) {
-    console.error("followUser error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Follow failed",
+
+    // 🔌 Socket
+    const io = getIO();
+    io.to(`user:${userId}`).emit("notification", {
+      type: "FOLLOW",
+      message: `${req.user.name} started following you`,
     });
+
+    // 📲 Push
+    const receiver = await User.findById(userId).select("pushToken");
+
+    await broadcastPush({
+      token: receiver?.pushToken,
+      title: "New Follower 👤",
+      body: `${req.user.name} started following you`,
+      data: { userId: currentUserId.toString() },
+    });
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("Follow error:", err);
+    res.status(500).json({ success: false });
   }
 };
 
@@ -257,37 +312,53 @@ export const followUser = async (req, res) => {
    UNFOLLOW USER
    POST /api/user/:userId/unfollow
    ===================================================== */
+// export const unfollowUser = async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const currentUserId = req.user._id;
+
+//     if (!mongoose.Types.ObjectId.isValid(userId)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid user ID",
+//       });
+//     }
+
+//     // Remove from following
+//     await User.findByIdAndUpdate(currentUserId, {
+//       $pull: { following: userId },
+//     });
+
+//     // Remove from followers
+//     await User.findByIdAndUpdate(userId, {
+//       $pull: { followers: currentUserId },
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "User unfollowed successfully",
+//     });
+//   } catch (error) {
+//     console.error("unfollowUser error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Unfollow failed",
+//     });
+//   }
+// };
+
+
+
 export const unfollowUser = async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const currentUserId = req.user._id;
+  const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid user ID",
-      });
-    }
+  await User.findByIdAndUpdate(req.user._id, {
+    $pull: { following: userId },
+  });
 
-    // Remove from following
-    await User.findByIdAndUpdate(currentUserId, {
-      $pull: { following: userId },
-    });
+  await User.findByIdAndUpdate(userId, {
+    $pull: { followers: req.user._id },
+  });
 
-    // Remove from followers
-    await User.findByIdAndUpdate(userId, {
-      $pull: { followers: currentUserId },
-    });
-
-    res.status(200).json({
-      success: true,
-      message: "User unfollowed successfully",
-    });
-  } catch (error) {
-    console.error("unfollowUser error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Unfollow failed",
-    });
-  }
+  res.json({ success: true });
 };
