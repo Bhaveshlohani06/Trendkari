@@ -16,114 +16,14 @@ import { broadcastPush } from '../helper/pushService.js';
 // import { hindiToRoman } from '../utils/hindiToRoman.js';
 // import { sendPushNotification } from '../utils/pushNotification.js';
 import User from "../models/usermodel.js";
-
+import UserNotification from '../models/userNotification.js';
 
 
 //
 
 
 // CREATE POST
-// export const createPostController = async (req, res) => {
-//   try {
-//     const { title, content, language, location, category, tags, isFeatured } = req.body;
-//     const image = req.file;
-    
-//     // Validation
-//     switch (true) {
-//       case !title:
-//         return res.status(400).send({ message: "Title is required" });
-//       case !content:
-//         return res.status(400).send({ message: "Content is required" });
-//       case !category:
-//         return res.status(400).send({ message: "Category is required" });
-//         case !language:
-//         return res.status(400).send({ message: "Langugage is required" });
-//         case !location:
-//         return res.status(400).send({ message: "Location is required" });
-//     }
-//     // Generate slug
-//     //   const baseSlug = generateSlug(title);
 
-//     // if (!baseSlug) {
-//     //   return res.status(400).send({ message: "Slug generation failed" });
-//     // }
-
-//     // // 🔁 Ensure uniqueness
-//     // let slug = baseSlug;
-//     // let count = 1;
-
-//     // while (await postModel.exists({ slug })) {
-//     //   slug = `${baseSlug}-${count++}`;
-//     // }     
-
-
-//     // ✅ Slug generation with Hindi transliteration
-//     let slug; 
-//     if (language === "hindi") {
-//       const romanizedTitle = hindiToRoman(title);
-//       slug = generateSlug(romanizedTitle);
-//     } else {
-//       slug = generateSlug(title);
-//     }
-
-
-// const post = new postModel({
-//   title,
-//   content,
-//   category,
-//   author: req.user.id,
-//   language,
-//   location,
-//   slug,
-//   tags: tags ? tags.split(",") : [],
-//   isFeatured: isFeatured === "true",
-
-//   // 🔒 FORCE moderation
-//   status: "pending",
-//   isPublished: false
-// });
-
-
-//     if (image) {
-//       const fileBuffer = fs.readFileSync(image.path);
-
-//       const response = await imagekit.upload({
-//         file: fileBuffer,
-//         fileName: image.originalname,
-//         folder: '/posts',
-//       });
-
-//       const optimizedImageUrl = imagekit.url({
-//         path: response.filePath,
-//         transformation: [
-//           { quality: 'auto' },
-//           { format: 'webp' },
-//           { width: '1280' },
-//         ],
-//       });
-
-//       post.image = optimizedImageUrl;
-//     }
-
-//            console.log("TITLE:", title);
-// console.log("GENERATED SLUG:", slug);
-
-//     await post.save();
-
-//     res.status(201).send({
-//       success: true,
-//       message: "Post submitted for admin approval",
-//       post,
-//     });
-//   } catch (error) {
-//   console.error("Create Post Error:", error.message, error.stack);
-//   res.status(500).send({
-//     success: false,
-//     message: "Error creating post",
-//     error: error.message,
-//   });
-// }
-// };
 
 export const createPostController = async (req, res) => {
   try {
@@ -203,6 +103,43 @@ while (await postModel.exists({ slug })) {
     console.log("FINAL SLUG:", slug);
 
     await post.save();
+
+
+      const admin = await User.findOne({ role: "admin" }).select("_id pushToken");
+
+    if (admin) {
+      const message = `${req.user.name} submitted a new post for approval`;
+
+      // 1️⃣ Save notification
+      await UserNotification.create({
+        user: admin._id,
+        sender: req.user._id,
+        type: "POST_PENDING",
+        post: post._id,
+        message,
+      });
+
+      // 2️⃣ Socket
+      const io = getIO();
+      io.to(`user:${admin._id}`).emit("notification", {
+        type: "POST_PENDING",
+        postId: post._id,
+        message,
+      });
+
+      // 3️⃣ Push
+      if (admin.pushToken) {
+        await broadcastPush({
+          token: admin.pushToken,
+          title: "New Post Approval 🛑",
+          body: message,
+          data: {
+            postId: post._id.toString(),
+            type: "POST_PENDING",
+          },
+        });
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -491,13 +428,59 @@ export const getAllPostsAdmin = async (req, res) => {
 // };
 
 
+// export const approvePost = async (req, res) => {
+//   try {
+//     const post = await postModel.findByIdAndUpdate(
+//       req.params.id,
+//       { status: "approved", isPublished: true },
+//       { new: true }
+//     );
+
+//     if (!post) {
+//       return res.status(404).json({ success: false });
+//     }
+
+//     const link = `https://www.trendkari.in/${post.city}/article/${post.slug}`;
+
+//     await Notification.create({
+//       title: "नई खबर प्रकाशित हुई 📰",
+//       body: post.title,
+//       type: "post",
+//       postId: post._id,
+//       city: post.city,
+//       area: post.area,
+//       link,
+//     });
+
+//     // ✅ THIS WORKS
+//     broadcastPush({
+//       title: "नई खबर",
+//       body: post.title,
+//       platform: "web",
+//       link,
+//     }).catch(console.error);
+
+//     res.json({
+//       success: true,
+//       message: "Post approved & broadcast sent",
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false });
+//   }
+// };
+
+
 export const approvePost = async (req, res) => {
   try {
-    const post = await postModel.findByIdAndUpdate(
-      req.params.id,
-      { status: "approved", isPublished: true },
-      { new: true }
-    );
+    const post = await postModel
+      .findByIdAndUpdate(
+        req.params.id,
+        { status: "approved", isPublished: true },
+        { new: true }
+      )
+      .populate("author", "_id name pushToken");
 
     if (!post) {
       return res.status(404).json({ success: false });
@@ -505,6 +488,9 @@ export const approvePost = async (req, res) => {
 
     const link = `https://www.trendkari.in/${post.city}/article/${post.slug}`;
 
+    /* ===============================
+       1️⃣ PUBLIC BROADCAST (KEEP AS IS)
+    =============================== */
     await Notification.create({
       title: "नई खबर प्रकाशित हुई 📰",
       body: post.title,
@@ -515,24 +501,62 @@ export const approvePost = async (req, res) => {
       link,
     });
 
-    // ✅ THIS WORKS
     broadcastPush({
-      title: "नई खबर",
+      title: "नई खबर 📰",
       body: post.title,
       platform: "web",
       link,
     }).catch(console.error);
 
-    res.json({
+    /* ===============================
+       2️⃣ AUTHOR NOTIFICATION (NEW)
+    =============================== */
+    const message = "आपकी पोस्ट approve हो गई है 🎉";
+
+    // A️⃣ Save notification for user
+    await UserNotification.create({
+      user: post.author._id,
+      sender: req.user._id, // admin
+      type: "POST_APPROVED",
+      post: post._id,
+      message,
+      link,
+    });
+
+    // B️⃣ Socket.io
+    const io = getIO();
+    io.to(`user:${post.author._id}`).emit("notification", {
+      type: "POST_APPROVED",
+      postId: post._id,
+      message,
+      link,
+    });
+
+    // C️⃣ Push (TARGETED — MOST IMPORTANT)
+    if (post.author.pushToken) {
+      await broadcastPush({
+        token: post.author.pushToken,
+        title: "Post Approved 🎉",
+        body: message,
+        data: {
+          postId: post._id.toString(),
+          slug: post.slug,
+          type: "POST_APPROVED",
+        },
+      });
+    }
+
+    return res.json({
       success: true,
-      message: "Post approved & broadcast sent",
+      message: "Post approved, broadcast + user notified",
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Approve Post Error:", error);
     res.status(500).json({ success: false });
   }
 };
+
 
 
 // REJECT POST
