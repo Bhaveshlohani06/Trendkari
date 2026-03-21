@@ -453,7 +453,11 @@ export const createPostController = async (req, res) => {
     // ==================================================
     // 🔔 ADMIN NOTIFICATION (SAFE ADDITION)
     // ==================================================
-    const admin = await User.findOne({ role: "admin" }).select("_id pushToken");
+    // const admin = await User.findOne({ role: "admin" }).select("_id pushToken");
+
+    const admin = await User.findOne({ role: "admin" }).select("_id name pushToken");
+
+console.log("ADMIN FOUND:", admin);
 
     if (admin) {
       const message = `${req.user.name} submitted a post for approval`;
@@ -467,6 +471,8 @@ export const createPostController = async (req, res) => {
         message,
       });
 
+
+
       // 2️⃣ Socket notification
       const io = getIO();
       io.to(`user:${admin._id}`).emit("notification", {
@@ -474,6 +480,9 @@ export const createPostController = async (req, res) => {
         postId: post._id,
         message,
       });
+
+
+            console.log("ADMIN PUSH TOKEN:", admin.pushToken);
 
       // 3️⃣ Push notification
       if (admin.pushToken) {
@@ -1017,6 +1026,8 @@ export const deletePostController = async (req, res) => {
 // Generate post content using AI
 export const generatePostContent = async (req, res) => {
   try {
+   console.log("API KEY:", process.env.GOOGLE_GEMINI_API_KEY);
+
     const { prompt } = req.body;
 
     if (!prompt) {
@@ -1026,10 +1037,12 @@ export const generatePostContent = async (req, res) => {
       });
     }
 
-    const generatedContent = await main("Generate a SEO Friendly blog content for this topic in simple text format: " + prompt);
-    
+    const generatedContent = await main("Generate a SEO Friendly Humanize hyperlocal article content for(kota, ramganjmandi, sangod, ladpura, jaipur) this topic in simple text format in hindi: " + prompt);
+ // const generatedContent =   await main("Write 50 words about cricket");
+
     console.log("Generated content:", generatedContent);
 
+    
     if (!generatedContent) {
       return res.status(500).json({
         success: false,
