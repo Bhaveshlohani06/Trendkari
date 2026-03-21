@@ -196,7 +196,6 @@ import API from "../../utils/api";
 import Layout from "../Layout/Layout";
 import { Container, Card, Badge, ListGroup, Spinner } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-const [isGuest, setIsGuest] = useState(false);
 
 
 const DailyHoroscope = () => {
@@ -206,6 +205,8 @@ const DailyHoroscope = () => {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("Generating your personalized horoscope...");
   const navigate = useNavigate();
+  const [isGuest, setIsGuest] = useState(false);
+
 
 const getShareText = () => {
   const summary =
