@@ -1,9 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import API from "../../utils/api.js"; // ✅ ADD THIS
+import { toast } from "react-toastify";
 
 const LocationContext = createContext();
 
 export const LocationProvider = ({ children }) => {
   const [location, setLocation] = useState("kota");
+  const navigate = useNavigate();
 
   // Load saved location on app start
   useEffect(() => {
@@ -34,6 +38,8 @@ export const LocationProvider = ({ children }) => {
   const changeLocation = (newLocation) => {
     setLocation(newLocation);
     localStorage.setItem("trendkari_location", newLocation);
+
+        navigate("/", { replace: true });
   };
 
   return (
