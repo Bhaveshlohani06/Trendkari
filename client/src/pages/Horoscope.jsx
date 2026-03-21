@@ -216,13 +216,7 @@ const getShareText = () => {
 
   const appLink = "https://www.trendkari.in/horoscope"; // 🔥 your route
 
-  return `✨ आज का राशिफल ✨
-
-${summary}
-
-🎨 लकी रंग: ${horoscope.lucky?.color}
-🔢 लकी नंबर: ${horoscope.lucky?.number}
-
+  return `
 👉 अपना राशिफल जानने के लिए यहाँ क्लिक करें:
 ${appLink}`;
 };
