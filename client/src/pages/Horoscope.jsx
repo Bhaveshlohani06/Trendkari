@@ -227,7 +227,7 @@ ${appLink}`;
     const token = localStorage.getItem("token");
 
     if (!u || !token) {
-      navigate("/login");
+      // navigate("/login");
       setLoading(false);
       return;
     }
