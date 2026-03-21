@@ -32,7 +32,10 @@ const HoroscopeSchema = new mongoose.Schema(
     title: { type: String, default: "" },
 
     // bilingual summary
-    summary: { type: LocalizedStringSchema, default: () => ({}) },
+    // summary: { type: LocalizedStringSchema, default: () => ({}) },
+
+    summary: { type: mongoose.Schema.Types.Mixed },
+    // detailed sections/content - an array of sections with bilingual text
 
     // sections with bilingual text
        sections: [SectionSchema],
