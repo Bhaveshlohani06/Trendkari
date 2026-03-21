@@ -12,7 +12,7 @@ const userNotificationSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user", // who liked/commented
     },
-
+    
     type: {
       type: String,
       enum: ["LIKE", "COMMENT", "FOLLOW", "POST"],

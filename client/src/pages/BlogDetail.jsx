@@ -2640,7 +2640,7 @@ export default function BlogDetail() {
                     className="border-2 border-white shadow-sm"
                   />
                   <div className="flex-grow-1">
-                    <div className="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <div className="d-flex justify-content-between align-items-start">
                       <div>
                         <Link
                           to={`/dashboard/user/profile/${post.author?._id}`}

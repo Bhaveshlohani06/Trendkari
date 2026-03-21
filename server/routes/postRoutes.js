@@ -8,9 +8,9 @@ import {
   deletePostController,
   generatePostContent,
   humanizeBlog,
-getPostsByUser,
-updatePostController
-, approvePost,
+  getPostsByUser,
+  updatePostController,
+  approvePost,
   getAllPostsAdmin,
   rejectPost,
 } from "../controllers/postController.js";
