@@ -196,6 +196,8 @@ import API from "../../utils/api";
 import Layout from "../Layout/Layout";
 import { Container, Card, Badge, ListGroup, Spinner } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
+const [isGuest, setIsGuest] = useState(false);
+
 
 const DailyHoroscope = () => {
   const { userId } = useParams();
@@ -204,6 +206,25 @@ const DailyHoroscope = () => {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState("Generating your personalized horoscope...");
   const navigate = useNavigate();
+
+const getShareText = () => {
+  const summary =
+    typeof horoscope.summary === "string"
+      ? horoscope.summary
+      : horoscope.summary?.hindi || "";
+
+  const appLink = "https://www.trendkari.in/horoscope"; // 🔥 your route
+
+  return `✨ आज का राशिफल ✨
+
+${summary}
+
+🎨 लकी रंग: ${horoscope.lucky?.color}
+🔢 लकी नंबर: ${horoscope.lucky?.number}
+
+👉 अपना राशिफल जानने के लिए यहाँ क्लिक करें:
+${appLink}`;
+};
 
   /* ---------------- USER + FETCH ---------------- */
   useEffect(() => {
@@ -278,6 +299,82 @@ const DailyHoroscope = () => {
     }
   };
 
+  useEffect(() => {
+  const u = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+
+  if (!u || !token) {
+    setIsGuest(true); // 👈 don't redirect
+    setLoading(false);
+    return;
+  }
+
+  setUser(u);
+  fetchHoroscope(token);
+}, []);
+
+// ``````````````````
+
+
+useEffect(() => {
+  const u = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token");
+
+  if (!u || !token) {
+    setIsGuest(true); // 👈 don't redirect
+    setLoading(false);
+    return;
+  }
+
+  setUser(u);
+  fetchHoroscope(token);
+}, []);
+
+if (isGuest) {
+  return (
+    <Layout>
+      <div className="text-center mt-5 px-3">
+
+        <p className="mt-4 text-muted">
+  ✨ आज आपके लिए कुछ खास संकेत हैं...
+</p>
+
+<div className="blur-box p-3 mt-3">
+  <p>आज का दिन आपके लिए बदलाव लेकर आ सकता है...</p>
+</div>
+
+        <h3>🔮 अपना पर्सनल राशिफल जानें</h3>
+
+        <p className="text-muted mt-3">
+          यह राशिफल आपके लिए विशेष रूप से तैयार किया जाएगा।
+        </p>
+
+        <div className="mt-4">
+          {/* <button
+            className="btn btn-primary me-2"
+            onClick={() => navigate("/login")}
+          >
+            लॉगिन करें
+          </button> */}
+
+          <button  className="btn btn-primary me-2"
+           onClick={() => navigate("/login?redirect=/horoscope")}>
+            लॉगिन करें
+           </button>
+
+          {/* <button
+            className="btn btn-outline-secondary"
+            onClick={() => navigate("/register")}
+          >
+            नया अकाउंट बनाएं
+          </button> */}
+        </div>
+
+      </div>
+    </Layout>
+  );
+}
+
   /* ---------------- LOADING UI ---------------- */
   if (loading) {
     return (
@@ -348,47 +445,53 @@ const DailyHoroscope = () => {
             {new Date(horoscope.generatedAt).toLocaleDateString()}
           </p>
 
+
+
+
           <Card className="shadow-lg rounded-4 border-0">
-            <Card.Body className="p-4">
+  <Card.Body className="p-4">
 
-              <Card.Title className="fs-3 fw-semibold mb-3 text-primary">
-                <h2 className="text-dark">{user.name} राशिफल</h2>
-                {horoscope.title}
-              </Card.Title>
+    <h4 className="fw-bold mb-3">✨ {user.name} आज का राशिफल</h4>
 
-              <Card.Text className="fs-5 mb-3">
-                {horoscope.summary?.english}
-              </Card.Text>
+    {/* <p className="fs-5">{horoscope.summary}</p> */}
 
-              {horoscope.summary?.hindi && (
-                <Card.Text className="text-secondary">
-                  {horoscope.summary.hindi}
-                </Card.Text>
-              )}
+<Card.Text style={{ fontFamily: "Noto Sans Devanagari, sans-serif" }}>
+  {typeof horoscope.summary === "string"
+    ? horoscope.summary
+    : horoscope.summary?.hindi || horoscope.summary?.english}
+</Card.Text>
 
-              {horoscope.sections?.map((sec, idx) => (
-                <div key={idx} className="mb-4">
-                  <h5 className="fw-bold">{sec.heading}</h5>
-                  <p>{sec.text?.english}</p>
-                  {sec.text?.hindi && <p className="text-muted">{sec.text.hindi}</p>}
-                </div>
-              ))}
+    {/* <div className="mt-3 p-3 bg-light rounded">
+      <strong>💡 Advice:</strong>
+      <p className="mb-0">{horoscope.advice}</p>
+    </div> */}
 
-              {horoscope.lucky && (
-                <ListGroup className="mb-4">
-                  <ListGroup.Item className="d-flex justify-content-between">
-                    Lucky Color
-                    <Badge bg="info">{horoscope.lucky.color}</Badge>
-                  </ListGroup.Item>
-                  <ListGroup.Item className="d-flex justify-content-between">
-                    Lucky Number
-                    <Badge bg="success">{horoscope.lucky.number}</Badge>
-                  </ListGroup.Item>
-                </ListGroup>
-              )}
+    <div className="d-flex justify-content-between mt-4">
+      <span>      <strong className="p-3">🎨 Lucky Color:</strong>
+{horoscope.lucky.color}</span>
+      <span>       <strong className="p-3">🔢 Lucky Number:</strong>
+ {horoscope.lucky.number}</span>
+    </div>
 
-            </Card.Body>
-          </Card>
+    
+
+<button
+  className="btn btn-primary mt-3"
+  onClick={() =>
+   window.open(
+  `https://wa.me/?text=${encodeURIComponent(getShareText())}`,
+  "_blank"
+)
+  }
+>
+  📤 WhatsApp पर शेयर करें
+</button>
+
+  </Card.Body>
+</Card>
+
+
+          
         </Container>
       </div>
     </Layout>

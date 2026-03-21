@@ -113,49 +113,35 @@ export async function generatePersonalPost({ name, prefs, zodiacSign, extraConte
     const todayDate = getTodayDate();
 
   const prompt = `
-You are an expert astrologer with deep knowledge of Vedic + Western astrology, numerology, and planetary transits.
-Your task is to generate today's **unique, personalized, and authentic horoscope** for ${name} (Zodiac: ${zodiacSign}) "${todayDate}".
+आप एक अनुभवी ज्योतिषी हैं जो वैदिक ज्योतिष और आधुनिक दृष्टिकोण को मिलाकर भविष्यवाणी करते हैं।
 
-👉 STRICT DATE: Use "${todayDate}" as today's date. Do NOT use any other date.
+${name} (राशि: ${zodiacSign}) के लिए "${todayDate}" का दैनिक राशिफल तैयार करें।
 
-⚡ CONTENT RULES:
-- Horoscope must feel POSITIVE, NEW and DIFFERENT every day (avoid repetition).
-- Incorporate **planetary influences, moon phases, lucky alignments, warnings, and hidden opportunities** for today.
-- Provide **1 shocking/unexpected insight** about love, career, health, or money.
-- Keep tone mystical, yet practical, giving actionable advice.
-- Avoid generic filler like "you will feel happy" — instead, give **specific scenarios**.
-- Each section should vary in depth, not copy-paste.
+नियम:
+- कुल कंटेंट 80–120 शब्दों के बीच रखें
+- भाषा सरल,सकारात्मक, स्पष्ट और प्रभावशाली हो
+- सामान्य बातें (जैसे “आज आपका दिन अच्छा रहेगा”) से बचें
+- आज के ग्रह/ऊर्जा का हल्का संदर्भ दें (जैसे चंद्रमा, ग्रह स्थिति)
+- एक खास और थोड़ा अलग/चौंकाने वाला insight शामिल करें
 
-📑 OUTPUT FORMAT (STRICT JSON ONLY):
+आउटपुट में शामिल करें:
+1. 2–3 लाइन का सार (summary)
+2. एक मुख्य सलाह (advice)
+3. एक महत्वपूर्ण संकेत (insight – प्यार/करियर/पैसा/स्वास्थ्य में से कोई)
+4. लकी रंग और लकी नंबर
+5. टोन थोड़ा रहस्यमयी लेकिन व्यावहारिक रखें।
+
+सिर्फ JSON में उत्तर दें:
 
 {
-  "title": string,
-  "summary": {
-    "english": string,
-    "hindi": string
-  },
-  "sections": [
-    {
-      "heading": string,
-      "text": {
-        "english": string,
-        "hindi": string
-      }
-    }
-  ],
-  "tags": [string],
+  "summary": string,
+  "advice": string,
+  "insight": string,
   "lucky": {
     "color": string,
     "number": number
-  },
-  "seo": {
-    "metaTitle": string,
-    "metaDescription": string
   }
 }
-
-Language: English + Hindi.
-No commentary, only JSON.
 `;
 
   const resp = await main(prompt);
