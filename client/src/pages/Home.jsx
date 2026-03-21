@@ -11,6 +11,7 @@ import { FiSun, FiCloud, FiCloudRain } from "react-icons/fi";
 import { BsBuilding } from "react-icons/bs";
 import { FaLandmark } from "react-icons/fa";
 import MiniCard from "../Components/MiniCard.jsx";
+import { useNavigate } from "react-router-dom";
 
 const CITIES = [
   { label: "कोटा", value: "kota", color: "#1E3A8A" },
@@ -21,6 +22,7 @@ const CITIES = [
 ];
 
 const Home = () => {
+  const navigate = useNavigate();
   const { location } = useLocation();
   const [blogs, setBlogs] = useState([]);
   const [page, setPage] = useState(1);
@@ -183,7 +185,54 @@ const Home = () => {
         )}
       </section> */}
 
+{/* Market, Horoscope and Emergency */}
+<div className="quick-actions mb-4">
+  <div className="row g-3">
 
+    {/* MARKET */}
+    <div className="col-4">
+      <div
+        className="card text-center shadow-sm h-100 cursor-pointer"
+        onClick={() => navigate("/market")}
+        style={{ cursor: "pointer" }}
+      >
+        <div className="card-body p-2">
+          <div style={{ fontSize: "22px" }}>🛒</div>
+          <small className="fw-semibold">Market</small>
+        </div>
+      </div>
+    </div>
+
+    {/* HOROSCOPE */}
+    <div className="col-4">
+      <div
+        className="card text-center shadow-sm h-100"
+        onClick={() => navigate("/horoscope")}
+        style={{ cursor: "pointer" }}
+      >
+        <div className="card-body p-2">
+          <div style={{ fontSize: "22px" }}>🔮</div>
+          <small className="fw-semibold">Horoscope</small>
+        </div>
+      </div>
+    </div>
+
+    {/* EMERGENCY */}
+    <div className="col-4">
+      <div
+        className="card text-center shadow-sm h-100"
+        onClick={() => navigate("/emergency")}
+        style={{ cursor: "pointer" }}
+      >
+        <div className="card-body p-2">
+          <div style={{ fontSize: "22px" }}>🚨</div>
+          <small className="fw-semibold">Emergency</small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
       
 
       {/* FOLLOW SOURCES */}

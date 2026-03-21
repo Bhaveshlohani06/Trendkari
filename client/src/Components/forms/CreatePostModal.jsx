@@ -237,11 +237,38 @@ const CreatePostModal = ({ show, onClose }) => {
       if (!humanized) throw new Error();
 
       // Step 3: Set in editor
-      setContent(humanized);
+      // setContent(humanized);
 
-      if (editorRef.current) {
-        editorRef.current.setContent(humanized);
-      }
+      const convertHTMLToEditorJS = (html) => {
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+
+  const blocks = [];
+
+  tempDiv.childNodes.forEach((node) => {
+    if (node.nodeType === 1) {
+      blocks.push({
+        type: "paragraph",
+        data: {
+          text: node.innerHTML,
+        },
+      });
+    }
+  });
+
+  return {
+    time: Date.now(),
+    blocks,
+    version: "2.28.0",
+  };
+};
+
+const formatted = convertHTMLToEditorJS(humanized);
+setContent(formatted); // ✅ CORRECT
+
+      // if (editorRef.current) {
+      //   editorRef.current.setContent(humanized);
+      // }
 
       toast.success("AI content generated!");
     } catch (err) {
@@ -335,8 +362,8 @@ const CreatePostModal = ({ show, onClose }) => {
 
             {/* EDITOR */}
             <Editor
-              ref={editorRef}
-              value={content}
+              // ref={editorRef}
+              initialData={content ? JSON.parse(content) : null}
               onChange={setContent}
             />
 
