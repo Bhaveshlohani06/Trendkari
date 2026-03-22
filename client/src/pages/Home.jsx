@@ -561,7 +561,7 @@ const Home = () => {
         <div className="d-flex gap-3 overflow-auto">
 
           {loadingUsers &&
-            [1,2,3,4,5,6,7,8,9,10].map(i => (
+            [1,2,3,4,5].map(i => (
               <Skeleton.Avatar key={i} active size={60} />
             ))
           }
@@ -588,7 +588,22 @@ const Home = () => {
                 Follow
               </button>
             </div>
+
+            //     {/* SEE ALL */}
+
           ))}
+              {!loading && (
+      <Link
+        to="/users"
+        className="card shadow-sm border-0 text-decoration-none"
+        style={{ minWidth: 200, height: 200 }}
+      >
+        <div className="card-body d-flex flex-column justify-content-center align-items-center text-primary fw-bold">
+          <span style={{ fontSize: 26 }}>→</span>
+          सभी प्रोफाइल देखें
+        </div>
+      </Link>
+    )}
 
         </div>
       </section>

@@ -194,7 +194,7 @@
 import React, { useState, useEffect } from "react";
 import API from "../../utils/api";
 import Layout from "../Layout/Layout";
-import { Container, Card, Badge, ListGroup, Spinner } from "react-bootstrap";
+import { Container, Card, Badge, ListGroup, Spinner, Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 
 
@@ -357,6 +357,14 @@ if (isGuest) {
             लॉगिन करें
            </button>
 
+                     {/* <Button
+            variant="outline-primary"
+            className="mt-4"
+            onClick={() => navigate("/")}
+          >
+            Go Back Home
+          </Button> */}
+
           {/* <button
             className="btn btn-outline-secondary"
             onClick={() => navigate("/register")}
@@ -482,7 +490,16 @@ if (isGuest) {
   📤 WhatsApp पर शेयर करें
 </button>
 
+
   </Card.Body>
+
+            <Button
+            variant="outline-primary"
+            className="mt-4"
+            onClick={() => navigate("/")}
+          >
+            Go Back Home
+          </Button>
 </Card>
 
 
