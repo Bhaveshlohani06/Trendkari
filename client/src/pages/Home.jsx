@@ -555,7 +555,7 @@ const Home = () => {
       </div>
 
       {/* SUGGESTED USERS */}
-      <section className="mb-5">
+      {/* <section className="mb-5">
         <h6 className="fw-bold mb-3">स्थानीय पत्रकार</h6>
 
         <div className="d-flex gap-3 overflow-auto">
@@ -589,7 +589,6 @@ const Home = () => {
               </button>
             </div>
 
-            //     {/* SEE ALL */}
 
           ))}
               {!loading && (
@@ -606,7 +605,7 @@ const Home = () => {
     )}
 
         </div>
-      </section>
+      </section> */}
 
       {/* GOVERNMENT */}
       <section className="mb-5">
