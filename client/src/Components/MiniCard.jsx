@@ -1346,8 +1346,8 @@ const MiniCard = ({
             >
               <img
                 src={imageError 
-                  ? 'https://via.placeholder.com/300x200/CCCCCC/FFFFFF?text=TrendKari' 
-                  : post.image || 'https://via.placeholder.com/300x200/CCCCCC/FFFFFF?text=TrendKari'
+                  ? 'https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png' 
+                  : post.image || 'https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png'
                 }
                 alt={post.title}
                 className="w-100 h-100"

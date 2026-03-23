@@ -2685,6 +2685,10 @@ export default function BlogDetail() {
                 <Image
                   src={post.image}
                   alt={post.title}
+                    onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+  }}
                   fluid
                   className="rounded-3 shadow"
                   style={{ 
