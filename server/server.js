@@ -139,6 +139,8 @@ import {
   startScheduler,
   startDailyMailJob,
   startEngagementMailJob,
+  startNewsJob,
+  startMarketJob
 } from "./utils/scheduler.js";
 
 import { initSocket } from "./utils/socket.js";
@@ -156,6 +158,7 @@ import mobileAuthRoutes from "./routes/mobileRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import debugPushRoutes from "./routes/debugPushRoutes.js";
 import likeRoutes from "./routes/likeRoutes.js";
+import marketRoutes from "./routes/mandiRoutes.js";
 
 dotenv.config();
 
@@ -167,9 +170,11 @@ const server = http.createServer(app);
 connectDB();
 
 /* -------------------- CRON / SCHEDULERS -------------------- */
-startScheduler();
+// startScheduler();
 startDailyMailJob();
 startEngagementMailJob();
+startNewsJob();
+startMarketJob();
 
 /* -------------------- CORS -------------------- */
 const allowedOrigins = [
@@ -228,6 +233,8 @@ app.use("/api/v1/mobile", mobileAuthRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 app.use("/api/v1/debug-push", debugPushRoutes);
 app.use("/api/v1/likes", likeRoutes);
+app.use("/api/market", marketRoutes);
+
 
 app.get("/api/ping", (req, res) => {  
   res.json({ message: "Backend working" });

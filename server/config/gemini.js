@@ -1,14 +1,8 @@
 import dotenv from "dotenv";
-//import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GoogleGenAI } from "@google/genai";
  
 
 dotenv.config();
-
-//const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
-//const model = genAI.getGenerativeModel({ model: "models/gemini-pro" }); 
-
-//const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     
 const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_GEMINI_API_KEY,
@@ -26,74 +20,9 @@ function getTodayDate() {
   });
 }
 
-// async function main(prompt) {
-//   try {
-//     const result = await model.generateContent(prompt);
-
-//     // const text = result.response.candidates[0].content.parts[0].text;
-//        const text = await result.response.text();
-
-//     console.log("Generated content:", text);
-//     return text || "";
-//   } catch (err) {
-//     console.error("Error in Gemini main():", err);
-//     return "";
-//   }
-// }
-
-// async function main(prompt) {
-//   try {
-//     const result = await model.generateContent(prompt);
-
-//     console.log("Full Gemini response:", JSON.stringify(result, null, 2));
-
-//     let text = "";
-
-//     // Try modern method
-//     if (result?.response?.text) {
-//       text = await result.response.text();
-//     }
-
-//     // Fallback to old structure
-//     if (!text && result?.response?.candidates?.length > 0) {
-//       text = result.response.candidates[0]?.content?.parts
-//         ?.map(p => p.text)
-//         ?.join("") || "";
-//     }
-
-//     if (!text) {
-//       console.error("No text generated from Gemini response");
-//     }
-
-//     return text;
-
-//   } catch (err) {
-//     console.error("Error in Gemini main():", err);
-//     return "";
-//   }
-// }
-
-
-// export async function main(prompt) {
-//   try {
-//     const response = await ai.models.generateContent({
-//       model: "gemini-1.5-flash", // this WILL work here
-//       contents: prompt,
-//     });
-
-//     console.log("Gemini response:", response.text);
-
-//     return response.text || "";
-//   } catch (err) {
-//     console.error("Gemini ERROR:", err);
-//     return "";
-//   }
-// }
 
 export async function main(prompt) {
   try {
-
-    // console.dir(models, { depth: null });
 
     const response = await ai.models.generateContent({
       model: "models/gemini-2.5-flash",

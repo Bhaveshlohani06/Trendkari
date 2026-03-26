@@ -4,6 +4,9 @@ import User from "../models/usermodel.js";
 import { generatePersonalPost } from "../config/gemini.js";
 import Horoscope from "../models/Horoscope.js";
 import { sendEmail } from "./emailService.js";
+import { runNewsPipeline } from "../services/newsProcessor.js";
+import { fetchMandiRates } from "../services/mandiService.js";
+import Mandi from "../models/Mandimodel.js";
 
 /**
  * Run this after server starts. For testing use a cron like "*
@@ -11,7 +14,7 @@ import { sendEmail } from "./emailService.js";
 
 export function startScheduler() {
   // Example: every day at 06:00 server time
-  cron.schedule("* * * * *", async () => {
+  cron.schedule("* 6 * * *", async () => {
     const users = await User.find({ frequency: "daily" });
     for (const u of users) {
       try {
@@ -90,7 +93,23 @@ cron.schedule("14 10 * * *", async () => {
 }
 
 
-// send test email
+
+///News JOb
+
+
+export function startNewsJob() {
+  cron.schedule("* 6 * * *", async () => {
+    console.log("📰 Running News Cron at", new Date().toLocaleString());
+
+    try {
+      await runNewsPipeline();
+      console.log("✅ News pipeline completed");
+    } catch (err) {
+      console.error("❌ News cron error:", err.message);
+    }
+  });
+}
+// send test email  
 
 export function startEngagementMailJob() {
   // Runs every day at 9 AM
@@ -158,44 +177,95 @@ await sendEmail(
 }
 
 
-//testing
-
-
-// export function startDailyMailJob() {
-//   cron.schedule("40 21 * * *", async () => {
-//     console.log("Running at 6 AM");
-//     console.log("⏰ Running Post Request Mail Job at", new Date().toLocaleString());
-
+///Market Job
+// export function startMarketJob() {
+//   cron.schedule("* * * * *", async () => {
+//     console.log("⏰ Running Market Rates Job at ", new Date().toLocaleString());
+ 
 //     try {
-//       const users = await User.find();
-//       console.log(`👥 Found ${users.length} users to process`);
+//         const mandis = await Mandi.find({});
+//   // for (const mandi of mandis) {
 
-//       for (const user of users) {
-//         console.log(`🔍 Processing user: ${user.email}`);
 
-//         const link = `${process.env.FRONTEND_URL}/blog/best-fitness-gadgets-for-home-workouts-india-sept-2025`;
+//   //   await fetchMandiRates(mandi);
+//   //     console.log("✅ Market rates updated successfully");
+//   //   }
 
-//         const html = `
-//           <h2>Hello ${user.name || "Trendkari User"} 👋</h2>
-//           <p>Top Recommended Fitness Gadgets for Home Workouts</p>
-//           <p>Read Now - ${link}</p>
-//           <hr/>
-//           <p> Let’s make Trendkari vibrant together<br/>— Team Trendkari</p>
-//         `;
 
-//         // ✅ Now inside the loop
-//         await sendEmail(
-//           user.email,
-//           "Recommended Fitness Gadgets - Top Picks",
-//           html,
+//   for (const mandi of mandis) {
+//   console.log("Mandi object:", mandi);
 
-//         );
+//   if (!mandi) {
+//     console.log("❌ Mandi is undefined");
+//     continue;
+//   }
 
-//         console.log(`📩 Sent daily post mail to ${user.email}`);
-//       }
-//     } catch (err) {
-//       console.error("❌ Error in daily mail job:", err.message);
+//   if (!mandi.khetiwadi_id) {
+//     console.log(`❌ Missing khetiwadi_id for ${mandi.name}`);
+//     continue;
+//   }
+//        await fetchMandiRates();
+//       console.log("✅ Market rates updated successfully");
+
+//   }
+// }
+//     catch (err) {
+//       console.error("❌ Error in market job:", err.message);
 //     }
 //   });
 // }
 
+
+// export function startMarketJob() {
+//   cron.schedule("* * * * *", async () => {
+//     console.log("⏰ Running Market Rates Job at ", new Date().toLocaleString());
+
+//     try {
+//       const mandis = await Mandi.find({}); // ✅ REQUIRED
+
+//       console.log("Mandis count:", mandis.length);
+
+//       for (const mandi of mandis) {
+//         console.log("Mandi object:", mandi);
+
+//         if (!mandi) {
+//           console.log("❌ Mandi is undefined");
+//           continue;
+//         }
+
+//         if (!mandi.khetiwadi_id) {
+//           console.log(`❌ Missing khetiwadi_id for ${mandi.name}`);
+//           continue;
+//         }
+
+//         await fetchMandiRates(mandi); // ✅ PASS mandi here
+//       }
+
+//       console.log("✅ Market rates updated successfully");
+
+//     } catch (err) {
+//       console.error("❌ Error in market job:", err.message);
+//     }
+//   });
+// }
+
+
+
+export function startMarketJob() {
+  cron.schedule("* 6 * * *", async () => { // every 2 hours
+    console.log("⏰ Running Market Job");
+
+    try {
+      const mandis = await Mandi.find({});
+      console.log("Mandis:", mandis.length);
+
+      for (const mandi of mandis) {
+        await fetchMandiRates(mandi);
+      }
+  
+      console.log("✅ Market update completed");
+    } catch (err) {
+      console.error("❌ Cron error:", err.message);
+    }
+  });
+}
