@@ -609,7 +609,10 @@ export const runNewsPipeline = async () => {
 // }
 
 // ✅ TEMP FIX: Always use fallback image
-const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/posts/kotabanner.png";
+// const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/posts/kotabanner.png";
+const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/ChatGPT%20Image%20Mar%2026,%202026,%2011_07_59%20PM.png";
+// const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+
 
 let finalImage = FALLBACK_IMAGE;
 
