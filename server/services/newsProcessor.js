@@ -199,13 +199,13 @@ STRICT RULES:
   }
 };
 
-const getNewsCategoryId = async () => {
-  let category = await Category.findOne({ name: "news" });
-  if (!category) {
-    category = await Category.create({ name: "news" });
-  }
-  return category._id;
-};
+// const getNewsCategoryId = async () => {
+//   let category = await Category.findOne({ name: "news" });
+//   if (!category) {
+//     category = await Category.create({ name: "news" });
+//   }
+//   return category._id;
+// };
 
 const getAdminUserId = async () => {
   const admin = await User.findOne({ role: "admin" });
@@ -681,7 +681,11 @@ console.log("🖼️ OG Image:", ogImage);
 console.log("🖼️ RSS Image:", news.imageUrl);
       // ================= SAVE =================
 
-      const categoryId = await getNewsCategoryId();
+      // const categoryId = await getNewsCategoryId();
+const CATEGORY_IDS = {
+  NEWS: "689847d0742b6b7e04acc6b6",
+  POLITICS: "6889a68b80d92ae54acdcd52"
+};
       const authorId = await getAdminUserId();
 
       const detectedLocation = detectLocation(
@@ -692,7 +696,7 @@ console.log("🖼️ RSS Image:", news.imageUrl);
         title: aiData.title,
         content: aiData.content,
         tags: aiData.tags,
-        category: categoryId,
+        category: CATEGORY_IDS.NEWS,
         author: authorId,
         language: "hi",
         location: detectedLocation,
