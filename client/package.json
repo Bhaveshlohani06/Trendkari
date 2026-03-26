@@ -11,6 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@editorjs/editorjs": "^2.31.1",
     "@editorjs/header": "^2.8.8",
     "@editorjs/image": "^2.10.3",

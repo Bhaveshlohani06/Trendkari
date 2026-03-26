@@ -594,45 +594,72 @@ export const getAllPostsController = async (req, res) => {
   
 
 
-export const getPostBySlugController = async (req, res) => {
-  try {
-    // ✅ Decode slug (VERY IMPORTANT for Hindi)
-    const decodedSlug = decodeURIComponent(req.params.slug);
+// export const getPostBySlugController = async (req, res) => {
+//   try {
+//     // ✅ Decode slug (VERY IMPORTANT for Hindi)
+//     const decodedSlug = decodeURIComponent(req.params.slug);
+
+//        // const admin = await User.findOne({ role: "admin" }).select("_id name pushToken");
 
   
-    // ✅ Build dynamic query
-    let query = { slug: decodedSlug };
+//     // ✅ Build dynamic query
+//     let query = { slug: decodedSlug };
 
-    // 👉 Only non-admin users see approved posts
-    if (!req.user || req.user.role !== "admin") {
-      query.status = "approved";
-    }
+//     // // 👉 Only non-admin users see approved posts
+//     // if (!req.user || req.user.role !== "admin") {
+//     //   query.status = "approved";
+//     // }
 
-    const post = await postModel
-       .findOne(query)
+//     const post = await postModel
+//        .findOne(query)
+//       .populate("category")
+//       .populate("author", "name");
+
+//     if (!post) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Post not found or not approved",
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       post,
+//     });
+//   } catch (error) {
+//     console.log("Raw slug:", req.params.slug);
+//     console.error("Get post error:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error fetching post",
+//     });
+//   }
+// };
+
+
+
+export const getPostBySlugController = async (req, res) => {
+  try {
+    //✅ Decode slug (VERY IMPORTANT for Hindi) 
+    const decodedSlug = decodeURIComponent(req.params.slug);
+
+    const post = await postModel.findOne({ slug: decodedSlug, status: "approved", })
       .populate("category")
-      .populate("author", "name");
+      .populate("author", "name avatar");
 
     if (!post) {
-      return res.status(404).json({
-        success: false,
-        message: "Post not found or not approved",
-      });
+      return res.status(404).json(
+        { success: false, message: "Post not found or not approved", });
     }
-
-    res.status(200).json({
-      success: true,
-      post,
-    });
-  } catch (error) {
-    console.log("Raw slug:", req.params.slug);
-    console.error("Get post error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching post",
-    });
+    res.status(200).json(
+      { success: true, post, });
+  }
+  catch (error) {
+    console.log("Raw slug:", req.params.slug); console.error("Get post error:", error); res.status(500).json({ success: false, message: "Error fetching post", }
+    );
   }
 };
+
 
 
 
