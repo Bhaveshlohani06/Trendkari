@@ -2991,3 +2991,201 @@ export default function BlogDetail() {
     </Layout>
   );
 }
+
+
+
+
+
+
+// import { useEffect, useState, useRef, useCallback } from "react";
+// import { useParams } from "react-router-dom";
+// import Layout from "../Layout/Layout";
+// import API from "../../utils/api";
+// import { Container, Spinner } from "react-bootstrap";
+// import EditorContent from "../Components/EditorContent";
+// import LikeButton from "../Components/LikeButton";
+
+// export default function BlogDetail() {
+//   const { slug } = useParams();
+
+//   const [articles, setArticles] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [loading, setLoading] = useState(true);
+//   const [loadingMore, setLoadingMore] = useState(false);
+//   const [hasMore, setHasMore] = useState(true);
+
+//   const observer = useRef();
+
+//   /* ================= INITIAL LOAD ================= */
+//   useEffect(() => {
+//     const loadInitial = async () => {
+//       setLoading(true);
+//       try {
+//         const { data } = await API.get(`/post/get-post/${slug}`);
+//         if (data?.success) {
+//           setArticles([data.post]);
+//         }
+//       } catch (err) {
+//         console.error("Failed to load post");
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     loadInitial();
+//   }, [slug]);
+
+//   /* ================= FETCH MORE ================= */
+//   const fetchMorePosts = async () => {
+//     if (loadingMore || !hasMore) return;
+
+//     setLoadingMore(true);
+
+//     try {
+//       const { data } = await API.get(
+//         `/post/get-posts?page=${page}&limit=5`
+//       );
+
+//       if (data?.success) {
+//         const newPosts = data.posts || [];
+
+//         setArticles((prev) => {
+//           // prevent duplicates
+//           const existingIds = new Set(prev.map((p) => p._id));
+//           const filtered = newPosts.filter((p) => !existingIds.has(p._id));
+//           return [...prev, ...filtered];
+//         });
+
+//         setHasMore(data.hasMore);
+//         setPage((prev) => prev + 1);
+//       }
+//     } catch (err) {
+//       console.error("Error fetching more posts");
+//     } finally {
+//       setLoadingMore(false);
+//     }
+//   };
+
+//   /* ================= SCROLL OBSERVER ================= */
+//   const lastPostRef = useCallback(
+//     (node) => {
+//       if (loadingMore) return;
+//       if (observer.current) observer.current.disconnect();
+
+//       observer.current = new IntersectionObserver((entries) => {
+//         if (entries[0].isIntersecting) {
+//           fetchMorePosts();
+//         }
+//       });
+
+//       if (node) observer.current.observe(node);
+//     },
+//     [loadingMore, hasMore]
+//   );
+
+//   /* ================= UI ================= */
+
+//   if (loading) {
+//     return (
+//       <Layout>
+//         <div className="text-center py-5">
+//           <Spinner />
+//         </div>
+//       </Layout>
+//     );
+//   }
+
+//   return (
+//     <Layout>
+//       <Container style={{ maxWidth: "700px" }} className="py-4">
+//         {articles.map((post, index) => {
+//           const isLast = index === articles.length - 2;
+
+//           return (
+//             <div
+//               key={post._id}
+//               ref={isLast ? lastPostRef : null}
+//               className="mb-5 pb-5 border-bottom"
+//             >
+//               {/* IMAGE */}
+//               {post.image && (
+//                 <img
+//                   src={post.image}
+//                   alt={post.title}
+//                   onError={(e) => {
+//                     e.target.src =
+//                       "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+//                   }}
+//                   style={{
+//                     width: "100%",
+//                     height: "300px",
+//                     objectFit: "cover",
+//                     borderRadius: "12px",
+//                   }}
+//                 />
+//               )}
+
+//               {/* TITLE */}
+//               <h3 className="mt-3 fw-bold">{post.title}</h3>
+
+//               {/* META */}
+//               <div className="text-muted small mb-2">
+//                 {post.location || "Kota"} •{" "}
+//                 {new Date(post.createdAt).toLocaleDateString()}
+//               </div>
+
+//               {/* CONTENT */}
+//               <EditorContent content={post.content} />
+
+//               {/* ENGAGEMENT */}
+//               <div className="d-flex gap-3 mt-3">
+//                 <LikeButton postId={post._id} showCount />
+//                 <button
+//                   onClick={() => {
+//                     navigator.clipboard.writeText(
+//                       window.location.origin + "/article/" + post.slug
+//                     );
+//                   }}
+//                 >
+//                   Share
+//                 </button>
+//               </div>
+
+//               {/* NEXT STORY INDICATOR */}
+//               {index !== articles.length - 1 && (
+//                 <div className="text-center mt-4 text-primary fw-bold">
+//                   ↓ Next Story
+//                 </div>
+//               )}
+//             </div>
+//           );
+//         })}
+
+//         {/* LOADING MORE */}
+//         {loadingMore && (
+//           <div className="text-center py-4">
+//             <Spinner size="sm" />
+//           </div>
+//         )}
+
+//         {!hasMore && (
+//           <div className="text-center text-muted py-4">
+//             No more news
+//           </div>
+//         )}
+//       </Container>
+//     </Layout>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+

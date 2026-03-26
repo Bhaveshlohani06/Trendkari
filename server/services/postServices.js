@@ -110,19 +110,22 @@
 
 import postModel from "../models/postmodel.js";
 import slugify from "slugify";
+import { generateSlug } from "../utils/slugify.js"; 
+
 
 export const savePost = async (data) => {
   if (!data.title || !data.content) {
     throw new Error("Title and content are required to save post");
   }
 
-  // generate base slug
-  let baseSlug = slugify(data.title, { lower: true, strict: true });
+
+  const baseSlug = generateSlug(data.title);
+  if (!baseSlug) {
+    return res.status(400).json({ message: "Slug generation failed" });
+  }
 
   let slug = baseSlug;
   let count = 1;
-
-  // check for duplicates in DB
   while (await postModel.exists({ slug })) {
     slug = `${baseSlug}-${count++}`;
   }
@@ -136,7 +139,7 @@ export const savePost = async (data) => {
     author: data.author,
     language: data.language === "hindi" ? "hi" : "en",
     location: data.location,
-    slug,
+    slug: slug,
     status: "pending",
     isPublished: false,
     image: data.image || null, // This should be a URL string

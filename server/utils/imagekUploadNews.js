@@ -40,35 +40,56 @@ import { imagekit }  from "../config/imaegkit.js";
 
 
 
+// export const uploadImageToImageKit = async (imageUrl) => {
+//   try {
+//     const response = await fetch(imageUrl, {
+//       headers: {
+//         "User-Agent": "Mozilla/5.0",
+//       },
+//     });
+
+//     // 🔴 CRITICAL CHECK
+//     if (!response.ok) {
+//       throw new Error(`Failed to fetch image: ${response.status}`);
+//     }
+
+//     const contentType = response.headers.get("content-type");
+
+//     // 🔴 Ensure it's actually an image
+//     if (!contentType || !contentType.startsWith("image")) {
+//       throw new Error("URL is not an image");
+//     }
+
+//     const buffer = await response.arrayBuffer();
+
+//     // 🔴 Avoid uploading tiny/broken files
+//     if (buffer.byteLength < 5000) {
+//       throw new Error("Image too small / corrupted");
+//     }
+
+//     const uploadResponse = await imagekit.upload({
+//       file: Buffer.from(buffer),
+//       fileName: `news-${Date.now()}.jpg`,
+//     });
+
+//     return uploadResponse;
+
+//   } catch (error) {
+//     console.error("❌ Image upload failed:", error.message);
+//     return null;
+//   }
+// };
+
+
+
 export const uploadImageToImageKit = async (imageUrl) => {
   try {
-    const response = await fetch(imageUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-      },
-    });
-
-    // 🔴 CRITICAL CHECK
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status}`);
-    }
-
-    const contentType = response.headers.get("content-type");
-
-    // 🔴 Ensure it's actually an image
-    if (!contentType || !contentType.startsWith("image")) {
-      throw new Error("URL is not an image");
-    }
-
-    const buffer = await response.arrayBuffer();
-
-    // 🔴 Avoid uploading tiny/broken files
-    if (buffer.byteLength < 5000) {
-      throw new Error("Image too small / corrupted");
+    if (!imageUrl || !imageUrl.startsWith("http")) {
+      throw new Error("Invalid image URL");
     }
 
     const uploadResponse = await imagekit.upload({
-      file: Buffer.from(buffer),
+      file: imageUrl, // 🔥 DIRECT URL UPLOAD
       fileName: `news-${Date.now()}.jpg`,
     });
 

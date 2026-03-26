@@ -153,37 +153,91 @@ const parser = new Parser({
 
 // Define multiple news sources with categories
 const NEWS_SOURCES = [
+  // ===== DISTRICT LEVEL (PRIMARY SOURCE) =====
+  // {
+  //   url: "https://public.app/district/news-in-kota",
+  //   name: "Public Kota",
+  //   type: "scrape",
+  //   priority: 1
+  // },
+
+  // // ===== HYPERLOCAL (VERY IMPORTANT) =====
+  // {
+  //   url: "https://public.app/city/news-in-ramganj_mandi",
+  //   name: "Ramganj Mandi",
+  //   type: "scrape",
+  //   priority: 1
+  // },
+  // {
+  //   url: "https://public.app/city/news-in-ladpura",
+  //   name: "Ladpura",
+  //   type: "scrape",
+  //   priority: 1
+  // },
+
+  // // ===== TRUSTED HINDI NEWS (SCRAPE) =====
+  // {
+  //   url: "https://navbharattimes.indiatimes.com/state/rajasthan/kota/articlelist/75667777.cms",
+  //   name: "Navbharat Times Kota",
+  //   type: "scrape",
+  //   priority: 2
+  // },
+  // {
+  //   url: "https://www.jagran.com/rajasthan/kota",
+  //   name: "Jagran Kota",
+  //   type: "scrape",
+  //   priority: 2
+  // },
+  // {
+  //   url: "https://www.livehindustan.com/rajasthan/kota/news",
+  //   name: "Live Hindustan Kota",
+  //   type: "scrape",
+  //   priority: 2
+  // },
+  // {
+  //   url: "https://www.bhaskar.com/local/rajasthan/kota/",
+  //   name: "Bhaskar Kota",
+  //   type: "scrape",
+  //   priority: 1
+  // }
+
+  // ===== MAIN KOTA FEED =====
   {
     url: "https://news.google.com/rss/search?q=Kota+Rajasthan&hl=hi&gl=IN&ceid=IN:hi",
-    name: "Google News - Kota",
-    category: "local",
+    name: "Kota News",
     priority: 1
   },
+
+  // ===== HYPERLOCAL (RAMGANJ + LADPURA) =====
   {
-    url: "https://news.google.com/rss/search?q=Rajasthan+education+exam+result&hl=hi&gl=IN&ceid=IN:hi",
-    name: "Google News - Education",
-    category: "education",
+    url: "https://news.google.com/rss/search?q=Ramganj+Mandi+Kota+OR+Ladpura+Kota&hl=hi&gl=IN&ceid=IN:hi",
+    name: "Hyperlocal",
     priority: 1
   },
+
+  // ===== CRIME =====
   {
-    url: "https://www.patrika.com/rss/rajasthan/kota",
-    name: "Rajasthan Patrika - Kota",
-    category: "local",
+    url: "https://news.google.com/rss/search?q=Kota+crime+Rajasthan&hl=hi&gl=IN&ceid=IN:hi",
+    name: "Crime",
     priority: 2
   },
+
+  // ===== EDUCATION (KOTA SPECIAL CATEGORY) =====
   {
-    url: "https://www.bhaskar.com/rss-v1--category-1740.xml",
-    name: "Dainik Bhaskar - Rajasthan",
-    category: "state",
-    priority: 2
+    url: "https://news.google.com/rss/search?q=Kota+coaching+students+IIT+JEE+NEET&hl=hi&gl=IN&ceid=IN:hi",
+    name: "Education",
+    priority: 1
   },
+
+  // ===== BACKUP (RAJASTHAN FILTERED TO KOTA) =====
   {
-    url: "https://timesofindia.indiatimes.com/rssfeeds/4719153.cms",
-    name: "Times of India - Rajasthan",
-    category: "state",
-    priority: 2
+    url: "https://news.google.com/rss/headlines/section/geo/India?hl=hi&gl=IN&ceid=IN:hi",
+    name: "India Headlines",
+    priority: 3
   }
 ];
+
+
 
 // Enhanced image extraction function
 // const extractImageFromItem = (item) => {

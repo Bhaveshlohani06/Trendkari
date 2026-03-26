@@ -599,11 +599,17 @@ export const getPostBySlugController = async (req, res) => {
     // ✅ Decode slug (VERY IMPORTANT for Hindi)
     const decodedSlug = decodeURIComponent(req.params.slug);
 
+  
+    // ✅ Build dynamic query
+    let query = { slug: decodedSlug };
+
+    // 👉 Only non-admin users see approved posts
+    if (!req.user || req.user.role !== "admin") {
+      query.status = "approved";
+    }
+
     const post = await postModel
-      .findOne({
-        slug: decodedSlug,
-        status: "approved",
-      })
+       .findOne(query)
       .populate("category")
       .populate("author", "name");
 
@@ -699,7 +705,7 @@ export const getPendingPosts = async (req, res) => {
 // GET ALL POSTS FOR ADMIN
 export const getAllPostsAdmin = async (req, res) => {
   try {
-    const posts = await postModel.find({})
+    const posts = await postModel.find({status: "pending"})
       .populate("author", "name email")
       .sort({ createdAt: -1 });
 

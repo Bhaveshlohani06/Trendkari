@@ -156,9 +156,96 @@
 // export default Posts;
 
 
+// import { useEffect, useState } from "react";
+// import API from "../../../utils/api";
+// import Layout from "../../Layout/Layout";
+
+// const Posts = () => {
+//   const [posts, setPosts] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   const fetchPendingPosts = async () => {
+//     try {
+//       const { data } = await API.get("/post/admin/posts");
+
+//       if (data?.success) {
+//         setPosts(data.posts); // ✅ NO frontend filter
+//       }
+//     } catch (error) {
+//       console.error(error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchPendingPosts();
+//   }, []);
+
+//   const approvePost = async (id) => {
+//     try {
+//       await API.put(`/post/admin/posts/${id}/approve`);
+//       setPosts(prev => prev.filter(p => p._id !== id));
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   const rejectPost = async (id) => {
+//     try {
+//       await API.put(`/post/admin/posts/${id}/reject`);
+//       setPosts(prev => prev.filter(p => p._id !== id));
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   };
+
+//   if (loading) return <p>Loading...</p>;
+
+//   return (
+//          <Layout>
+//    <div>
+
+//       <h2>Pending Posts</h2>
+
+//       {posts.length === 0 && <p>No pending posts</p>}
+
+//       {posts.map(post => (
+//         <div key={post._id} className="post-card">
+//           <h4>{post.title}</h4>
+
+//           <button onClick={() => approvePost(post._id)}>
+//             Approve
+//           </button>
+
+//           <button onClick={() => rejectPost(post._id)} className="danger">
+//             Reject
+//           </button>
+//         </div>
+//       ))}
+//     </div>
+//     </Layout>
+//   );
+// };
+
+// export default Posts;
+
+
+
+
+
+
+
+
+
+
+
+
+
 import { useEffect, useState } from "react";
 import API from "../../../utils/api";
 import Layout from "../../Layout/Layout";
+import { Link } from "react-router-dom";
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
@@ -167,9 +254,8 @@ const Posts = () => {
   const fetchPendingPosts = async () => {
     try {
       const { data } = await API.get("/post/admin/posts");
-
       if (data?.success) {
-        setPosts(data.posts); // ✅ NO frontend filter
+        setPosts(data.posts);
       }
     } catch (error) {
       console.error(error);
@@ -200,30 +286,70 @@ const Posts = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   return (
-         <Layout>
-   <div>
+    <Layout>
+      <div className="max-w-4xl mx-auto p-4">
+        <h2 className="text-2xl font-bold mb-6">📝 Pending Posts</h2>
 
-      <h2>Pending Posts</h2>
+        {posts.length === 0 && (
+          <p className="text-gray-500">No pending posts</p>
+        )}
 
-      {posts.length === 0 && <p>No pending posts</p>}
+        <div className="space-y-4">
+          {posts.map(post => (
+            <div
+              key={post._id}
+              className="bg-white shadow-md rounded-xl p-4 border"
+            >
+              {/* Title */}
+              <h4 className="text-lg font-semibold mb-2">
+                {post.title}
+              </h4>
 
-      {posts.map(post => (
-        <div key={post._id} className="post-card">
-          <h4>{post.title}</h4>
+              {/* Meta */}
+              <div className="text-sm text-gray-500 mb-3">
+                Author: {post.author?.name || "Unknown"} •{" "}
+                {new Date(post.createdAt).toLocaleString()}
+              </div>
 
-          <button onClick={() => approvePost(post._id)}>
-            Approve
-          </button>
+              {/* Preview Link */}
+              <Link
+                to={`/article/${post.slug}`}
+                className="text-blue-600 text-sm underline"
+              >
+                🔗 Preview Post
+              </Link>
 
-          <button onClick={() => rejectPost(post._id)} className="danger">
-            Reject
-          </button>
+              {/* Actions */}
+              <div className="flex gap-4 mt-5">
+                <button
+                  onClick={() => approvePost(post._id)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg 
+               bg-green-50 text-green-700 border border-green-300 
+               hover:bg-green-100 hover:border-green-400 
+               active:scale-95 transition-all duration-150 shadow-sm"
+                >
+                  <span>✅</span>
+                  <span className="font-medium">Approve</span>
+                </button>
+
+                <button
+                  onClick={() => rejectPost(post._id)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg 
+               bg-red-50 text-red-700 border border-red-300 
+               hover:bg-red-100 hover:border-red-400 
+               active:scale-95 transition-all duration-150 shadow-sm"
+                >
+                  <span>❌</span>
+                  <span className="font-medium">Reject</span>
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </div>
     </Layout>
   );
 };
