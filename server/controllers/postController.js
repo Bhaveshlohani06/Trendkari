@@ -555,7 +555,7 @@ export const getAllPostsController = async (req, res) => {
     const posts = await postModel
       .find(filter)
       .populate("category")
-      .populate("author", "name")
+      .populate("author", "name avatar")
       .skip(((req.query.page || 1) - 1) * (req.query.limit || 10))
       .limit(parseInt(req.query.limit) || 10)
       .sort({ createdAt: -1 });

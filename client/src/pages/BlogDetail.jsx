@@ -2301,7 +2301,16 @@ export default function BlogDetail() {
   const [categories, setCategories] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("area");
   const [isSaved, setIsSaved] = useState(false);
+    // const [posts, setPosts] = useState([]);
+const [postLoading, setPostLoading] = useState(true);
+const [feedLoading, setFeedLoading] = useState(false);
+
+    const [posts, setPosts] = useState([]);
+
   
+    // const observer = useRef(null);
+  
+
   // Refs
   const commentInputRef = useRef(null);
   const commentsRef = useRef(null);
@@ -2310,10 +2319,11 @@ export default function BlogDetail() {
   // Custom hooks
   const { scrollProgress, showProgressBar } = useScrollProgress();
 
+
   /* ================= FETCH POST ================= */
   useEffect(() => {
     const fetchPost = async () => {
-      setLoading(true);
+      setPostLoading(true);
       try {
         const { data } = await API.get(`/post/get-post/${slug}`);
         if (data?.success) {
@@ -2322,7 +2332,7 @@ export default function BlogDetail() {
       } catch {
         toast.error("Failed to load post");
       } finally {
-        setLoading(false);
+        setPostLoading(false);
       }
     };
     fetchPost();
@@ -2393,64 +2403,64 @@ export default function BlogDetail() {
   };
 
   /* ================= RELATED & SUGGESTED POSTS ================= */
-  const fetchRelatedPosts = async (pageNum) => {
-    if (!post || loadingRelated || !hasMore) return;
-    setLoadingRelated(true);
+  const fetchPosts = async () => {
+    if (loading || !hasMore) return;
+
     try {
+      setFeedLoading(true);
+
       const { data } = await API.get(
-        `/post/get-posts?page=${pageNum}&limit=${RELATED_LIMIT}`
+        `/post/get-posts?status=approved&page=${page}&limit=${10}`
       );
-      if (data?.success) {
-        if (pageNum === 1) {
-          setRelatedPosts(data.posts);
-          const filteredPosts = data.posts.filter(p => p._id !== post._id).slice(0, 6);
-          setSmartFeedPosts(filteredPosts);
-        } else {
-          setRelatedPosts(prev => [...prev, ...data.posts]);
-          const newPosts = data.posts.filter(p => p._id !== post._id).slice(0, 3);
-          setSmartFeedPosts(prev => [...prev, ...newPosts]);
-        }
-        setHasMore(data.hasMore);
+
+      if (!data?.posts || data.posts.length === 0) {
+        setHasMore(false);
+        return;
       }
-    } catch (error) {
-      console.error('Failed to load related posts:', error);
+
+      setPosts(prev => [...prev, ...data.posts]);
+      setPage(prev => prev + 1);
+    } catch (err) {
+      console.error("Fetch error:", err);
     } finally {
-      setLoadingRelated(false);
+      setFeedLoading(false);
     }
   };
 
+  // 🔁 Initial fetch
   useEffect(() => {
-    if (!post) return;
-    
-    setRelatedPosts([]);
-    setSmartFeedPosts([]);
-    setPage(1);
-    setHasMore(true);
-    
-    fetchRelatedPosts(1);
-    
-    API.get('/category/categories').then(({ data }) => {
-      if (data?.success) setCategories(data.categories);
-    });
-  }, [post?._id]);
+    fetchPosts();
+  }, []);
 
+  // 👀 Observer (FIXED)
   const lastPostRef = useCallback(
-    (node) => {
-      if (loadingRelated) return;
+    node => {
+      if (loading || !hasMore) return;
+
       if (observer.current) observer.current.disconnect();
 
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          const nextPage = page + 1;
-          setPage(nextPage);
-          fetchRelatedPosts(nextPage);
+      observer.current = new IntersectionObserver(
+        entries => {
+          if (entries[0].isIntersecting) {
+            fetchPosts(); // 🔥 DIRECT fetch
+          }
+        },
+        {
+          root: null,
+          rootMargin: "200px", // 🔑 LOAD EARLY
+          threshold: 0,
         }
-      });
+      );
 
       if (node) observer.current.observe(node);
     },
-    [loadingRelated, hasMore, page]
+    [feedLoading, hasMore]
   );
+
+  const handleRemovePost = (postId) => {
+    setPosts(prev => prev.filter(p => p._id !== postId));
+  };
+
 
   /* ================= SUGGESTED USERS ================= */
   useEffect(() => {
@@ -2543,6 +2553,32 @@ export default function BlogDetail() {
     }
   };
 
+  // Format date smartly
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      
+      if (diffMins < 1) return 'अभी';
+      if (diffMins < 60) return `${diffMins} मिनट पहले`;
+      if (diffHours < 24) return `${diffHours} घंटे पहले`;
+      if (diffDays < 7) return `${diffDays} दिन पहले`;
+      
+      return date.toLocaleDateString('hi-IN', { 
+        day: 'numeric',
+        month: 'short',
+        year: diffDays > 30 ? 'numeric' : undefined
+      });
+    } catch {
+      return timeago.format(dateString);
+    }
+  };
+
+
   /* ================= LOADING STATE ================= */
   if (loading) {
     return (
@@ -2594,13 +2630,6 @@ export default function BlogDetail() {
                 Home
               </Link>
             </li>
-            {post.category && (
-              <li className="breadcrumb-item">
-                <Link to={`/category/${post.category.slug}`} className="text-decoration-none text-dark">
-                  {post.category.name}
-                </Link>
-              </li>
-            )}
             <li className="breadcrumb-item active text-truncate" aria-current="page">
               {post.title.substring(0, 30)}...
             </li>
@@ -2609,7 +2638,7 @@ export default function BlogDetail() {
 
         <Row className="g-4">
           {/* Main Content */}
-          <Col lg={8}>
+          <Col lg={12}>
             {/* Article Header */}
             <div className="mb-4">
               <div className="d-flex flex-wrap gap-2 mb-3">
@@ -2629,9 +2658,24 @@ export default function BlogDetail() {
               </div>
 
               <h1 className="display-5 fw-bold mb-4">{post.title}</h1>
+              
+              <div>
+
+                <Link
+                  to={`/dashboard/user/profile/${post.author?._id}`}
+                  className="text-decoration-none text-primary mb-1"
+                >
+                  {post.author?.name}
+                </Link>
+
+
+                <small className="text-muted mb-1" style={{ fontSize: '10px', marginLeft: '45px' }}>
+                  {formatDate(post.createdAt)}
+                </small>
+              </div>
 
               {/* Author Info - Enhanced */}
-              <div className="author-card p-3 border rounded-3 mb-4 bg-light">
+              {/* <div className="author-card p-3 border rounded-3 mb-4 bg-light">
                 <div className="d-flex align-items-start gap-3">
                   <SafeAvatar
                     src={post.author?.avatar}
@@ -2676,11 +2720,11 @@ export default function BlogDetail() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Hero Image */}
-            {post.image && (
+            {/* {post.image && (
               <div className="mb-5">
                 <Image
                   src={post.image}
@@ -2699,7 +2743,7 @@ export default function BlogDetail() {
                   }}
                 />
               </div>
-            )}
+            )} */}
 
             {/* Article Content */}
             <div className="article-content mb-5">
@@ -2726,14 +2770,7 @@ export default function BlogDetail() {
                 </Button>
               </div>
               <div className="d-flex gap-2">
-                <Button 
-                  variant={isSaved ? "warning" : "outline-secondary"}
-                  className="rounded-pill px-3"
-                  onClick={handleSave}
-                >
-                  <FaBookmark className="me-2" />
-                  {isSaved ? "Saved" : "Save"}
-                </Button>
+
                 <Button 
                   variant="outline-primary" 
                   className="rounded-pill px-3"
@@ -2745,15 +2782,7 @@ export default function BlogDetail() {
               </div>
             </div>
 
-            {/* Smart Feed Section */}
-            <SmartFeedSection
-              posts={smartFeedPosts}
-              title="Suggested for You"
-              subtitle="Based on your location and interests"
-              loading={loadingRelated}
-              onLoadMore={handleLoadMore}
-              hasMore={hasMore}
-            />
+
 
             {/* Comments Section - CRITICAL FIXES */}
             <section ref={commentsRef} className="comments-section mt-5 pt-5 border-top">
@@ -2852,143 +2881,64 @@ export default function BlogDetail() {
               </div>
             </section>
           </Col>
-
           {/* Sidebar - Enhanced */}
-          <Col lg={4}>
-            <div className="sticky-sidebar" style={{ top: '20px', position: 'sticky' }}>
-              {/* Suggested Users - Enhanced */}
-              {suggestedUsers.length > 0 && (
-                <Card className="border-0 shadow-sm mb-4">
-                  <Card.Body className="p-3">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h6 className="mb-0 fw-bold">
-                        <FaUser className="me-2 text-primary" />
-                        Suggested Writers
-                      </h6>
-                      <Link to="/users" className="text-decoration-none small fw-semibold text-primary">
-                        See all <FaChevronRight />
-                      </Link>
-                    </div>
 
-                    <div className="suggested-carousel d-flex gap-3 overflow-auto pb-3">
-                      {suggestedUsers.map((user) => (
-                        <div key={user._id} className="suggested-card text-center flex-shrink-0" style={{ width: '100px' }}>
-                          <SafeAvatar 
-                            src={user.avatar} 
-                            alt={user.name}
-                            size={56}
-                            className="border-2 border-white shadow-sm mb-2"
-                          />
-                          <div className="fw-semibold text-truncate px-1 small">
-                            {user.name}
-                          </div>
-                          <div className="extra-small text-muted mb-2">
-                            {user.followersCount || 0} followers
-                          </div>
-                          <Button
-                            variant={following[user._id] ? "outline-secondary" : "primary"}
-                            size="sm"
-                            className="rounded-pill w-100"
-                            onClick={() => toggleFollow(user._id)}
-                            disabled={followLoading[user._id]}
-                          >
-                            {followLoading[user._id] ? (
-                              <Spinner animation="border" size="sm" />
-                            ) : following[user._id] ? (
-                              "Following"
-                            ) : (
-                              "Follow"
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                      
-                      <Link to="/users" className="suggested-card see-all-card text-decoration-none flex-shrink-0 d-flex align-items-center justify-content-center" style={{ width: '100px' }}>
-                        <div className="see-all-inner text-center p-3 border rounded-3">
-                          <FaChevronRight size={20} className="text-primary mb-2" />
-                          <div className="fw-bold text-primary small">
-                            View all
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                  </Card.Body>
-                </Card>
-              )}
 
-              {/* Category Chips - Enhanced */}
-              <Card className="border-0 shadow-sm mb-4">
-                <Card.Body className="p-3">
-                  <h6 className="fw-bold mb-3">Explore Topics</h6>
-                  <div className="d-flex flex-wrap gap-2">
-                    {categories.slice(0, 12).map((category) => (
-                      <Button
-                        key={category._id}
-                        variant="outline-secondary"
-                        size="sm"
-                        className="rounded-pill mb-1"
-                      >
-                        {category.name}
-                      </Button>
-                    ))}
-                  </div>
-                </Card.Body>
-              </Card>
+      <div className="container py-4">
+        <div className="mb-4">
+          <h1 className="fw-bold">Explore Kota District</h1>
+          <p className="text-muted">All posts from every city</p>
+        </div>
 
-              {/* Related Posts - Enhanced */}
-              <Card className="border-0 shadow-sm">
-                <Card.Body className="p-3">
-                  <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h6 className="fw-bold mb-0">
-                      <FaFire className="me-2 text-danger" />
-                      More Stories
-                    </h6>
-                    <Badge bg="light" text="dark" className="fw-normal">
-                      {relatedPosts.length} posts
-                    </Badge>
-                  </div>
-                  <div className="vstack gap-3">
-                    {relatedPosts.map((post, i) => (
-                      <div
-                        key={post._id}
-                        ref={i === relatedPosts.length - 1 ? lastPostRef : null}
-                      >
-                        <MiniCard post={post} compact />
-                      </div>
-                    ))}
-                  </div>
-                  {loadingRelated && (
-                    <div className="text-center py-3">
-                      <Spinner animation="border" size="sm" variant="primary" />
-                      <span className="ms-2 text-muted">Loading more...</span>
-                    </div>
-                  )}
-                  {!hasMore && relatedPosts.length > 0 && (
-                    <div className="text-center text-muted small mt-3 py-2">
-                      You've seen all related posts
-                    </div>
-                  )}
-                  {!loadingRelated && relatedPosts.length === 0 && (
-                    <div className="text-center text-muted py-4">
-                      No related posts found
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            </div>
-          </Col>
+        <div className="row g-3">
+          {posts.map((post, index) => {
+            const isLast = index === posts.length - 1;
+
+            return (
+              <div
+                className="col-md-6 col-lg-4"
+                key={post._id}
+                ref={isLast ? lastPostRef : null}
+              >
+                <MiniCard
+                  post={post}
+                  showCloseButton
+                  onRemove={handleRemovePost}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        {loading && (
+          <div className="text-center py-4">
+            <div className="spinner-border" />
+          </div>
+        )}
+
+        {!hasMore && (
+          <div className="text-center py-4 text-muted">
+            No more stories to load
+          </div>
+        )}
+      </div>
+
+
+
         </Row>
 
         {/* Floating Actions */}
-        <FloatingActions
+        {/* <FloatingActions
           postId={post._id}
           onCommentClick={scrollToComments}
           onShare={sharePost}
           onSave={handleSave}
           isSaved={isSaved}
-        />
+        /> */}
       </Container>
     </Layout>
+
+
   );
 }
 
