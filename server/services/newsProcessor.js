@@ -122,7 +122,7 @@
 import { main } from "../config/gemini.js";
 import { fetchKotaNews } from "./newsFetcher.js";
 import { isDuplicate, savePost } from "../services/postServices.js";
-import Category from "../models/categoryModel.js";
+import Category from "../models/categorymodel.js";
 import User from "../models/usermodel.js";
 import { uploadImageToImageKit } from "../utils/imagekUploadNews.js"; // You'll need to create this
 import { generateSlug } from '../utils/slugify.js'; // You'll need to create this
