@@ -2280,37 +2280,688 @@ const CommentItem = ({ comment }) => {
 };
 
 /* ================= MAIN COMPONENT - REFACTORED ================= */
+// export default function BlogDetail() {
+//   const { slug } = useParams();
+//   const [auth] = useAuth();
+
+//   // Core states
+//   const [post, setPost] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [comments, setComments] = useState([]);
+//   const [commentText, setCommentText] = useState("");
+//   const [postingComment, setPostingComment] = useState(false);
+//   const [relatedPosts, setRelatedPosts] = useState([]);
+//   const [smartFeedPosts, setSmartFeedPosts] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(true);
+//   const [loadingRelated, setLoadingRelated] = useState(false);
+//   const [suggestedUsers, setSuggestedUsers] = useState([]);
+//   const [following, setFollowing] = useState({});
+//   const [followLoading, setFollowLoading] = useState({});
+//   const [categories, setCategories] = useState([]);
+//   const [selectedLocation, setSelectedLocation] = useState("area");
+//   const [isSaved, setIsSaved] = useState(false);
+//     // const [posts, setPosts] = useState([]);
+// const [postLoading, setPostLoading] = useState(true);
+// const [feedLoading, setFeedLoading] = useState(false);
+
+//     const [posts, setPosts] = useState([]);
+
+  
+//     // const observer = useRef(null);
+  
+
+//   // Refs
+//   const commentInputRef = useRef(null);
+//   const commentsRef = useRef(null);
+//   const observer = useRef(null);
+  
+//   // Custom hooks
+//   const { scrollProgress, showProgressBar } = useScrollProgress();
+
+
+//   /* ================= FETCH POST ================= */
+//   useEffect(() => {
+//     const fetchPost = async () => {
+//       setPostLoading(true);
+//       try {
+//         const { data } = await API.get(`/post/get-post/${slug}`);
+//         if (data?.success) {
+//           setPost(data.post);
+//         }
+//       } catch {
+//         toast.error("Failed to load post");
+//       } finally {
+//         setPostLoading(false);
+//       }
+//     };
+//     fetchPost();
+//   }, [slug]);
+
+//   /* ================= FIXED COMMENT HANDLING ================= */
+//   const fetchComments = useCallback(async () => {
+//     if (!post?.slug) return;
+
+//     try {
+//       // Using the exact endpoint from your code
+//       const { data } = await API.get(`/comment/posts/${post.slug}/comments`);
+      
+//       // CRITICAL FIX: Handle different response structures
+//       const commentsArray = data?.comments || data?.items || [];
+      
+//       if (Array.isArray(commentsArray)) {
+//         setComments(commentsArray);
+//       } else {
+//         console.warn("Unexpected comments format:", data);
+//         setComments([]);
+//       }
+//     } catch (err) {
+//       console.error("Failed to fetch comments:", err);
+//       setComments([]); // Ensure it's always an array
+//     }
+//   }, [post?.slug]);
+
+//   useEffect(() => {
+//     fetchComments();
+//   }, [fetchComments]);
+
+//   const submitComment = async (e) => {
+//     e.preventDefault();
+
+//     if (!auth?.user) {
+//       toast.error("Login to comment");
+//       return;
+//     }
+
+//     if (!commentText.trim()) return;
+
+//     setPostingComment(true);
+
+//     try {
+//       const { data } = await API.post(
+//         `/comment/posts/${post.slug}/comments`,
+//         { content: commentText.trim() }
+//       );
+
+//       if (data?.success) {
+//         setCommentText("");
+//         // CRITICAL FIX: Always ensure we're working with arrays
+//         const newComment = data.comment || data;
+//         setComments(prev => [newComment, ...prev]);
+//         toast.success("Comment added");
+        
+//         // Focus back on input for better UX
+//         if (commentInputRef.current) {
+//           commentInputRef.current.focus();
+//         }
+//       }
+//     } catch (err) {
+//       toast.error("Failed to post comment");
+//     } finally {
+//       setPostingComment(false);
+//     }
+//   };
+
+//   /* ================= RELATED & SUGGESTED POSTS ================= */
+//   const fetchPosts = async () => {
+//     if (loading || !hasMore) return;
+
+//     try {
+//       setFeedLoading(true);
+
+//       const { data } = await API.get(
+//         `/post/get-posts?status=approved&page=${page}&limit=${10}`
+//       );
+
+//       if (!data?.posts || data.posts.length === 0) {
+//         setHasMore(false);
+//         return;
+//       }
+
+//       setPosts(prev => [...prev, ...data.posts]);
+//       setPage(prev => prev + 1);
+//     } catch (err) {
+//       console.error("Fetch error:", err);
+//     } finally {
+//       setFeedLoading(false);
+//     }
+//   };
+
+//   // 🔁 Initial fetch
+//   useEffect(() => {
+//     fetchPosts();
+//   }, []);
+
+//   // 👀 Observer (FIXED)
+//   const lastPostRef = useCallback(
+//     node => {
+//       if (loading || !hasMore) return;
+
+//       if (observer.current) observer.current.disconnect();
+
+//       observer.current = new IntersectionObserver(
+//         entries => {
+//           if (entries[0].isIntersecting) {
+//             fetchPosts(); // 🔥 DIRECT fetch
+//           }
+//         },
+//         {
+//           root: null,
+//           rootMargin: "200px", // 🔑 LOAD EARLY
+//           threshold: 0,
+//         }
+//       );
+
+//       if (node) observer.current.observe(node);
+//     },
+//     [feedLoading, hasMore]
+//   );
+
+//   const handleRemovePost = (postId) => {
+//     setPosts(prev => prev.filter(p => p._id !== postId));
+//   };
+
+
+//   /* ================= SUGGESTED USERS ================= */
+//   useEffect(() => {
+//     if (!auth?.user) return;
+//     API.get(`/user/suggested?limit=${SUGGESTED_USERS_LIMIT}`).then(({ data }) => {
+//       if (data?.success) {
+//         setSuggestedUsers(data.users);
+//         const map = {};
+//         data.users.forEach((u) => {
+//           map[u._id] = u.followers?.includes(auth.user._id);
+//         });
+//         setFollowing(map);
+//       }
+//     });
+//   }, [auth]);
+
+//   const toggleFollow = async (userId) => {
+//     if (!auth?.user) {
+//       toast.error("Login to follow");
+//       return;
+//     }
+
+//     if (followLoading[userId]) return;
+//     const isFollowing = !!following[userId];
+
+//     try {
+//       setFollowLoading((prev) => ({ ...prev, [userId]: true }));
+
+//       if (isFollowing) {
+//         await API.post(`/user/${userId}/unfollow`);
+//       } else {
+//         await API.post(`/user/${userId}/follow`);
+//       }
+
+//       setFollowing((prev) => ({
+//         ...prev,
+//         [userId]: !isFollowing,
+//       }));
+
+//       toast.success(isFollowing ? "Unfollowed" : "Following");
+//     } catch (err) {
+//       toast.error("Failed to update follow status");
+//     } finally {
+//       setFollowLoading((prev) => ({ ...prev, [userId]: false }));
+//     }
+//   };
+
+//   /* ================= ENGAGEMENT HANDLERS ================= */
+//   const sharePost = () => {
+//     const url = window.location.href;
+//     if (navigator.share) {
+//       navigator.share({ title: post.title, url });
+//     } else {
+//       navigator.clipboard.writeText(url);
+//       toast.success("Link copied");
+//     }
+//   };
+
+//   const handleSave = async () => {
+//     if (!auth?.user) {
+//       toast.error("Login to save articles");
+//       return;
+//     }
+
+//     try {
+//       if (isSaved) {
+//         await API.delete(`/post/${post._id}/save`);
+//         toast.success("Removed from saved");
+//       } else {
+//         await API.post(`/post/${post._id}/save`);
+//         toast.success("Saved for later");
+//       }
+//       setIsSaved(!isSaved);
+//     } catch (error) {
+//       toast.error("Failed to update save status");
+//     }
+//   };
+
+//   const scrollToComments = () => {
+//     setTimeout(() => {
+//       commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//     }, 100);
+//   };
+
+//   const handleLoadMore = () => {
+//     if (!loadingRelated && hasMore) {
+//       const nextPage = page + 1;
+//       setPage(nextPage);
+//       fetchRelatedPosts(nextPage);
+//     }
+//   };
+
+//   // Format date smartly
+//   const formatDate = (dateString) => {
+//     try {
+//       const date = new Date(dateString);
+//       const now = new Date();
+//       const diffMs = now - date;
+//       const diffMins = Math.floor(diffMs / (1000 * 60));
+//       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+//       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      
+//       if (diffMins < 1) return 'अभी';
+//       if (diffMins < 60) return `${diffMins} मिनट पहले`;
+//       if (diffHours < 24) return `${diffHours} घंटे पहले`;
+//       if (diffDays < 7) return `${diffDays} दिन पहले`;
+      
+//       return date.toLocaleDateString('hi-IN', { 
+//         day: 'numeric',
+//         month: 'short',
+//         year: diffDays > 30 ? 'numeric' : undefined
+//       });
+//     } catch {
+//       return timeago.format(dateString);
+//     }
+//   };
+
+
+//   /* ================= LOADING STATE ================= */
+//   if (loading) {
+//     return (
+//       <Layout title="Loading...">
+//         <Container className="py-5">
+//           <Placeholder as="div" animation="wave">
+//             <Placeholder xs={12} className="mb-4" style={{ height: '40px' }} />
+//             <Placeholder xs={12} md={8} className="mb-4" style={{ height: '300px' }} />
+//             <Row>
+//               <Col md={8}>
+//                 <Placeholder xs={12} style={{ height: '200px' }} />
+//               </Col>
+//               <Col md={4}>
+//                 <Placeholder xs={12} style={{ height: '400px' }} />
+//               </Col>
+//             </Row>
+//           </Placeholder>
+//         </Container>
+//       </Layout>
+//     );
+//   }
+
+//   if (!post) {
+//     return (
+//       <Layout title="Not Found">
+//         <Container className="py-5 text-center">
+//           <h3 className="fw-bold mb-3">Post not found</h3>
+//           <p className="text-muted mb-4">This post may have been removed or doesn't exist.</p>
+//           <Button as={Link} to="/" variant="primary" className="rounded-pill px-4 py-2">
+//             Browse Trending
+//           </Button>
+//         </Container>
+//       </Layout>
+//     );
+//   }
+
+//   return (
+//     <Layout title={post.title}>
+//       {/* Reading Progress Bar */}
+//       <ReadingProgressBar progress={scrollProgress} show={showProgressBar} />
+
+//       <Container className="py-4 blog-detail-container">
+//         {/* Breadcrumb */}
+//         <nav aria-label="breadcrumb" className="mb-4">
+//           <ol className="breadcrumb bg-light rounded-pill px-3 py-2">
+//             <li className="breadcrumb-item">
+//               <Link to="/" className="text-decoration-none text-dark">
+//                 <FaArrowLeft className="me-2" />
+//                 Home
+//               </Link>
+//             </li>
+//             <li className="breadcrumb-item active text-truncate" aria-current="page">
+//               {post.title.substring(0, 30)}...
+//             </li>
+//           </ol>
+//         </nav>
+
+//         <Row className="g-4">
+//           {/* Main Content */}
+//           <Col lg={12}>
+//             {/* Article Header */}
+//             <div className="mb-4">
+//               <div className="d-flex flex-wrap gap-2 mb-3">
+//                 {post.category && (
+//                   <Badge bg="primary" pill className="px-3 py-2 fw-normal">
+//                     {post.category.name}
+//                   </Badge>
+//                 )}
+//                 <Badge bg="light" text="dark" pill className="px-3 py-2 fw-normal">
+//                   <FaMapMarkerAlt className="me-1" />
+//                   {post.location || "Nearby"}
+//                 </Badge>
+//                 <Badge bg="light" text="dark" pill className="px-3 py-2 fw-normal">
+//                   <FaClock className="me-1" />
+//                   {new Date(post.createdAt).toLocaleDateString()}
+//                 </Badge>
+//               </div>
+
+//               <h1 className="display-5 fw-bold mb-4">{post.title}</h1>
+              
+//               <div>
+
+//                 <Link
+//                   to={`/dashboard/user/profile/${post.author?._id}`}
+//                   className="text-decoration-none text-primary mb-1"
+//                 >
+//                   {post.author?.name}
+//                 </Link>
+
+
+//                 <small className="text-muted mb-1" style={{ fontSize: '10px', marginLeft: '45px' }}>
+//                   {formatDate(post.createdAt)}
+//                 </small>
+//               </div>
+
+//               {/* Author Info - Enhanced */}
+//               {/* <div className="author-card p-3 border rounded-3 mb-4 bg-light">
+//                 <div className="d-flex align-items-start gap-3">
+//                   <SafeAvatar
+//                     src={post.author?.avatar}
+//                     alt={post.author?.name}
+//                     size={56}
+//                     className="border-2 border-white shadow-sm"
+//                   />
+//                   <div className="flex-grow-1">
+//                     <div className="d-flex justify-content-between align-items-start">
+//                       <div>
+//                         <Link
+//                           to={`/dashboard/user/profile/${post.author?._id}`}
+//                           className="fw-bold text-decoration-none text-dark h5 mb-1"
+//                         >
+//                           {post.author?.name}
+//                         </Link>
+//                         <div className="text-muted small mb-2">
+//                           {new Date(post.createdAt).toDateString()}
+//                           {post.location && ` • ${post.location}`}
+//                         </div>
+//                         {post.category && (
+//                           <Badge bg="primary-subtle" text="primary" className="fw-normal">
+//                             {post.category.name}
+//                           </Badge>
+//                         )}
+//                       </div>
+//                       {post.author?._id !== auth?.user?._id && (
+//                         <Button
+//                           variant={following[post.author?._id] ? "outline-secondary" : "primary"}
+//                           size="sm"
+//                           className="rounded-pill px-3"
+//                           disabled={followLoading[post.author?._id]}
+//                           onClick={() => toggleFollow(post.author?._id)}
+//                         >
+//                           {followLoading[post.author?._id]
+//                             ? <Spinner animation="border" size="sm" />
+//                             : following[post.author?._id]
+//                             ? "Following"
+//                             : "+ Follow"}
+//                         </Button>
+//                       )}
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div> */}
+//             </div>
+
+//             {/* Hero Image */}
+//             {/* {post.image && (
+//               <div className="mb-5">
+//                 <Image
+//                   src={post.image}
+//                   alt={post.title}
+//                     onError={(e) => {
+//     e.target.onerror = null;
+//     e.target.src = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+//   }}
+//                   fluid
+//                   className="rounded-3 shadow"
+//                   style={{ 
+//                     maxHeight: '500px', 
+//                     objectFit: 'cover', 
+//                     width: '100%',
+//                     borderRadius: '16px'
+//                   }}
+//                 />
+//               </div>
+//             )} */}
+
+//             {/* Article Content */}
+//             <div className="article-content mb-5">
+//               <EditorContent content={post.content} />
+//             </div>
+
+//             {/* Engagement Bar - Enhanced */}
+//             <div className="engagement-bar d-flex flex-wrap justify-content-between align-items-center border-top border-bottom py-3 mb-5">
+//               <div className="d-flex gap-2 mb-2 mb-md-0">
+//                 <LikeButton
+//                   postId={post._id}
+//                   initialLiked={post.likes?.includes(auth?.user?._id)}
+//                   initialCount={post.likes?.length}
+//                   showCount
+//                   size="lg"
+//                 />
+//                 <Button 
+//                   variant="outline-primary" 
+//                   className="rounded-pill px-3"
+//                   onClick={scrollToComments}
+//                 >
+//                   <FaComments className="me-2" />
+//                   Comment ({comments.length})
+//                 </Button>
+//               </div>
+//               <div className="d-flex gap-2">
+
+//                 <Button 
+//                   variant="outline-primary" 
+//                   className="rounded-pill px-3"
+//                   onClick={sharePost}
+//                 >
+//                   <FaShareAlt className="me-2" />
+//                   Share
+//                 </Button>
+//               </div>
+//             </div>
+
+
+
+//             {/* Comments Section - CRITICAL FIXES */}
+//             <section ref={commentsRef} className="comments-section mt-5 pt-5 border-top">
+//               <div className="d-flex align-items-center mb-4">
+//                 <div className="bg-primary rounded-circle p-2 me-3">
+//                   <FaComments className="text-white" size={20} />
+//                 </div>
+//                 <div>
+//                   <h4 className="fw-bold mb-0">Discussion</h4>
+//                   <p className="text-muted mb-0">{comments.length} comment{comments.length !== 1 ? 's' : ''}</p>
+//                 </div>
+//               </div>
+
+//               {/* Comment Input - Enhanced */}
+//               {auth?.user ? (
+//                 <Card className="border-0 shadow-sm mb-4">
+//                   <Card.Body className="p-3">
+//                     <Form onSubmit={submitComment}>
+//                       <div className="d-flex gap-3 align-items-start">
+//                         <SafeAvatar 
+//                           src={auth.user.avatar} 
+//                           alt={auth.user.name}
+//                           size={48}
+//                         />
+//                         <div className="flex-grow-1">
+//                           <Form.Control
+//                             as="textarea"
+//                             ref={commentInputRef}
+//                             value={commentText}
+//                             onChange={(e) => setCommentText(e.target.value)}
+//                             placeholder="Share your thoughts..."
+//                             rows={3}
+//                             className="rounded-3 border-0 shadow-sm"
+//                             style={{ resize: 'none' }}
+//                           />
+//                           <div className="d-flex justify-content-between align-items-center mt-2">
+//                             <div className="small text-muted">
+//                               Press Enter to submit
+//                             </div>
+//                             <Button
+//                               type="submit"
+//                               variant="primary"
+//                               size="sm"
+//                               className="rounded-pill px-4"
+//                               disabled={postingComment || !commentText.trim()}
+//                             >
+//                               {postingComment ? (
+//                                 <>
+//                                   <Spinner animation="border" size="sm" className="me-2" />
+//                                   Posting...
+//                                 </>
+//                               ) : (
+//                                 <>
+//                                   <FaPaperPlane className="me-2" />
+//                                   Post Comment
+//                                 </>
+//                               )}
+//                             </Button>
+//                           </div>
+//                         </div>
+//                       </div>
+//                     </Form>
+//                   </Card.Body>
+//                 </Card>
+//               ) : (
+//                 <Card className="border-0 shadow-sm mb-4">
+//                   <Card.Body className="text-center p-4">
+//                     <FaRegComment size={32} className="text-muted mb-3" />
+//                     <p className="text-muted mb-2">
+//                       <Link to="/login" className="text-decoration-none fw-bold">Login</Link> to join the discussion
+//                     </p>
+//                   </Card.Body>
+//                 </Card>
+//               )}
+
+//               {/* Comments List - CRITICAL FIX: Always render array */}
+//               <div className="comments-list">
+//                 {Array.isArray(comments) && comments.length > 0 ? (
+//                   <div className="vstack gap-3">
+//                     {comments.map((comment) => (
+//                       <CommentItem 
+//                         key={comment._id || comment.id || Math.random()}
+//                         comment={comment}
+//                       />
+//                     ))}
+//                   </div>
+//                 ) : (
+//                   <Card className="border-0 shadow-sm">
+//                     <Card.Body className="text-center p-5">
+//                       <FaRegComment size={48} className="text-muted mb-3 opacity-50" />
+//                       <h5 className="fw-bold mb-2">No comments yet</h5>
+//                       <p className="text-muted mb-0">Be the first to share your thoughts!</p>
+//                     </Card.Body>
+//                   </Card>
+//                 )}
+//               </div>
+//             </section>
+//           </Col>
+//           {/* Sidebar - Enhanced */}
+
+
+//       <div className="container py-4">
+//         <div className="mb-4">
+//           <h1 className="fw-bold">Explore Kota District</h1>
+//           <p className="text-muted">All posts from every city</p>
+//         </div>
+
+//         <div className="row g-3">
+//           {posts.map((post, index) => {
+//             const isLast = index === posts.length - 1;
+
+//             return (
+//               <div
+//                 className="col-md-6 col-lg-4"
+//                 key={post._id}
+//                 ref={isLast ? lastPostRef : null}
+//               >
+//                 <MiniCard
+//                   post={post}
+//                   showCloseButton
+//                   onRemove={handleRemovePost}
+//                 />
+//               </div>
+//             );
+//           })}
+//         </div>
+
+//         {loading && (
+//           <div className="text-center py-4">
+//             <div className="spinner-border" />
+//           </div>
+//         )}
+
+//         {!hasMore && (
+//           <div className="text-center py-4 text-muted">
+//             No more stories to load
+//           </div>
+//         )}
+//       </div>
+
+
+
+//         </Row>
+
+//         {/* Floating Actions */}
+//         {/* <FloatingActions
+//           postId={post._id}
+//           onCommentClick={scrollToComments}
+//           onShare={sharePost}
+//           onSave={handleSave}
+//           isSaved={isSaved}
+//         /> */}
+//       </Container>
+//     </Layout>
+
+
+//   );
+// }
+
+
 export default function BlogDetail() {
   const { slug } = useParams();
   const [auth] = useAuth();
 
   // Core states
   const [post, setPost] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [postLoading, setPostLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [postingComment, setPostingComment] = useState(false);
-  const [relatedPosts, setRelatedPosts] = useState([]);
-  const [smartFeedPosts, setSmartFeedPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [feedLoading, setFeedLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [loadingRelated, setLoadingRelated] = useState(false);
   const [suggestedUsers, setSuggestedUsers] = useState([]);
   const [following, setFollowing] = useState({});
   const [followLoading, setFollowLoading] = useState({});
-  const [categories, setCategories] = useState([]);
-  const [selectedLocation, setSelectedLocation] = useState("area");
   const [isSaved, setIsSaved] = useState(false);
-    // const [posts, setPosts] = useState([]);
-const [postLoading, setPostLoading] = useState(true);
-const [feedLoading, setFeedLoading] = useState(false);
-
-    const [posts, setPosts] = useState([]);
-
   
-    // const observer = useRef(null);
-  
-
   // Refs
   const commentInputRef = useRef(null);
   const commentsRef = useRef(null);
@@ -2318,7 +2969,6 @@ const [feedLoading, setFeedLoading] = useState(false);
   
   // Custom hooks
   const { scrollProgress, showProgressBar } = useScrollProgress();
-
 
   /* ================= FETCH POST ================= */
   useEffect(() => {
@@ -2338,26 +2988,22 @@ const [feedLoading, setFeedLoading] = useState(false);
     fetchPost();
   }, [slug]);
 
-  /* ================= FIXED COMMENT HANDLING ================= */
+  /* ================= FETCH COMMENTS ================= */
   const fetchComments = useCallback(async () => {
     if (!post?.slug) return;
 
     try {
-      // Using the exact endpoint from your code
       const { data } = await API.get(`/comment/posts/${post.slug}/comments`);
-      
-      // CRITICAL FIX: Handle different response structures
       const commentsArray = data?.comments || data?.items || [];
       
       if (Array.isArray(commentsArray)) {
         setComments(commentsArray);
       } else {
-        console.warn("Unexpected comments format:", data);
         setComments([]);
       }
     } catch (err) {
       console.error("Failed to fetch comments:", err);
-      setComments([]); // Ensure it's always an array
+      setComments([]);
     }
   }, [post?.slug]);
 
@@ -2365,6 +3011,7 @@ const [feedLoading, setFeedLoading] = useState(false);
     fetchComments();
   }, [fetchComments]);
 
+  /* ================= SUBMIT COMMENT ================= */
   const submitComment = async (e) => {
     e.preventDefault();
 
@@ -2385,12 +3032,10 @@ const [feedLoading, setFeedLoading] = useState(false);
 
       if (data?.success) {
         setCommentText("");
-        // CRITICAL FIX: Always ensure we're working with arrays
         const newComment = data.comment || data;
         setComments(prev => [newComment, ...prev]);
         toast.success("Comment added");
         
-        // Focus back on input for better UX
         if (commentInputRef.current) {
           commentInputRef.current.focus();
         }
@@ -2402,15 +3047,14 @@ const [feedLoading, setFeedLoading] = useState(false);
     }
   };
 
-  /* ================= RELATED & SUGGESTED POSTS ================= */
-  const fetchPosts = async () => {
-    if (loading || !hasMore) return;
+  /* ================= FETCH KOTA DISTRICT POSTS ================= */
+  const fetchKotaPosts = async () => {
+    if (feedLoading || !hasMore) return;
 
     try {
       setFeedLoading(true);
-
       const { data } = await API.get(
-        `/post/get-posts?status=approved&page=${page}&limit=${10}`
+        `/post/get-posts?status=approved&location=kota&page=${page}&limit=9`
       );
 
       if (!data?.posts || data.posts.length === 0) {
@@ -2427,27 +3071,27 @@ const [feedLoading, setFeedLoading] = useState(false);
     }
   };
 
-  // 🔁 Initial fetch
+  // Initial fetch for Kota posts
   useEffect(() => {
-    fetchPosts();
+    fetchKotaPosts();
   }, []);
 
-  // 👀 Observer (FIXED)
+  // Intersection Observer for infinite scroll
   const lastPostRef = useCallback(
     node => {
-      if (loading || !hasMore) return;
+      if (feedLoading || !hasMore) return;
 
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver(
         entries => {
           if (entries[0].isIntersecting) {
-            fetchPosts(); // 🔥 DIRECT fetch
+            fetchKotaPosts();
           }
         },
         {
           root: null,
-          rootMargin: "200px", // 🔑 LOAD EARLY
+          rootMargin: "200px",
           threshold: 0,
         }
       );
@@ -2457,14 +3101,10 @@ const [feedLoading, setFeedLoading] = useState(false);
     [feedLoading, hasMore]
   );
 
-  const handleRemovePost = (postId) => {
-    setPosts(prev => prev.filter(p => p._id !== postId));
-  };
-
-
   /* ================= SUGGESTED USERS ================= */
   useEffect(() => {
     if (!auth?.user) return;
+    const SUGGESTED_USERS_LIMIT = 5;
     API.get(`/user/suggested?limit=${SUGGESTED_USERS_LIMIT}`).then(({ data }) => {
       if (data?.success) {
         setSuggestedUsers(data.users);
@@ -2477,6 +3117,7 @@ const [feedLoading, setFeedLoading] = useState(false);
     });
   }, [auth]);
 
+  /* ================= FOLLOW USER ================= */
   const toggleFollow = async (userId) => {
     if (!auth?.user) {
       toast.error("Login to follow");
@@ -2545,15 +3186,11 @@ const [feedLoading, setFeedLoading] = useState(false);
     }, 100);
   };
 
-  const handleLoadMore = () => {
-    if (!loadingRelated && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchRelatedPosts(nextPage);
-    }
+  const handleRemovePost = (postId) => {
+    setPosts(prev => prev.filter(p => p._id !== postId));
   };
 
-  // Format date smartly
+  // Format date
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
@@ -2574,13 +3211,12 @@ const [feedLoading, setFeedLoading] = useState(false);
         year: diffDays > 30 ? 'numeric' : undefined
       });
     } catch {
-      return timeago.format(dateString);
+      return new Date(dateString).toLocaleDateString();
     }
   };
 
-
   /* ================= LOADING STATE ================= */
-  if (loading) {
+  if (postLoading) {
     return (
       <Layout title="Loading...">
         <Container className="py-5">
@@ -2660,79 +3296,28 @@ const [feedLoading, setFeedLoading] = useState(false);
               <h1 className="display-5 fw-bold mb-4">{post.title}</h1>
               
               <div>
-
                 <Link
                   to={`/dashboard/user/profile/${post.author?._id}`}
                   className="text-decoration-none text-primary mb-1"
                 >
                   {post.author?.name}
                 </Link>
-
-
                 <small className="text-muted mb-1" style={{ fontSize: '10px', marginLeft: '45px' }}>
                   {formatDate(post.createdAt)}
                 </small>
               </div>
-
-              {/* Author Info - Enhanced */}
-              {/* <div className="author-card p-3 border rounded-3 mb-4 bg-light">
-                <div className="d-flex align-items-start gap-3">
-                  <SafeAvatar
-                    src={post.author?.avatar}
-                    alt={post.author?.name}
-                    size={56}
-                    className="border-2 border-white shadow-sm"
-                  />
-                  <div className="flex-grow-1">
-                    <div className="d-flex justify-content-between align-items-start">
-                      <div>
-                        <Link
-                          to={`/dashboard/user/profile/${post.author?._id}`}
-                          className="fw-bold text-decoration-none text-dark h5 mb-1"
-                        >
-                          {post.author?.name}
-                        </Link>
-                        <div className="text-muted small mb-2">
-                          {new Date(post.createdAt).toDateString()}
-                          {post.location && ` • ${post.location}`}
-                        </div>
-                        {post.category && (
-                          <Badge bg="primary-subtle" text="primary" className="fw-normal">
-                            {post.category.name}
-                          </Badge>
-                        )}
-                      </div>
-                      {post.author?._id !== auth?.user?._id && (
-                        <Button
-                          variant={following[post.author?._id] ? "outline-secondary" : "primary"}
-                          size="sm"
-                          className="rounded-pill px-3"
-                          disabled={followLoading[post.author?._id]}
-                          onClick={() => toggleFollow(post.author?._id)}
-                        >
-                          {followLoading[post.author?._id]
-                            ? <Spinner animation="border" size="sm" />
-                            : following[post.author?._id]
-                            ? "Following"
-                            : "+ Follow"}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div> */}
             </div>
 
-            {/* Hero Image */}
+            {/* Hero Image - Commented but kept */}
             {/* {post.image && (
               <div className="mb-5">
                 <Image
                   src={post.image}
                   alt={post.title}
-                    onError={(e) => {
-    e.target.onerror = null;
-    e.target.src = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
-  }}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+                  }}
                   fluid
                   className="rounded-3 shadow"
                   style={{ 
@@ -2750,7 +3335,7 @@ const [feedLoading, setFeedLoading] = useState(false);
               <EditorContent content={post.content} />
             </div>
 
-            {/* Engagement Bar - Enhanced */}
+            {/* Engagement Bar */}
             <div className="engagement-bar d-flex flex-wrap justify-content-between align-items-center border-top border-bottom py-3 mb-5">
               <div className="d-flex gap-2 mb-2 mb-md-0">
                 <LikeButton
@@ -2770,7 +3355,6 @@ const [feedLoading, setFeedLoading] = useState(false);
                 </Button>
               </div>
               <div className="d-flex gap-2">
-
                 <Button 
                   variant="outline-primary" 
                   className="rounded-pill px-3"
@@ -2782,9 +3366,7 @@ const [feedLoading, setFeedLoading] = useState(false);
               </div>
             </div>
 
-
-
-            {/* Comments Section - CRITICAL FIXES */}
+            {/* Comments Section */}
             <section ref={commentsRef} className="comments-section mt-5 pt-5 border-top">
               <div className="d-flex align-items-center mb-4">
                 <div className="bg-primary rounded-circle p-2 me-3">
@@ -2796,7 +3378,7 @@ const [feedLoading, setFeedLoading] = useState(false);
                 </div>
               </div>
 
-              {/* Comment Input - Enhanced */}
+              {/* Comment Input */}
               {auth?.user ? (
                 <Card className="border-0 shadow-sm mb-4">
                   <Card.Body className="p-3">
@@ -2858,7 +3440,7 @@ const [feedLoading, setFeedLoading] = useState(false);
                 </Card>
               )}
 
-              {/* Comments List - CRITICAL FIX: Always render array */}
+              {/* Comments List */}
               <div className="comments-list">
                 {Array.isArray(comments) && comments.length > 0 ? (
                   <div className="vstack gap-3">
@@ -2881,67 +3463,56 @@ const [feedLoading, setFeedLoading] = useState(false);
               </div>
             </section>
           </Col>
-          {/* Sidebar - Enhanced */}
-
-
-      <div className="container py-4">
-        <div className="mb-4">
-          <h1 className="fw-bold">Explore Kota District</h1>
-          <p className="text-muted">All posts from every city</p>
-        </div>
-
-        <div className="row g-3">
-          {posts.map((post, index) => {
-            const isLast = index === posts.length - 1;
-
-            return (
-              <div
-                className="col-md-6 col-lg-4"
-                key={post._id}
-                ref={isLast ? lastPostRef : null}
-              >
-                <MiniCard
-                  post={post}
-                  showCloseButton
-                  onRemove={handleRemovePost}
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        {loading && (
-          <div className="text-center py-4">
-            <div className="spinner-border" />
-          </div>
-        )}
-
-        {!hasMore && (
-          <div className="text-center py-4 text-muted">
-            No more stories to load
-          </div>
-        )}
-      </div>
-
-
-
         </Row>
 
-        {/* Floating Actions */}
-        {/* <FloatingActions
-          postId={post._id}
-          onCommentClick={scrollToComments}
-          onShare={sharePost}
-          onSave={handleSave}
-          isSaved={isSaved}
-        /> */}
+        {/* Kota District Posts Section */}
+        <div className="container py-5 mt-4 border-top">
+          <div className="mb-4 text-center">
+            <h2 className="fw-bold">Explore Kota District</h2>
+            <p className="text-muted">Discover more stories from across Kota</p>
+          </div>
+
+          <div className="row g-4">
+            {posts.map((post, index) => {
+              const isLast = index === posts.length - 1;
+              return (
+                <div
+                  className="col-md-6 col-lg-4"
+                  key={post._id}
+                  ref={isLast ? lastPostRef : null}
+                >
+                  <MiniCard
+                    post={post}
+                    showCloseButton
+                    onRemove={handleRemovePost}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          {feedLoading && (
+            <div className="text-center py-4">
+              <div className="spinner-border text-primary" />
+            </div>
+          )}
+
+          {!hasMore && posts.length > 0 && (
+            <div className="text-center py-4">
+              <p className="text-muted">No more stories to load</p>
+            </div>
+          )}
+
+          {!feedLoading && posts.length === 0 && (
+            <div className="text-center py-5">
+              <p className="text-muted">No posts available in Kota district yet.</p>
+            </div>
+          )}
+        </div>
       </Container>
     </Layout>
-
-
   );
 }
-
 
 
 
