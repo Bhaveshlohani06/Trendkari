@@ -554,6 +554,17 @@ const Home = () => {
         ))}
       </div>
 
+
+      {/* */}
+
+<marquee onClick={() => navigate("/advertise")} style={{ cursor: "pointer" }}>
+  <p className="m-0">
+    📢 <b>
+      Own a shop in {currentCity?.label}?🚀 Get featured on Trendkari →
+    </b>
+  </p>
+</marquee>
+
       {/* SUGGESTED USERS */}
       {/* <section className="mb-5">
         <h6 className="fw-bold mb-3">स्थानीय पत्रकार</h6>

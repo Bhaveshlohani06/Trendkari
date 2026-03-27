@@ -1268,8 +1268,8 @@ const MiniCard = ({
 
   // Get author avatar
   const getAuthorAvatar = () => {
-    if (post?.author?.profilePicture) {
-      return post.author.profilePicture;
+    if (post?.author?.avatar) {
+      return post.author.avatar;
     }
     if (post?.author?.name) {
       return `https://ui-avatars.com/api/?name=${encodeURIComponent(post.author.name)}&background=random&color=fff&bold=true&font-size=0.5`;

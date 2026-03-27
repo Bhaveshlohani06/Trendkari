@@ -187,6 +187,7 @@ import {
 import EditPost from "./Components/forms/Editpost";
 import Market from "./pages/Market.jsx";
 import Emergency from "./pages/Emergency.jsx";
+import Advertise from "./pages/Advertise.jsx";
 
 // Your GA Measurement ID
 
@@ -264,6 +265,7 @@ const App = () => {
         <Route path="/horoscope" element={<DailyHoroscope />} />
           <Route path="/market" element={<Market />} />
           <Route path="/emergency" element={<Emergency />} />
+          <Route path="/advertise" element={<Advertise />} />
 
         {/* ================= AUTH ROUTES ================= */}
         <Route path="/register" element={<Register />} />
