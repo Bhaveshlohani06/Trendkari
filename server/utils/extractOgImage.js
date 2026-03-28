@@ -33,7 +33,7 @@ import * as cheerio from "cheerio";
 // };
 
 
-const extractOgImage = async (url) => {
+export const extractOgImage = async (url) => {
   try {
     const res = await axios.get(url, {
       headers: {
@@ -70,3 +70,5 @@ const extractOgImage = async (url) => {
     return null;
   }
 };
+
+export default extractOgImage;

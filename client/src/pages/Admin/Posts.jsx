@@ -308,6 +308,38 @@ const Posts = () => {
                 {post.title}
               </h4>
 
+
+              <div>
+                {/* Category & Status */}
+                <span className="text-sm text-gray-500">
+                  {post.category?.name || "Uncategorized"}
+                </span>
+                <span
+                  className={`text-sm ml-2 ${ 
+                    post.status === "published"
+                      ? "text-green-600"
+                      : post.status === "pending"
+                      ? "text-yellow-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {post.status}
+                </span>
+
+              </div>
+
+              <div>
+                {/* Image */}
+                {post.image && (
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="w-full h-48 object-cover rounded-md my-3"
+                  />
+                )}
+
+              </div>
+
               {/* Meta */}
               <div className="text-sm text-gray-500 mb-3">
                 Author: {post.author?.name || "Unknown"} •{" "}

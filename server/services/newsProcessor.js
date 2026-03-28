@@ -118,7 +118,7 @@
 // };
 
 
-
+import axios from "axios";
 import { main } from "../config/gemini.js";
 import { fetchKotaNews } from "./newsFetcher.js";
 import { isDuplicate, savePost } from "../services/postServices.js";
@@ -128,6 +128,9 @@ import { uploadImageToImageKit } from "../utils/imagekUploadNews.js"; // You'll 
 import { generateSlug } from '../utils/slugify.js'; // You'll need to create this
 import slugify from "slugify";
 import postModel from "../models/postmodel.js";
+import extractOgImage from "../utils/extractOgImage.js";
+
+
 
 
 
@@ -169,7 +172,7 @@ Return ONLY valid JSON (single line, no explanation):
 STRICT RULES:
 - Title must be based on original news (DO NOT invent new topic)
 - Keep title under 60 characters
-- Content must summarize SAME news (no new angles, no rewriting story)
+- Content must summarize SAME news with location reference (no new angles, no rewriting story)
 - Write 5–6 short lines only
 - Use simple Hindi (mix allowed)
 - Must include location reference (Kota / Sangod / Ramganjmandi etc if present)
@@ -421,30 +424,41 @@ const getAdminUserId = async () => {
 
 
 
+// const fetchRealImage = async (query) => {
+//   if (query.includes("exam") || query.includes("result")) {
+//     return "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+//   }
 
+//   if (query.includes("accident") || query.includes("crime")) {
+//     return "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+//   }
 
-const isValidImageUrl = (url) => {
-  if (!url) return false;
-
-  return (
-    url.startsWith("http") &&
-    !url.includes("google.com/url") &&
-    !url.includes("news.google.com") &&
-    !url.includes("base64") &&
-    (url.match(/\.(jpg|jpeg|png|webp)/i) || url.includes("image"))
-  );
-};
+//   return "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+// };
 
 const fetchRealImage = async (query) => {
-  if (query.includes("exam") || query.includes("result")) {
-    return "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
-  }
+  try {
+    const res = await axios.get(
+      "https://api.pexels.com/v1/search",
+      {
+        params: {
+          query,
+          per_page: 1,
+        },
+        headers: {
+          Authorization: "BiQZXrIJNgrkG4ZTvb5weLMZIGoFlY1n4KvN722qNdqLWgXl9VmoTiqu",
+        },
+      }
+    );
 
-  if (query.includes("accident") || query.includes("crime")) {
-    return "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
-  }
+    const image = res.data?.photos?.[0]?.src?.large;
 
-  return "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+    return image || null;
+
+  } catch (err) {
+    console.log("❌ Pexels error:", err.message);
+    return null;
+  }
 };
 
 const hasMeaningfulContent = (content) => {
@@ -462,21 +476,7 @@ const withTimeout = (promise, ms = 5000) => {
   ]);
 };
 
-const extractRealUrlFromGoogle = async (url) => {
-  try {
-    const res = await axios.get(url, {
-      maxRedirects: 5,
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-      },
-    });
 
-    return res.request?.res?.responseUrl || url;
-
-  } catch {
-    return url;
-  }
-};
 
 
 
@@ -614,68 +614,16 @@ const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/ChatGPT%20Image%20Mar%2
 // const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
 
 
-let finalImage = FALLBACK_IMAGE;
+// let finalImage = FALLBACK_IMAGE;
 
-console.log("🖼️ Using fallback image");
+// console.log("🖼️ Using fallback image");
 
 
 // let imageUrl = news.imageUrl;
 let ogImage = null;
 
-// // Step 0: Get real URL if Google News
-// let realLink = news.link;
-// if (news.link.includes("news.google.com")) {
-//   realLink = await extractRealUrlFromGoogle(news.link);
-// }
 
-// // Step 1: Try OG image (only safe sources)
-// // if (
-// //   realLink &&
-// //   !news.source.toLowerCase().includes("bhaskar") &&
-// //   !news.source.toLowerCase().includes("patrika")
-// // ) {
-// //   try {
-// //     ogImage = await withTimeout(
-// //       extractOgImage(realLink),
-// //       5000
-// //     );
-// //   } catch {}
-// // }
-
-// // // Step 2: Prefer OG
-// // if (ogImage) {
-// //   console.log("✅ OG image found");
-// //   imageUrl = ogImage;
-// // }
-
-// // Step 3: Force fallback for junk images
-// if (
-//   !isValidImageUrl(imageUrl) ||
-//   imageUrl.includes("trendkari") ||
-//   imageUrl.includes("default")
-// ) {
-//   console.log("⚠️ Using fallback image");
-//   imageUrl = await fetchRealImage(aiData.title);
-// }
-
-// // Step 4: Upload only external images
-// let finalImage = imageUrl;
-
-// if (!imageUrl.includes("ik.imagekit.io")) {
-//   try {
-//     const uploaded = await uploadImageToImageKit(imageUrl);
-//     if (uploaded?.url) {
-//       finalImage = uploaded.url;
-//       console.log("✅ Uploaded");
-//     }
-//   } catch {
-//     finalImage = await fetchRealImage(aiData.title);
-//   }
-// } else {
-//   console.log("⚠️ Already hosted, skipping upload");
-// }
-
-// const finalImage = await getFinalImage(news, aiData);
+const finalImage = await getFinalImage(news, aiData);
 
 
 
@@ -734,59 +682,211 @@ Errors: ${errors}
 
 
 
-const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
 
-const getFinalImage = async (news, aiData) => {
-  let imageUrl = null;
 
-  // ================= STEP 1: CLEAN RSS IMAGE =================
-  if (
-    news.imageUrl &&
-    isValidImageUrl(news.imageUrl) &&
-    !news.imageUrl.includes("trendkari") &&
-    !news.imageUrl.includes("default")
-  ) {
-    console.log("✅ Using RSS image");
-    imageUrl = news.imageUrl;
+const FALLBACK_IMAGE =
+  "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+
+
+  const isBadSourceImage = (url) => {
+  return (
+    url.includes("googleusercontent.com") ||
+    url.includes("gstatic.com") ||
+    url.includes("ytimg.com")
+  );
+};
+
+const isGoodImage = (url) => {
+  if (!url) return false;
+
+  const badPatterns = [
+    "logo",
+    "icon",
+    "default",
+    "placeholder",
+    "sprite",
+    "ads",
+    "base64",
+  ];
+
+  return (
+    url.startsWith("http") &&
+    !url.includes("news.google.com") &&
+    !badPatterns.some((p) => url.toLowerCase().includes(p))
+  );
+};
+
+
+
+
+const resolveUrl = async (url) => {
+  if (!url.includes("news.google.com")) return url;
+
+  try {
+    const { data } = await axios.get(url, {
+      timeout: 5000,
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
+
+    const $ = cheerio.load(data);
+
+    // 🔥 Get actual article link
+    const realLink = $("a[href^='http']")
+      .map((i, el) => $(el).attr("href"))
+      .get()
+      .find((link) => !link.includes("google.com"));
+
+    return realLink || url;
+
+  } catch {
+    return url;
+  }
+};
+
+
+  const getFinalImage = async (news, aiData) => {
+  let image = null;
+
+  // STEP 1: Resolve real article URL
+  const articleUrl = await resolveUrl(news.link);
+
+  // STEP 2: Try RSS image
+  if (isGoodImage(news.imageUrl)) {
+    console.log("✅ RSS image");
+    image = news.imageUrl;
   }
 
-  // ================= STEP 2: TRY OG IMAGE =================
-  if (!imageUrl && news.link && !news.link.includes("news.google.com")) {
+  // STEP 3: Try OG image
+  if (!image && articleUrl) {
     try {
-      const og = await withTimeout(extractOgImage(news.link), 4000);
+      const og = await extractOgImage(articleUrl);
 
-      if (og && isValidImageUrl(og)) {
-        console.log("✅ Using OG image");
-        imageUrl = og;
+    //   if (isGoodImage(og)) {
+    //     console.log("✅ OG image");
+    //     image = og;
+    //   }
+    // } catch {
+    //   console.log("⚠️ OG failed");
+    // }
+
+      if (isGoodImage(og) && !isBadSourceImage(og)) {
+        console.log("✅ OG image (valid)");
+        image = og;
       }
-    } catch (err) {
-      console.log("⚠️ OG failed");
+    } catch {
+      console.log("⚠️ OG failed low quality or blocked source");
     }
   }
 
-  // ================= STEP 3: FORCE FALLBACK =================
-  if (!imageUrl) {
-    console.log("⚠️ Using fallback image");
-    imageUrl = FALLBACK_IMAGE;
+  // STEP 4: Try search-based image (YOUR EXISTING FUNCTION)
+  if (!image) {
+    try {
+      const query = aiData?.title || news.title;
+      const searched = await fetchRealImage(query);
+
+      if (isGoodImage(searched)) {
+        console.log("🔥 Search image");
+        image = searched;
+      }
+
+      console.log("🔍 Search Debug:", {
+  query,
+  searched,
+  valid: isGoodImage(searched),
+});
+
+    } catch {
+      console.log("⚠️ Search failed");
+    }
   }
 
-  // ================= STEP 4: UPLOAD (ONLY REAL IMAGES) =================
-  let finalImage = imageUrl;
+  // STEP 5: Fallback
+  if (!image) {
+    console.log("⚠️ Fallback");
+    image = FALLBACK_IMAGE;
+  }
 
-  if (!imageUrl.includes("ik.imagekit.io")) {
+
+  console.log({
+  rss: news.imageUrl,
+  resolved: articleUrl,
+  final: image,
+});
+
+  // STEP 6: Upload once (final step only)
+  if (!image.includes("ik.imagekit.io")) {
     try {
-      const uploaded = await uploadImageToImageKit(imageUrl);
+      const uploaded = await uploadImageToImageKit(image);
 
       if (uploaded?.url) {
-        finalImage = uploaded.url;
-        console.log("✅ Uploaded to ImageKit");
-      }
-    } catch (err) {
-      console.log("⚠️ Upload failed, keeping original");
+        console.log("✅ Uploaded");
+        return uploaded.url;
+      } 
+    } catch {
+      console.log("⚠️ Upload failed");
     }
-  } else {
-    console.log("⚠️ Already hosted");
   }
 
-  return finalImage;
-};
+  return image;
+};  
+
+
+
+
+
+
+
+
+
+// // Step 0: Get real URL if Google News
+// let realLink = news.link;
+// if (news.link.includes("news.google.com")) {
+//   realLink = await extractRealUrlFromGoogle(news.link);
+// }
+
+// // Step 1: Try OG image (only safe sources)
+// // if (
+// //   realLink &&
+// //   !news.source.toLowerCase().includes("bhaskar") &&
+// //   !news.source.toLowerCase().includes("patrika")
+// // ) {
+// //   try {
+// //     ogImage = await withTimeout(
+// //       extractOgImage(realLink),
+// //       5000
+// //     );
+// //   } catch {}
+// // }
+
+// // // Step 2: Prefer OG
+// // if (ogImage) {
+// //   console.log("✅ OG image found");
+// //   imageUrl = ogImage;
+// // }
+
+// // Step 3: Force fallback for junk images
+// if (
+//   !isValidImageUrl(imageUrl) ||
+//   imageUrl.includes("trendkari") ||
+//   imageUrl.includes("default")
+// ) {
+//   console.log("⚠️ Using fallback image");
+//   imageUrl = await fetchRealImage(aiData.title);
+// }
+
+// // Step 4: Upload only external images
+// let finalImage = imageUrl;
+
+// if (!imageUrl.includes("ik.imagekit.io")) {
+//   try {
+//     const uploaded = await uploadImageToImageKit(imageUrl);
+//     if (uploaded?.url) {
+//       finalImage = uploaded.url;
+//       console.log("✅ Uploaded");
+//     }
+//   } catch {
+//     finalImage = await fetchRealImage(aiData.title);
+//   }
+// } else {
+//   console.log("⚠️ Already hosted, skipping upload");
+// }

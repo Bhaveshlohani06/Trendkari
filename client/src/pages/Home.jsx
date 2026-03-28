@@ -388,6 +388,7 @@ import MiniCard from "../Components/MiniCard.jsx";
 import { useLocation } from "../context/LocationContext.jsx";
 import { BsBuilding } from "react-icons/bs";
 import { FaLandmark } from "react-icons/fa";
+import SwipeFeed from "../Components/SwipeFeed.jsx";
 
 const CITIES = [
   { label: "कोटा", value: "kota" },
@@ -517,7 +518,7 @@ const Home = () => {
     <Layout title="Trendkari | Today's City News">
 
       {/* HEADER TEXT */}
-      <div className="mb-4 p-3 rounded"
+      {/* <div className="mb-4 p-3 rounded"
         style={{
           background: "var(--bg)",
           color: "var(--text)",
@@ -527,10 +528,10 @@ const Home = () => {
         <h5 className="m-0 fw-bold">
           {currentCity?.label} में आज क्या हो रहा है
         </h5>
-      </div>
+      </div> */}
 
       {/* QUICK ACTIONS */}
-      <div className="row g-3 mb-4">
+      {/* <div className="row g-3 mb-4">
         {[
           { icon: "🛒", label: "Market", path: "/market" },
           { icon: "🔮", label: "Horoscope", path: "/horoscope" },
@@ -552,18 +553,17 @@ const Home = () => {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
 
-      {/* */}
 
-<marquee onClick={() => navigate("/advertise")} style={{ cursor: "pointer" }}>
+{/* <marquee onClick={() => navigate("/advertise")} style={{ cursor: "pointer" }}>
   <p className="m-0">
     📢 <b>
       Own a shop in {currentCity?.label}?🚀 Get featured on Trendkari →
     </b>
   </p>
-</marquee>
+</marquee> */}
 
       {/* SUGGESTED USERS */}
       {/* <section className="mb-5">
@@ -619,35 +619,7 @@ const Home = () => {
       </section> */}
 
       {/* GOVERNMENT */}
-      <section className="mb-5">
-        {/* <div className="d-flex align-items-center mb-3">
-          <BsBuilding className="me-2" />
-          <h6 className="fw-bold m-0">सरकारी अपडेट</h6>
-        </div> */}
-
-        <div className="row g-3">
-          {blogs
-            .filter(p => p.category?.slug === "government")
-            .slice(0, 4)
-            .map(post => (
-              <div className="col-6 col-md-3" key={post._id}>
-                <div
-                  className="p-3 rounded shadow-sm h-100"
-                  style={{
-                    background: "var(--bg)",
-                    border: "1px solid var(--border)"
-                  }}
-                >
-                  <FaLandmark className="mb-2" />
-                  <h6>{post.title}</h6>
-                  <Link to={`/article/${post.slug}`}>
-                    पढ़ें →
-                  </Link>
-                </div>
-              </div>
-            ))}
-        </div>
-      </section>
+  
 
       {/* POSTS */}
       <section>
@@ -658,7 +630,7 @@ const Home = () => {
         <div className="row g-3">
           {blogs.map(post => (
             <div className="col-12 col-md-6" key={post._id}>
-              <MiniCard post={post} />
+              <SwipeFeed post={post} />
             </div>
           ))}
         </div>
