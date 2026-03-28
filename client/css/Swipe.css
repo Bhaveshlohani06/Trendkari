@@ -1,27 +1,36 @@
-/* 🔥 CONTAINER (NOT TOO AGGRESSIVE SNAP) */
+/* 🔥 FULL SCREEN CONTAINER */
 .feed-container {
   height: 100vh;
   overflow-y: scroll;
-  scroll-snap-type: y proximity; /* 👈 softer than mandatory */
-  background: #f5f5f5;
-   scrollbar-width: none; /* Firefox */
+
+  /* padding-bottom: 70px; */
+  scroll-snap-type: y mandatory;
+  background: #ffffff;
+
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* 🔥 CARD */
+.feed-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* 🔥 CARD (NO GAP = APP FEEL) */
 .feed-card {
-  height: 100vh;
+  width: 100%;
   scroll-snap-align: start;
+
   display: flex;
   flex-direction: column;
-  background: white;
-  margin-bottom: 10px;
+  background: #fff;
 }
 
-/* 🖼️ IMAGE */
+/* 🖼 IMAGE */
 .feed-image-wrapper {
-  height: 55%;
+  height: 50%;
   width: 100%;
   overflow: hidden;
+  background: #eee;
 }
 
 .feed-image {
@@ -32,43 +41,64 @@
 
 /* 📝 CONTENT */
 .feed-content {
-  height: 45%;
-  padding: 16px;
+  height: 42%;
+  padding: 14px 16px 80px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
 }
 
-/* TITLE */
+/* 🏷 META (TIME) */
+.feed-meta {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+/* 📰 TITLE */
 .feed-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
-  margin-bottom: 10px;
+  line-height: 1.3;
   color: #111;
+  margin-bottom: 8px;
 }
 
-/* DESCRIPTION */
+/* 📄 DESCRIPTION */
 .feed-desc {
   font-size: 14px;
   color: #444;
   line-height: 1.5;
 
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
 }
 
-/* READ MORE */
-.read-more {
-  margin-top: auto;
-  font-size: 13px;
-  color: #007bff;
-  cursor: pointer;
-}
-
-/* LOADER */
+/* 🔥 LOADER */
 .loader {
   text-align: center;
   padding: 20px;
+}
+
+
+.share-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+
+  border: none;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+  cursor: pointer;
 }

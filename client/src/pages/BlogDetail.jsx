@@ -3309,7 +3309,7 @@ export default function BlogDetail() {
             </div>
 
             {/* Hero Image - Commented but kept */}
-            {/* {post.image && (
+            {post.image && (
               <div className="mb-5">
                 <Image
                   src={post.image}
@@ -3328,7 +3328,7 @@ export default function BlogDetail() {
                   }}
                 />
               </div>
-            )} */}
+            )}
 
             {/* Article Content */}
             <div className="article-content mb-5">

@@ -131,40 +131,84 @@ const SwipeFeed = () => {
     if (node) observer.current.observe(node);
   };
 
+  const formatTimeAgo = (dateString) => {
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const diff = Math.floor((now - date) / 1000);
+
+  if (diff < 60) return "अभी";
+  if (diff < 3600) return `${Math.floor(diff / 60)} मिनट पहले`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} घंटे पहले`;
+
+  return `${Math.floor(diff / 86400)} दिन पहले`;
+};
+
+const handleShare = async (e, post) => {
+  e.stopPropagation();
+
+  const url = `https://www.trendkari.in/article/${post.slug}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: post.title,
+        text: post.title,
+        url,
+      });
+    } catch (err) {
+      console.log("Share cancelled");
+    }
+  } else {
+    await navigator.clipboard.writeText(url);
+    alert("लिंक कॉपी हो गया!");
+  }
+};
+
+
   return (
     <div className="feed-container" ref={containerRef}>
       {posts.map((post, index) => {
         const isLast = index === posts.length - 1;
 
         return (
-          <div
-            key={post._id || index}
-            ref={isLast ? lastPostRef : null}
-            className="feed-card"
-          >
-            {/* 🖼 IMAGE */}
-            <div className="feed-image-wrapper">
-              <img
-                src={
-                  post.image ||
-                  "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png"
-                }
-                alt={post.title}
-                className="feed-image"
-              />
-            </div>
+<div
+  key={post._id || index}
+  ref={isLast ? lastPostRef : null}
+  className="feed-card"
+>
+  {/* 🖼 IMAGE */}
+  <div className="feed-image-wrapper">
+    <img
+      src={post.image || "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png"}
+      alt={post.title}
+      className="feed-image"
+      loading="lazy"
+    />
+      <button
+    className="share-btn"
+    onClick={(e) => handleShare(e, post)}
+  >
+    🔗
+  </button>
+  </div>
 
-            {/* 📝 CONTENT */}
-            <div className="feed-content">
-              <h3 className="feed-title">{post.title}</h3>
+  {/* 📝 CONTENT */}
+  <div className="feed-content">
+    {/* ⏱ TIME */}
+    <span className="feed-meta">
+      {formatTimeAgo(post.createdAt)}
+    </span>
 
-              <p className="feed-desc">
-                {post.content || "No description available"}
-              </p>
+    {/* 📰 TITLE */}
+    <h3 className="feed-title">{post.title}</h3>
 
-              <span className="read-more">पूरा पढ़ें →</span>
-            </div>
-          </div>
+    {/* 📄 DESCRIPTION */}
+    <p className="feed-desc">
+      {post.content || "No description available"}
+    </p>
+  </div>
+</div>
         );
       })}
 
