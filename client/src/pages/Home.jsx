@@ -626,16 +626,7 @@ const Home = () => {
         <h6 className="fw-bold mb-3">
           {currentCity?.label} की खबरें
         </h6>
-              <div
-        className="card text-center shadow-sm h-100"
-        onClick={() => navigate("/horoscope")}
-        style={{ cursor: "pointer" }}
-      >
-        <div className="card-body p-2">
-          <div style={{ fontSize: "22px" }}>🔮</div>
-          <small className="fw-semibold">Horoscope</small>
-        </div>
-      </div>
+
 
         <div className="row g-3">
           {blogs.map(post => (
