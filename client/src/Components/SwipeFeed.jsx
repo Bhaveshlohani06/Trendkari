@@ -372,18 +372,18 @@ useEffect(() => {
 }, [slug, location]);
 
 
-// useEffect(() => {
-//   if (!initialPost) return;
+useEffect(() => {
+  if (!initialPost) return;
 
-//   setPosts((prev) => {
-//     const exists = prev.find(p => p._id === initialPost._id);
-//     if (exists) return prev;
-//     return [initialPost, ...prev];
-//   });
+  setPosts((prev) => {
+    const exists = prev.find(p => p._id === initialPost._id);
+    if (exists) return prev;
+    return [initialPost, ...prev];
+  });
 
-//   fetchPosts(1);
+  fetchPosts(1);
 
-// }, [initialPost]);
+}, [initialPost]);
 
   // 🔥 INTERSECTION OBSERVER (ONLY ONE LOADER)
   const lastPostRef = (node) => {
