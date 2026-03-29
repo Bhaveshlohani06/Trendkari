@@ -432,13 +432,12 @@ const handleShare = async (e, post) => {
 👉 पूरी खबर पढ़ें:
 ${url}
 
-📲 Trendkari App – Scroll like Instagram Reels
 `;
 
   const shareData = {
     title: post.title,
     text: shareText,
-    url, // important for deep link
+    // url, // important for deep link
   };
 
 
