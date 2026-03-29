@@ -427,7 +427,7 @@ const SwipeFeed = () => {
 
   {post.author && (
     <span
-      className="feed-author"
+      className="feed-author ms-3"
       onClick={(e) => handleAuthorClick(e, post)}
     >
       {post.author.name}

@@ -136,30 +136,33 @@ const Sidebar = ({ isOpen, onClose }) => {
           </div>
 
           {/* Kota District Cities */}
-          <div className="mb-3">
-            <small className="text-uppercase text-muted fw-semibold d-block mb-2">
-              <FaMapMarkerAlt className="me-1" /> Kota District
-            </small>
-            {kotaCities.map((city) => (
-              <Nav.Item key={city.slug}>
-                <NavLink
-                  to={`/city/${city.slug}`}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    `nav-link px-3 py-2 rounded mb-1 d-flex align-items-center justify-content-between ${isActive ? 'fw-bold bg-info-subtle text-info border-start border-info border-3' : 'text-dark hover-bg-light'}`
-                  }
-                >
-                  <div className="d-flex align-items-center">
-                    <FaCity className="me-3 text-muted" size={14} />
-                    <span>{city.name}</span>
-                  </div>
-                  <Badge bg="light" text="dark" className="fw-normal">
-                    {city.count}
-                  </Badge>
-                </NavLink>
-              </Nav.Item>
-            ))}
-          </div>
+   <div className="p-3 border-bottom">
+  <small className="text-uppercase text-muted fw-semibold d-block mb-2">
+    Quick Actions
+  </small>
+
+  <div className="row g-2">
+    {[
+      { icon: "🔮", label: "Horoscope", path: "/horoscope" },
+      { icon: "📈", label: "Market", path: "/market" },
+      { icon: "🚨", label: "Emergency", path: "/emergency" },
+      { icon: "📢", label: "Advertise", path: "/advertise" },
+    ].map((item, i) => (
+      <div className="col-6" key={i}>
+        <div
+          onClick={() => {
+            onClose();
+            window.location.href = item.path; // faster than navigate for sidebar UX
+          }}
+          className="tk-quick-card"
+        >
+          <div className="tk-quick-icon">{item.icon}</div>
+          <small className="tk-quick-label">{item.label}</small>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
 
           {/* Hyperlocal Sections */}
           {/* <div className="mb-3">

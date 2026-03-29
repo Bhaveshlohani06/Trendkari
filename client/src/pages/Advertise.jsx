@@ -3,8 +3,8 @@ import React from "react";
 import Layout from "../Layout/Layout";
 
 const advertiseOptions = [
-  { title: "Single Post", price: "₹199", description: "One post on Trendkari for 24 hours." },
-  { title: "Banner - 1 Week", price: "₹1,000", description: "Banner display on homepage for one week." },
+  { title: "Single Post", price: "₹499", description: "One post on Trendkari for 24 hours." },
+  { title: "Banner - 1 Week", price: "₹2,000", description: "Banner display on homepage for one week." },
   { title: "Banner - 1 Month", price: "₹4,000", description: "Banner display on homepage for one month." },
 ];
 

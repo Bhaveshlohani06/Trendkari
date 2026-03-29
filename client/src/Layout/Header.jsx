@@ -546,6 +546,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FiSun, FiCloud, FiCloudRain } from "react-icons/fi";
 import API from "../../utils/api";
+import { FaBars } from "react-icons/fa";
+import Sidebar from "./Sidebar.jsx";
 
 const CITIES = [
   { key: "kota", label: "Kota" },
@@ -558,6 +560,7 @@ const CITIES = [
 const Header = () => {
   const { location, changeLocation } = useLocation();
   const [weather, setWeather] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
 
@@ -601,6 +604,12 @@ const Header = () => {
 
       {/* LEFT */}
       <div className="d-flex align-items-center gap-2">
+   <button
+    className="btn p-0 border-0"
+    onClick={() => setSidebarOpen(true)}
+  >
+    <FaBars size={20} />
+  </button>
 
         <div className="tk-logo" onClick={() => navigate("/")}>
           Trendkari
@@ -621,11 +630,6 @@ const Header = () => {
       </div>
 
       {/* CENTER - WEATHER */}
-      {/* {weather && weather.temp && (
-        <div className="small d-none d-md-block">
-          🌤 {weather.temp}°C | {weather.condition}
-        </div>
-      )} */}
         {weather && <small>{getWeatherIcon()} {weather.temp}°C | {weather.condition}</small>}
 
 
@@ -642,9 +646,14 @@ const Header = () => {
           style={{ cursor: "pointer" }}
         />
       </div>
+      <Sidebar
+  isOpen={sidebarOpen}
+  onClose={() => setSidebarOpen(false)}
+/>
 
     </header>
-  );
+
+);
 };
 
 export default Header;

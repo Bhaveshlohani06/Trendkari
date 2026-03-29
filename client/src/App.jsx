@@ -259,10 +259,10 @@ const App = () => {
         <Route path="/explore" element={<AllBlogs />} />
 
         {/* SWIPE FEED */}
-<Route path="/feed/:location" element={    <Layout noContainer noScroll>
+<Route path="/feed/:location" element={<Layout noContainer noScroll>
       <SwipeFeed />
     </Layout>} />
-<Route path="/feed/:location/:slug" element={    <Layout noContainer noScroll>
+<Route path="/feed/:location/:slug" element={<Layout noContainer noScroll>
       <SwipeFeed />
     </Layout>} />
 
