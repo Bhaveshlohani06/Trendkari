@@ -640,7 +640,7 @@ const Home = () => {
           ))}
         </div> */}
 
-        <SwipeFeed location={currentCity} />
+        {/* <SwipeFeed  /> */}
       </section>
 
       {/* LOADER */}
@@ -649,6 +649,8 @@ const Home = () => {
         {loading && (
           <Spin size="large" />
         )}
+
+        HOWAREYOU
 
         {initialLoading && (
           <Skeleton active paragraph={{ rows: 4 }} />

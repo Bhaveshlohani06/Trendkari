@@ -189,6 +189,7 @@ import Market from "./pages/Market.jsx";
 import Emergency from "./pages/Emergency.jsx";
 import Advertise from "./pages/Advertise.jsx";
 import SwipeFeed from "./Components/SwipeFeed.jsx";
+import Layout from "./Layout/Layout.jsx";
 
 // Your GA Measurement ID
 
@@ -245,12 +246,21 @@ const App = () => {
 
       <Routes>
         {/* ================= PUBLIC ROUTES ================= */}
-        <Route path="/" element={<Home />} />
+        {/* <Route path="/" element={<Home />} /> */}
+<Route
+  path="/"
+  element={
+    <Layout noContainer noScroll>
+      <SwipeFeed />
+    </Layout>
+  }
+/>
         <Route path="/article" element={<Blog />} />
         <Route path="/explore" element={<AllBlogs />} />
 
         {/* SWIPE FEED */}
-<Route path="/feed" element={<SwipeFeed />} />
+<Route path="/feed/:location" element={<SwipeFeed />} />
+<Route path="/feed/:location/:slug" element={<SwipeFeed />} />
 
 
 
