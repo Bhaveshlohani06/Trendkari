@@ -389,6 +389,8 @@ import { useLocation } from "../context/LocationContext.jsx";
 import { BsBuilding } from "react-icons/bs";
 import { FaLandmark } from "react-icons/fa";
 import SwipeFeed from "../Components/SwipeFeed.jsx";
+import { useParams } from "react-router-dom";
+
 
 const CITIES = [
   { label: "कोटा", value: "kota" },
@@ -400,6 +402,8 @@ const CITIES = [
 
 const Home = () => {
   const navigate = useNavigate();
+  const { slug } = useParams();
+
   const { location } = useLocation();
 
   const [blogs, setBlogs] = useState([]);
@@ -627,14 +631,16 @@ const Home = () => {
           {currentCity?.label} की खबरें
         </h6>
 
-
+{/* 
         <div className="row g-3">
           {blogs.map(post => (
             <div className="col-12 col-md-6" key={post._id}>
               <SwipeFeed post={post} />
             </div>
           ))}
-        </div>
+        </div> */}
+
+        <SwipeFeed location={currentCity} />
       </section>
 
       {/* LOADER */}

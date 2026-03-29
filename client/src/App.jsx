@@ -188,6 +188,7 @@ import EditPost from "./Components/forms/Editpost";
 import Market from "./pages/Market.jsx";
 import Emergency from "./pages/Emergency.jsx";
 import Advertise from "./pages/Advertise.jsx";
+import SwipeFeed from "./Components/SwipeFeed.jsx";
 
 // Your GA Measurement ID
 
@@ -247,6 +248,9 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/article" element={<Blog />} />
         <Route path="/explore" element={<AllBlogs />} />
+
+        {/* SWIPE FEED */}
+<Route path="/feed" element={<SwipeFeed />} />
 
 
 

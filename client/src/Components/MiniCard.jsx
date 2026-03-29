@@ -361,7 +361,7 @@ const MiniCard = ({
               </div>
 
               {/* Description */}
-              {post.description && (
+              {post.description && (  
                 <p 
                   className="text-muted mb-2"
                   style={{
