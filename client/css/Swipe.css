@@ -23,7 +23,7 @@
 
 /* IMAGE */
 .feed-image-wrapper {
-  height: 55%;
+  height: 45%;
   position: relative;
   overflow: hidden;
 }
@@ -71,14 +71,10 @@
 }
 
 .feed-desc {
-  margin-top: 6px;
+  margin-top: 2px;
   font-size: 13px;
   color: #444;
-
-  display: -webkit-box;
   /* -webkit-line-clamp: 4; */
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .feed-meta {

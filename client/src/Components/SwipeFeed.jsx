@@ -422,17 +422,18 @@ const SwipeFeed = () => {
 
             {/* CONTENT */}
             <div className="feed-content px-3">
-              <span className="feed-meta">
-                {formatTimeAgo(post.createdAt)}
+ <div className="feed-meta">
+  <span>{formatTimeAgo(post.createdAt)}</span>
 
-
-
-                              {post.author && (
-  <span className="text-muted" onClick={handleAuthorClick} style={{ fontSize: "11px", marginLeft: "300px" }}>
-    {post.author?.name ? `${post.author.name} ` : ""}
-  </span>
-)}
-              </span>
+  {post.author && (
+    <span
+      className="feed-author"
+      onClick={(e) => handleAuthorClick(e, post)}
+    >
+      {post.author.name}
+    </span>
+  )}
+</div>
 
 
 
