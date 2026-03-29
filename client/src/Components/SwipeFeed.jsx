@@ -441,12 +441,6 @@ ${url}
     url, // important for deep link
   };
 
-  useEffect(() => {
-  if (slug) {
-
-    console.log("Opened from shared link");
-  }
-}, [slug]);
 
   try {
     if (navigator.share) {
@@ -459,6 +453,15 @@ ${url}
     console.log("Share cancelled", err);
   }
 };
+
+  useEffect(() => {
+  if (slug) {
+
+    console.log("Opened from shared link");
+  }
+}, [slug]);
+
+
 
   // 🔥 TIME FORMAT
   const formatTimeAgo = (date) => {
