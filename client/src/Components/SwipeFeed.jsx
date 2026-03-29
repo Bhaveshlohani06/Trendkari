@@ -336,7 +336,7 @@ useEffect(() => {
 
       const { data } = await API.get(
         // `/post/get-posts?status=approved&location=${location}&page=${pageNo}&limit=${LIMIT}`
-        `/post/get-posts?status=approved&location=${location}&page=${pageNo}&limit=${LIMIT}&t=${Date.now()}`
+        `/post/get-posts?status=approved&location=${location}&page=${pageNo}&limit=${LIMIT}`
       );
 
       if (!data?.posts?.length) {
@@ -364,7 +364,7 @@ useEffect(() => {
 
   try {
     const { data } = await API.get(
-      `/post/get-post/${slug}}` // cache bust
+      `/post/get-post/${slug}` // cache bust
     );
 
     if (data?.post) {
@@ -424,20 +424,20 @@ useEffect(() => {
 const handleShare = async (e, post) => {
   e.stopPropagation();
 
-  const url = `https://www.trendkari.in/feed/${location}/${post.slug}`;
+  const url = `https://www.trendkari.in/feed/${post.slug}`;
 
   const shareText = `
 📰 ${post.title}
 
 👉 पूरी खबर पढ़ें:
-${url}
+
 
 `;
 
   const shareData = {
     title: post.title,
     text: shareText,
-    // url, // important for deep link
+    url: url,
   };
 
 
