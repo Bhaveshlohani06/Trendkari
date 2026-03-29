@@ -615,7 +615,7 @@ const Header = () => {
           Trendkari
         </div>
 
-        <select
+        {/* <select
           value={location}
           onChange={handleCityChange}
           className="form-select form-select-sm"
@@ -626,7 +626,7 @@ const Header = () => {
               {city.label}
             </option>
           ))}
-        </select>
+        </select> */}
       </div>
 
       {/* CENTER - WEATHER */}
