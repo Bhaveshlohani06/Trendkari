@@ -65,14 +65,14 @@
 }
 
 .feed-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   /* overflow: hidden;  */
 }
 
 .feed-desc {
   margin-top: 2px;
-  font-size: 14px;
+  font-size: 16px;
   color: #444;
   /* -webkit-line-clamp: 4; */
 }
