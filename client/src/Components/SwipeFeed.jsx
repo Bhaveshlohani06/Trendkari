@@ -293,12 +293,22 @@ import { useParams, useNavigate } from "react-router-dom";
 import API from "../../utils/api";
 import "../../css/Swipe.css";
 import Layout from "../Layout/Layout";
+import { useLocation } from "../context/LocationContext";
+
+import { Helmet } from "react-helmet";
+import { useAuth } from "../context/auth";
+
 
 const LIMIT = 8;
 
+
+
 const SwipeFeed = () => {
-  const { slug, location = "kota" } = useParams();
+  const { location } = useLocation(); // 👈 from context
+const { slug } = useParams();  
   const navigate = useNavigate();
+  const { auth } = useAuth();
+  const isAdmin = auth?.user?.role === "admin";
 
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
@@ -308,6 +318,15 @@ const SwipeFeed = () => {
 
   const observer = useRef();
 
+  const params = useParams();
+const { changeLocation } = useLocation();
+
+useEffect(() => {
+  if (params.location && params.location !== location) {
+    changeLocation(params.location);
+  }
+}, [params.location]);
+
   // 🔥 FETCH POSTS
   const fetchPosts = useCallback(async (pageNo = 1) => {
     if (loading || !hasMore) return;
@@ -316,7 +335,8 @@ const SwipeFeed = () => {
       setLoading(true);
 
       const { data } = await API.get(
-        `/post/get-posts?status=approved&location=${location}&page=${pageNo}&limit=${LIMIT}`
+        // `/post/get-posts?status=approved&location=${location}&page=${pageNo}&limit=${LIMIT}`
+        `/post/get-posts?status=approved&location=${location}&page=${pageNo}&limit=${LIMIT}&t=${Date.now()}`
       );
 
       if (!data?.posts?.length) {
@@ -344,7 +364,7 @@ const SwipeFeed = () => {
 
   try {
     const { data } = await API.get(
-      `/post/get-post/${slug}?t=${Date.now()}` // cache bust
+      `/post/get-post/${slug}}` // cache bust
     );
 
     if (data?.post) {
@@ -401,18 +421,44 @@ useEffect(() => {
   };
 
   // 🔥 SHARE
-  const handleShare = async (e, post) => {
-    e.stopPropagation();
+const handleShare = async (e, post) => {
+  e.stopPropagation();
 
-    const url = `https://www.trendkari.in/feed/${location}/${post.slug}`;
+  const url = `https://www.trendkari.in/feed/${location}/${post.slug}`;
 
+  const shareText = `
+📰 ${post.title}
+
+👉 पूरी खबर पढ़ें:
+${url}
+
+📲 Trendkari App – Scroll like Instagram Reels
+`;
+
+  const shareData = {
+    title: post.title,
+    text: shareText,
+    url, // important for deep link
+  };
+
+  useEffect(() => {
+  if (slug) {
+
+    console.log("Opened from shared link");
+  }
+}, [slug]);
+
+  try {
     if (navigator.share) {
-      await navigator.share({ title: post.title, url });
+      await navigator.share(shareData);
     } else {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareText);
       alert("लिंक कॉपी हो गया!");
     }
-  };
+  } catch (err) {
+    console.log("Share cancelled", err);
+  }
+};
 
   // 🔥 TIME FORMAT
   const formatTimeAgo = (date) => {
@@ -429,6 +475,23 @@ useEffect(() => {
       navigate(`/dashboard/user/profile/${post.author._id}`);
     }
   };
+
+
+  const getTextContent = (content) => {
+  if (!content) return "";
+
+  // If already string
+  if (typeof content === "string") return content;
+
+  // If EditorJS object
+  if (content.blocks) {
+    return content.blocks
+      .map((block) => block.data?.text || "")
+      .join(" ");
+  }
+
+  return "";
+};
 
   return (
     <div className="feed-container">
@@ -472,18 +535,23 @@ useEffect(() => {
     >
       {post.author.name}
     </span>
+
+    
   )}
 </div>
-
-
-
-
-
-
+{isAdmin && (
+  <button
+    className="edit-btn"
+    onClick={() => navigate(`/dashboard/admin/edit-post/${post.slug}`)}
+  >
+    ✏️
+  </button>
+)}
               <h3 className="feed-title">{post.title}</h3>
 
               <p className="feed-desc">
-                {post.content || post.description}
+                {/* {post.content || post.description} */}
+  {getTextContent(post.content) || post.description || ""}
 
               </p>
             </div>
@@ -491,7 +559,30 @@ useEffect(() => {
         );
       })}
 
-      {loading && <div className="loader">Loading...</div>}
+      {/* {loading && <div className="loader">Loading...</div>} */}
+
+{loading && posts.length === 0 && (
+  <div className="feed-skeleton-container">
+    {[1, 2].map((_, i) => (
+      <div key={i} className="feed-card skeleton">
+        <div className="feed-image-wrapper skeleton-bg" />
+
+        <div className="feed-content">
+          <div className="skeleton-line w-25 mb-2"></div>
+          <div className="skeleton-line w-75 mb-2"></div>
+          <div className="skeleton-line w-100 mb-2"></div>
+          <div className="skeleton-line w-90"></div>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
+
+{loading && posts.length > 0 && (
+  <div className="text-center py-3 text-muted">
+    Loading more...
+  </div>
+)}
     </div>
   );
 };

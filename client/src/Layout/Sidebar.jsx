@@ -99,7 +99,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           <div className="mb-3">
             <small className="text-uppercase text-muted fw-semibold d-block mb-2">Navigation</small>
             <Nav.Item>
-              <NavLink
+              {/* <NavLink
                 to="/"
                 onClick={onClose}
                 className={({ isActive }) =>
@@ -107,7 +107,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 }
               >
                 <FaHome className="me-3" /> Home
-              </NavLink>
+              </NavLink> */}
             </Nav.Item>
 
             <Nav.Item>

@@ -324,6 +324,8 @@ const App = () => {
     <Route path="create-category" element={<CreateCategory />} />
     <Route path="create-post" element={<CreatePost />} />
     <Route path="posts" element={<Posts />} />
+        <Route path="edit-post/:slug" element={<EditPost />} />
+
   </Route>
 
 </Route>

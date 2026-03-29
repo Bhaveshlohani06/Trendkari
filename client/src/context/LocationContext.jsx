@@ -39,8 +39,8 @@ export const LocationProvider = ({ children }) => {
     setLocation(newLocation);
     localStorage.setItem("trendkari_location", newLocation);
 
-        navigate("/", { replace: true });
-  };
+        // navigate("/", { replace: true });
+navigate(`/feed/${newLocation}`, { replace: true });  };
 
   return (
     <LocationContext.Provider value={{ location, changeLocation }}>

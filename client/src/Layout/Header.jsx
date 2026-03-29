@@ -611,26 +611,32 @@ const Header = () => {
     <FaBars size={20} />
   </button>
 
-        <div className="tk-logo" onClick={() => navigate("/")}>
-          Trendkari
-        </div>
+  <div
+  className="tk-logo"
+  onClick={() => {
+    window.location.href = `/feed/${location}`;
+  }}
+>
+  Trendkari
+</div>
 
-        {/* <select
-          value={location}
-          onChange={handleCityChange}
-          className="form-select form-select-sm"
-          style={{ maxWidth: "140px" }}
-        >
-          {CITIES.map((city) => (
-            <option key={city.key} value={city.key}>
-              {city.label}
-            </option>
-          ))}
-        </select> */}
+<select
+  value={location}
+  onChange={handleCityChange}
+  className="form-select form-select-sm"
+  style={{ maxWidth: "140px" }}
+>
+  {CITIES.map((city) => (
+    <option key={city.key} value={city.key}>
+      {city.label}
+    </option>
+  ))}
+</select>
       </div>
 
       {/* CENTER - WEATHER */}
         {weather && <small>{getWeatherIcon()} {weather.temp}°C | {weather.condition}</small>}
+       {/* <p>Kota</p>  */}
 
 
 
