@@ -260,10 +260,10 @@ const App = () => {
 
         {/* SWIPE FEED */}
 <Route path="/feed/:location" element={<Layout noContainer noScroll>
-      <SwipeFeed />
+      <SwipeFeed key={window.location.pathname} />
     </Layout>} />
 <Route path="/feed/:location/:slug" element={<Layout noContainer noScroll>
-      <SwipeFeed />
+      <SwipeFeed key={window.location.pathname} />
     </Layout>} />
 
 

@@ -304,6 +304,7 @@ const SwipeFeed = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [initialPost, setInitialPost] = useState(null);
 
   const observer = useRef();
 
@@ -337,13 +338,52 @@ const SwipeFeed = () => {
     }
   }, [location, loading, hasMore]);
 
+
+  const fetchInitialPost = async () => {
+  if (!slug) return;
+
+  try {
+    const { data } = await API.get(
+      `/post/get-post/${slug}?t=${Date.now()}` // cache bust
+    );
+
+    if (data?.post) {
+      setInitialPost(data.post);
+    }
+  } catch (err) {
+    console.error("Initial post error:", err);
+  }
+};
+
   // 🔥 INITIAL LOAD
-  useEffect(() => {
-    setPosts([]);
-    setPage(1);
-    setHasMore(true);
+useEffect(() => {
+  // FULL RESET
+  setPosts([]);
+  setPage(1);
+  setHasMore(true);
+  setInitialPost(null);
+
+  if (slug) {
+    fetchInitialPost(); 
+  } else {
     fetchPosts(1);
-  }, [location]);
+  }
+
+}, [slug, location]);
+
+
+// useEffect(() => {
+//   if (!initialPost) return;
+
+//   setPosts((prev) => {
+//     const exists = prev.find(p => p._id === initialPost._id);
+//     if (exists) return prev;
+//     return [initialPost, ...prev];
+//   });
+
+//   fetchPosts(1);
+
+// }, [initialPost]);
 
   // 🔥 INTERSECTION OBSERVER (ONLY ONE LOADER)
   const lastPostRef = (node) => {
