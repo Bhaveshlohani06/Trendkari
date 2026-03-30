@@ -1255,6 +1255,1225 @@
 
 
 
+// import React, { useEffect, useState, useRef, useCallback } from "react";
+// import { useParams, useLocation } from "react-router-dom";
+// import API from "../../utils/api";
+// import "../../css/Swipe.css";
+
+// const LIMIT = 6;
+
+// // Helper function for time ago format
+// const timeAgo = (date) => {
+//   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  
+//   let interval = seconds / 31536000;
+//   if (interval > 1) return Math.floor(interval) + " साल पहले";
+  
+//   interval = seconds / 2592000;
+//   if (interval > 1) return Math.floor(interval) + " महीने पहले";
+  
+//   interval = seconds / 86400;
+//   if (interval > 1) return Math.floor(interval) + " दिन पहले";
+  
+//   interval = seconds / 3600;
+//   if (interval > 1) return Math.floor(interval) + " घंटे पहले";
+  
+//   interval = seconds / 60;
+//   if (interval > 1) return Math.floor(interval) + " मिनट पहले";
+  
+//   return Math.floor(seconds) + " सेकंड पहले";
+// };
+
+// const SwipeFeed = () => {
+//   const { location: locationParam, slug } = useParams();
+//   const location = useLocation();
+
+//   const [posts, setPosts] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(true);
+//   const [loading, setLoading] = useState(false);
+//   const [initializing, setInitializing] = useState(true);
+//   const [authors, setAuthors] = useState({}); // Cache author details
+  
+//   const containerRef = useRef(null);
+//   const observer = useRef();
+//   const isScrolling = useRef(false);
+//   const [currentIndex, setCurrentIndex] = useState(0);
+//   const isMounted = useRef(true);
+//   const initialLoadDone = useRef(false);
+
+//   // Cleanup on unmount
+//   useEffect(() => {
+//     return () => {
+//       isMounted.current = false;
+//       if (observer.current) observer.current.disconnect();
+//     };
+//   }, []);
+
+//   // Fetch author details
+//   const fetchAuthorDetails = useCallback(async (authorId) => {
+//     if (!authorId || authors[authorId]) return authors[authorId];
+    
+//     try {
+//       const { data } = await API.get(`/user/get-user/${authorId}`);
+//       if (data?.user) {
+//         setAuthors(prev => ({ ...prev, [authorId]: data.user }));
+//         return data.user;
+//       }
+//     } catch (err) {
+//       console.error("Error fetching author:", err);
+//     }
+//     return null;
+//   }, [authors]);
+
+//   // Fetch authors for multiple posts
+//   useEffect(() => {
+//     const fetchAllAuthors = async () => {
+//       const uniqueAuthorIds = [...new Set(posts.map(p => p.author).filter(Boolean))];
+//       for (const authorId of uniqueAuthorIds) {
+//         if (!authors[authorId]) {
+//           await fetchAuthorDetails(authorId);
+//         }
+//       }
+//     };
+    
+//     if (posts.length > 0) {
+//       fetchAllAuthors();
+//     }
+//   }, [posts, fetchAuthorDetails, authors]);
+
+//   // 🔥 SINGLE SOURCE OF TRUTH - INITIAL LOAD
+//   useEffect(() => {
+//     // Reset everything when route changes
+//     initialLoadDone.current = false;
+    
+//     const initializeFeed = async () => {
+//       if (!isMounted.current) return;
+      
+//       setInitializing(true);
+//       setPosts([]);
+//       setPage(1);
+//       setHasMore(true);
+//       setCurrentIndex(0);
+//       setAuthors({});
+      
+//       try {
+//         let feedPosts = [];
+//         let targetIndex = -1;
+        
+//         // Build query params based on location
+//         let feedUrl = `/post/get-posts?status=approved&page=1&limit=${LIMIT}`;
+//         if (locationParam && locationParam !== "feed") {
+//           feedUrl += `&location=${locationParam}`;
+//         }
+        
+//         // Fetch initial feed posts
+//         const feedResponse = await API.get(feedUrl);
+//         feedPosts = feedResponse?.data?.posts || [];
+        
+//         // If there's a slug, fetch that specific post and merge
+//         if (slug) {
+//           try {
+//             const singleResponse = await API.get(`/post/get-post/${slug}`);
+//             const singlePost = singleResponse?.data?.post;
+            
+//             if (singlePost) {
+//               // Check if post already exists in feed
+//               const existingIndex = feedPosts.findIndex(p => p._id === singlePost._id);
+              
+//               if (existingIndex === -1) {
+//                 // Insert at top for immediate visibility
+//                 feedPosts = [singlePost, ...feedPosts];
+//                 targetIndex = 0;
+//               } else {
+//                 targetIndex = existingIndex;
+//               }
+//             }
+//           } catch (err) {
+//             console.error("Error fetching single post:", err);
+//           }
+//         }
+        
+//         if (isMounted.current) {
+//           setPosts(feedPosts);
+//           setPage(2);
+          
+//           // Scroll to target post if exists
+//           if (targetIndex !== -1) {
+//             setTimeout(() => {
+//               goToIndex(targetIndex);
+//             }, 200);
+//           }
+          
+//           initialLoadDone.current = true;
+//         }
+//       } catch (err) {
+//         console.error("Error initializing feed:", err);
+//       } finally {
+//         if (isMounted.current) {
+//           setInitializing(false);
+//         }
+//       }
+//     };
+    
+//     initializeFeed();
+//   }, [locationParam, slug, location.key]);
+
+//   // 🔥 FETCH MORE POSTS (PAGINATION)
+//   const fetchMorePosts = useCallback(async () => {
+//     if (loading || !hasMore || initializing || !initialLoadDone.current) return;
+    
+//     try {
+//       setLoading(true);
+      
+//       let feedUrl = `/post/get-posts?status=approved&page=${page}&limit=${LIMIT}`;
+//       if (locationParam && locationParam !== "feed") {
+//         feedUrl += `&location=${locationParam}`;
+//       }
+      
+//       const { data } = await API.get(feedUrl);
+      
+//       if (!isMounted.current) return;
+      
+//       if (!data?.posts?.length) {
+//         setHasMore(false);
+//         return;
+//       }
+      
+//       setPosts(prev => {
+//         const existingIds = new Set(prev.map(p => p._id));
+//         const newPosts = data.posts.filter(p => !existingIds.has(p._id));
+//         return [...prev, ...newPosts];
+//       });
+      
+//       setPage(prev => prev + 1);
+//     } catch (err) {
+//       console.error("Error fetching more posts:", err);
+//     } finally {
+//       if (isMounted.current) {
+//         setLoading(false);
+//       }
+//     }
+//   }, [loading, hasMore, page, initializing, locationParam]);
+
+//   // 🔥 SMOOTH SCROLL TO INDEX
+//   const goToIndex = useCallback((index) => {
+//     if (!containerRef.current || isScrolling.current) return;
+//     if (index < 0 || index >= posts.length) return;
+    
+//     isScrolling.current = true;
+    
+//     containerRef.current.scrollTo({
+//       top: index * window.innerHeight,
+//       behavior: "smooth",
+//     });
+    
+//     setCurrentIndex(index);
+    
+//     setTimeout(() => {
+//       isScrolling.current = false;
+//     }, 500);
+//   }, [posts.length]);
+
+//   // 🔥 TOUCH SWIPE HANDLER
+//   useEffect(() => {
+//     const container = containerRef.current;
+//     if (!container) return;
+    
+//     let touchStart = 0;
+//     let touchEnd = 0;
+    
+//     const handleTouchStart = (e) => {
+//       touchStart = e.touches[0].clientY;
+//     };
+    
+//     const handleTouchEnd = (e) => {
+//       touchEnd = e.changedTouches[0].clientY;
+//       const diff = touchStart - touchEnd;
+      
+//       if (Math.abs(diff) > 50) {
+//         if (diff > 0) {
+//           goToIndex(currentIndex + 1);
+//         } else {
+//           goToIndex(currentIndex - 1);
+//         }
+//       }
+//     };
+    
+//     container.addEventListener("touchstart", handleTouchStart);
+//     container.addEventListener("touchend", handleTouchEnd);
+    
+//     return () => {
+//       container.removeEventListener("touchstart", handleTouchStart);
+//       container.removeEventListener("touchend", handleTouchEnd);
+//     };
+//   }, [currentIndex, goToIndex]);
+
+//   // 🔥 INFINITE SCROLL OBSERVER
+//   const lastPostRef = useCallback((node) => {
+//     if (loading || !hasMore || initializing) return;
+    
+//     if (observer.current) observer.current.disconnect();
+    
+//     observer.current = new IntersectionObserver(
+//       (entries) => {
+//         if (entries[0].isIntersecting && hasMore && !loading && !initializing && initialLoadDone.current) {
+//           fetchMorePosts();
+//         }
+//       },
+//       {
+//         root: null,
+//         rootMargin: "200px",
+//         threshold: 0.1,
+//       }
+//     );
+    
+//     if (node) observer.current.observe(node);
+//   }, [loading, hasMore, fetchMorePosts, initializing]);
+
+//   // 🔥 SHARE HANDLER
+//   const handleShare = async (e, post) => {
+//     e.stopPropagation();
+    
+//     const url = `https://www.trendkari.in/feed/${locationParam || "all"}/${post.slug}`;
+    
+//     try {
+//       if (navigator.share) {
+//         await navigator.share({
+//           title: post.title,
+//           text: `📰 ${post.title}\n\n👉 पूरी खबर पढ़ें`,
+//           url,
+//         });
+//       } else {
+//         await navigator.clipboard.writeText(url);
+//         alert("लिंक कॉपी हो गया!");
+//       }
+//     } catch (err) {
+//       console.error("Share failed:", err);
+//     }
+//   };
+
+//   // 🔥 LOADING STATE
+//   if (initializing && posts.length === 0) {
+//     return (
+//       <div className="feed-container loading-container">
+//         <div className="loader">Loading...</div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="feed-container" ref={containerRef}>
+//       {posts.map((post, index) => {
+//         if (!post) return null;
+        
+//         const isLast = index === posts.length - 1;
+//         const author = authors[post.author];
+        
+//         return (
+//           <div
+//             key={`${post._id}-${index}`}
+//             ref={isLast ? lastPostRef : null}
+//             className="feed-card"
+//           >
+//             <div className="feed-image-wrapper">
+//               <img
+//                 src={post.image || "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png"}
+//                 alt={post.title}
+//                 className="feed-image"
+//                 loading={index < 3 ? "eager" : "lazy"}
+//                 onError={(e) => {
+//                   e.target.src = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+//                 }}
+//               />
+              
+//               <div className="image-overlay" />
+              
+//               <button
+//                 className="share-btn"
+//                 onClick={(e) => handleShare(e, post)}
+//                 aria-label="Share"
+//               >
+//                 🔗
+//               </button>
+//             </div>
+            
+//             <div className="feed-content px-3">
+//               <div className="feed-meta">
+//                 {author && (
+//                   <span className="feed-author">
+//                     ✍️ {author.name || author.username || "लेखक"}
+//                   </span>
+//                 )}
+//                 <span className="feed-time">
+//                   🕒 {timeAgo(post.createdAt)}
+//                 </span>
+//               </div>
+//               <h3 className="feed-title">{post.title}</h3>
+//               <p className="feed-desc">
+//                 {post.description || post.content || ""}
+//               </p>
+//             </div>
+//           </div>
+//         );
+//       })}
+      
+//       {loading && (
+//         <div className="loader-wrapper">
+//           <div className="loader">Loading more...</div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default SwipeFeed;
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState, useRef, useCallback } from "react";
+// import { useParams, useLocation } from "react-router-dom";
+// import API from "../../utils/api";
+// import "../../css/Swipe.css";
+
+// const LIMIT = 6;
+
+// // Helper function for time ago format
+// const timeAgo = (date) => {
+//   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  
+//   let interval = seconds / 31536000;
+//   if (interval > 1) return Math.floor(interval) + " साल पहले";
+  
+//   interval = seconds / 2592000;
+//   if (interval > 1) return Math.floor(interval) + " महीने पहले";
+  
+//   interval = seconds / 86400;
+//   if (interval > 1) return Math.floor(interval) + " दिन पहले";
+  
+//   interval = seconds / 3600;
+//   if (interval > 1) return Math.floor(interval) + " घंटे पहले";
+  
+//   interval = seconds / 60;
+//   if (interval > 1) return Math.floor(interval) + " मिनट पहले";
+  
+//   return Math.floor(seconds) + " सेकंड पहले";
+// };
+
+// const SwipeFeed = () => {
+//   const { location: locationParam, slug } = useParams();
+//   const location = useLocation();
+
+//   const [posts, setPosts] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(true);
+//   const [loading, setLoading] = useState(false);
+//   const [initializing, setInitializing] = useState(true);
+//   const [authors, setAuthors] = useState({});
+  
+//   const containerRef = useRef(null);
+//   const observer = useRef();
+//   const isScrolling = useRef(false);
+//   const [currentIndex, setCurrentIndex] = useState(0);
+//   const isMounted = useRef(true);
+//   const initialLoadDone = useRef(false);
+//   const scrollTimeoutRef = useRef(null);
+
+//   // Cleanup on unmount
+//   useEffect(() => {
+//     return () => {
+//       isMounted.current = false;
+//       if (observer.current) observer.current.disconnect();
+//       if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+//     };
+//   }, []);
+
+//   // Fetch author details
+//   const fetchAuthorDetails = useCallback(async (authorId) => {
+//     if (!authorId || authors[authorId]) return authors[authorId];
+    
+//     try {
+//       const { data } = await API.get(`/user/get-user/${authorId}`);
+//       if (data?.user) {
+//         setAuthors(prev => ({ ...prev, [authorId]: data.user }));
+//         return data.user;
+//       }
+//     } catch (err) {
+//       console.error("Error fetching author:", err);
+//     }
+//     return null;
+//   }, [authors]);
+
+//   // Fetch authors for multiple posts
+//   useEffect(() => {
+//     const fetchAllAuthors = async () => {
+//       const uniqueAuthorIds = [...new Set(posts.map(p => p.author).filter(Boolean))];
+//       for (const authorId of uniqueAuthorIds) {
+//         if (!authors[authorId]) {
+//           await fetchAuthorDetails(authorId);
+//         }
+//       }
+//     };
+    
+//     if (posts.length > 0) {
+//       fetchAllAuthors();
+//     }
+//   }, [posts, fetchAuthorDetails, authors]);
+
+//   // 🔥 IMPROVED SMOOTH SCROLL TO INDEX
+//   const goToIndex = useCallback((index, shouldScroll = true) => {
+//     if (!containerRef.current) return;
+//     if (index < 0 || index >= posts.length) return;
+    
+//     // Clear any existing scroll timeout
+//     if (scrollTimeoutRef.current) {
+//       clearTimeout(scrollTimeoutRef.current);
+//     }
+    
+//     if (shouldScroll) {
+//       isScrolling.current = true;
+      
+//       containerRef.current.scrollTo({
+//         top: index * window.innerHeight,
+//         behavior: "smooth",
+//       });
+//     }
+    
+//     setCurrentIndex(index);
+    
+//     // Reset scrolling flag after animation completes
+//     scrollTimeoutRef.current = setTimeout(() => {
+//       isScrolling.current = false;
+//     }, 500);
+//   }, [posts.length]);
+
+//   // 🔥 HANDLE SCROLL EVENT TO UPDATE CURRENT INDEX
+//   useEffect(() => {
+//     const container = containerRef.current;
+//     if (!container) return;
+    
+//     const handleScroll = () => {
+//       if (isScrolling.current) return;
+      
+//       const scrollTop = container.scrollTop;
+//       const windowHeight = window.innerHeight;
+//       const newIndex = Math.round(scrollTop / windowHeight);
+      
+//       if (newIndex !== currentIndex && newIndex >= 0 && newIndex < posts.length) {
+//         setCurrentIndex(newIndex);
+//       }
+//     };
+    
+//     container.addEventListener("scroll", handleScroll);
+//     return () => container.removeEventListener("scroll", handleScroll);
+//   }, [currentIndex, posts.length]);
+
+//   // 🔥 SINGLE SOURCE OF TRUTH - INITIAL LOAD
+//   useEffect(() => {
+//     // Reset everything when route changes
+//     initialLoadDone.current = false;
+//     isScrolling.current = false;
+    
+//     const initializeFeed = async () => {
+//       if (!isMounted.current) return;
+      
+//       setInitializing(true);
+//       setPosts([]);
+//       setPage(1);
+//       setHasMore(true);
+//       setCurrentIndex(0);
+//       setAuthors({});
+      
+//       try {
+//         let feedPosts = [];
+//         let targetIndex = -1;
+        
+//         // Build query params based on location
+//         let feedUrl = `/post/get-posts?status=approved&page=1&limit=${LIMIT}`;
+//         if (locationParam && locationParam !== "feed") {
+//           feedUrl += `&location=${locationParam}`;
+//         }
+        
+//         // Fetch initial feed posts
+//         const feedResponse = await API.get(feedUrl);
+//         feedPosts = feedResponse?.data?.posts || [];
+        
+//         // If there's a slug, fetch that specific post and merge
+//         if (slug) {
+//           try {
+//             const singleResponse = await API.get(`/post/get-post/${slug}`);
+//             const singlePost = singleResponse?.data?.post;
+            
+//             if (singlePost) {
+//               // Check if post already exists in feed
+//               const existingIndex = feedPosts.findIndex(p => p._id === singlePost._id);
+              
+//               if (existingIndex === -1) {
+//                 // Insert at top for immediate visibility
+//                 feedPosts = [singlePost, ...feedPosts];
+//                 targetIndex = 0;
+//               } else {
+//                 targetIndex = existingIndex;
+//               }
+//             }
+//           } catch (err) {
+//             console.error("Error fetching single post:", err);
+//           }
+//         }
+        
+//         if (isMounted.current) {
+//           setPosts(feedPosts);
+//           setPage(2);
+          
+//           // IMPORTANT: Wait for DOM to render before scrolling
+//           if (targetIndex !== -1) {
+//             setTimeout(() => {
+//               if (containerRef.current) {
+//                 // Force scroll without animation for initial positioning
+//                 containerRef.current.scrollTo({
+//                   top: targetIndex * window.innerHeight,
+//                   behavior: "auto",
+//                 });
+//                 setCurrentIndex(targetIndex);
+                
+//                 // Reset scrolling flag after manual scroll
+//                 setTimeout(() => {
+//                   isScrolling.current = false;
+//                 }, 100);
+//               }
+//             }, 200);
+//           }
+          
+//           initialLoadDone.current = true;
+//         }
+//       } catch (err) {
+//         console.error("Error initializing feed:", err);
+//       } finally {
+//         if (isMounted.current) {
+//           setInitializing(false);
+//         }
+//       }
+//     };
+    
+//     initializeFeed();
+//   }, [locationParam, slug, location.key]);
+
+//   // 🔥 FETCH MORE POSTS (PAGINATION)
+//   const fetchMorePosts = useCallback(async () => {
+//     if (loading || !hasMore || initializing || !initialLoadDone.current) return;
+    
+//     try {
+//       setLoading(true);
+      
+//       let feedUrl = `/post/get-posts?status=approved&page=${page}&limit=${LIMIT}`;
+//       if (locationParam && locationParam !== "feed") {
+//         feedUrl += `&location=${locationParam}`;
+//       }
+      
+//       const { data } = await API.get(feedUrl);
+      
+//       if (!isMounted.current) return;
+      
+//       if (!data?.posts?.length) {
+//         setHasMore(false);
+//         return;
+//       }
+      
+//       setPosts(prev => {
+//         const existingIds = new Set(prev.map(p => p._id));
+//         const newPosts = data.posts.filter(p => !existingIds.has(p._id));
+//         return [...prev, ...newPosts];
+//       });
+      
+//       setPage(prev => prev + 1);
+//     } catch (err) {
+//       console.error("Error fetching more posts:", err);
+//     } finally {
+//       if (isMounted.current) {
+//         setLoading(false);
+//       }
+//     }
+//   }, [loading, hasMore, page, initializing, locationParam]);
+
+//   // 🔥 TOUCH SWIPE HANDLER
+//   useEffect(() => {
+//     const container = containerRef.current;
+//     if (!container) return;
+    
+//     let touchStart = 0;
+//     let touchEnd = 0;
+    
+//     const handleTouchStart = (e) => {
+//       touchStart = e.touches[0].clientY;
+//     };
+    
+//     const handleTouchEnd = (e) => {
+//       if (isScrolling.current) return;
+      
+//       touchEnd = e.changedTouches[0].clientY;
+//       const diff = touchStart - touchEnd;
+      
+//       if (Math.abs(diff) > 50) {
+//         if (diff > 0) {
+//           // Swipe up - next post
+//           if (currentIndex + 1 < posts.length) {
+//             goToIndex(currentIndex + 1, true);
+//           }
+//         } else {
+//           // Swipe down - previous post
+//           if (currentIndex - 1 >= 0) {
+//             goToIndex(currentIndex - 1, true);
+//           }
+//         }
+//       }
+//     };
+    
+//     container.addEventListener("touchstart", handleTouchStart);
+//     container.addEventListener("touchend", handleTouchEnd);
+    
+//     return () => {
+//       container.removeEventListener("touchstart", handleTouchStart);
+//       container.removeEventListener("touchend", handleTouchEnd);
+//     };
+//   }, [currentIndex, posts.length, goToIndex]);
+
+//   // 🔥 KEYBOARD SUPPORT (Arrow keys)
+//   useEffect(() => {
+//     const handleKeyDown = (e) => {
+//       if (isScrolling.current) return;
+      
+//       if (e.key === "ArrowUp") {
+//         e.preventDefault();
+//         if (currentIndex - 1 >= 0) {
+//           goToIndex(currentIndex - 1, true);
+//         }
+//       } else if (e.key === "ArrowDown") {
+//         e.preventDefault();
+//         if (currentIndex + 1 < posts.length) {
+//           goToIndex(currentIndex + 1, true);
+//         }
+//       }
+//     };
+    
+//     window.addEventListener("keydown", handleKeyDown);
+//     return () => window.removeEventListener("keydown", handleKeyDown);
+//   }, [currentIndex, posts.length, goToIndex]);
+
+//   // 🔥 INFINITE SCROLL OBSERVER
+//   const lastPostRef = useCallback((node) => {
+//     if (loading || !hasMore || initializing) return;
+    
+//     if (observer.current) observer.current.disconnect();
+    
+//     observer.current = new IntersectionObserver(
+//       (entries) => {
+//         if (entries[0].isIntersecting && hasMore && !loading && !initializing && initialLoadDone.current) {
+//           fetchMorePosts();
+//         }
+//       },
+//       {
+//         root: null,
+//         rootMargin: "200px",
+//         threshold: 0.1,
+//       }
+//     );
+    
+//     if (node) observer.current.observe(node);
+//   }, [loading, hasMore, fetchMorePosts, initializing]);
+
+//   // 🔥 SHARE HANDLER
+//   const handleShare = async (e, post) => {
+//     e.stopPropagation();
+    
+//     const url = `https://www.trendkari.in/feed/${locationParam || "all"}/${post.slug}`;
+    
+//     try {
+//       if (navigator.share) {
+//         await navigator.share({
+//           title: post.title,
+//           text: `📰 ${post.title}\n\n👉 पूरी खबर पढ़ें`,
+//           url,
+//         });
+//       } else {
+//         await navigator.clipboard.writeText(url);
+//         alert("लिंक कॉपी हो गया!");
+//       }
+//     } catch (err) {
+//       console.error("Share failed:", err);
+//     }
+//   };
+
+//   // 🔥 LOADING STATE
+//   if (initializing && posts.length === 0) {
+//     return (
+//       <div className="feed-container loading-container">
+//         <div className="loader">Loading...</div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="feed-container" ref={containerRef}>
+//       {posts.map((post, index) => {
+//         if (!post) return null;
+        
+//         const isLast = index === posts.length - 1;
+//         const author = authors[post.author];
+        
+//         return (
+//           <div
+//             key={`${post._id}-${index}`}
+//             ref={isLast ? lastPostRef : null}
+//             className="feed-card"
+//           >
+//             <div className="feed-image-wrapper">
+//               <img
+//                 src={post.image || "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png"}
+//                 alt={post.title}
+//                 className="feed-image"
+//                 loading={index < 3 ? "eager" : "lazy"}
+//                 onError={(e) => {
+//                   e.target.src = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+//                 }}
+//               />
+              
+//               <div className="image-overlay" />
+              
+//               <button
+//                 className="share-btn"
+//                 onClick={(e) => handleShare(e, post)}
+//                 aria-label="Share"
+//               >
+//                 🔗
+//               </button>
+//             </div>
+            
+//             <div className="feed-content px-3">
+//               <div className="feed-meta">
+//                 {author && (
+//                   <span className="feed-author">
+//                     ✍️ {post.author || "लेखक"}
+//                   </span>
+//                 )}
+//                 <span className="feed-time">
+//                   🕒 {timeAgo(post.createdAt)}
+//                 </span>
+//               </div>
+//               <h3 className="feed-title">{post.title}</h3>
+//               <p className="feed-desc">
+//                 {post.description || post.content?.substring(0, 150) || ""}
+//                 {(post.description?.length > 150 || post.content?.length > 150) && "..."}
+//               </p>
+//             </div>
+//           </div>
+//         );
+//       })}
+      
+//       {loading && (
+//         <div className="loader-wrapper">
+//           <div className="loader">Loading more...</div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default SwipeFeed;
+
+
+
+
+
+
+
+
+
+
+// import React, { useEffect, useState, useRef, useCallback } from "react";
+// import { useParams, useLocation } from "react-router-dom";
+// import API from "../../utils/api";
+// import "../../css/Swipe.css";
+
+// const LIMIT = 6;
+
+// // Helper function for time ago format
+// const timeAgo = (date) => {
+//   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  
+//   let interval = seconds / 31536000;
+//   if (interval > 1) return Math.floor(interval) + " साल पहले";
+  
+//   interval = seconds / 2592000;
+//   if (interval > 1) return Math.floor(interval) + " महीने पहले";
+  
+//   interval = seconds / 86400;
+//   if (interval > 1) return Math.floor(interval) + " दिन पहले";
+  
+//   interval = seconds / 3600;
+//   if (interval > 1) return Math.floor(interval) + " घंटे पहले";
+  
+//   interval = seconds / 60;
+//   if (interval > 1) return Math.floor(interval) + " मिनट पहले";
+  
+//   return Math.floor(seconds) + " सेकंड पहले";
+// };
+
+// const SwipeFeed = () => {
+//   const { location: locationParam, slug } = useParams();
+//   const location = useLocation();
+
+//   const [posts, setPosts] = useState([]);
+//   const [page, setPage] = useState(1);
+//   const [hasMore, setHasMore] = useState(true);
+//   const [loading, setLoading] = useState(false);
+//   const [initializing, setInitializing] = useState(true);
+//   const [authors, setAuthors] = useState({}); // Cache author details
+  
+//   const containerRef = useRef(null);
+//   const observer = useRef();
+//   const isScrolling = useRef(false);
+//   const [currentIndex, setCurrentIndex] = useState(0);
+//   const isMounted = useRef(true);
+//   const initialLoadDone = useRef(false);
+
+//   // Cleanup on unmount
+//   useEffect(() => {
+//     return () => {
+//       isMounted.current = false;
+//       if (observer.current) observer.current.disconnect();
+//     };
+//   }, []);
+
+//   // Fetch author details
+//   const fetchAuthorDetails = useCallback(async (authorId) => {
+//     if (!authorId || authors[authorId]) return authors[authorId];
+    
+//     try {
+//       const { data } = await API.get(`/user/get-user/${authorId}`);
+//       if (data?.user) {
+//         setAuthors(prev => ({ ...prev, [authorId]: data.user }));
+//         return data.user;
+//       }
+//     } catch (err) {
+//       console.error("Error fetching author:", err);
+//     }
+//     return null;
+//   }, [authors]);
+
+//   // Fetch authors for multiple posts
+//   useEffect(() => {
+//     const fetchAllAuthors = async () => {
+//       const uniqueAuthorIds = [...new Set(posts.map(p => p.author).filter(Boolean))];
+//       for (const authorId of uniqueAuthorIds) {
+//         if (!authors[authorId]) {
+//           await fetchAuthorDetails(authorId);
+//         }
+//       }
+//     };
+    
+//     if (posts.length > 0) {
+//       fetchAllAuthors();
+//     }
+//   }, [posts, fetchAuthorDetails, authors]);
+
+//   // 🔥 SINGLE SOURCE OF TRUTH - INITIAL LOAD
+//   useEffect(() => {
+//     // Reset everything when route changes
+//     initialLoadDone.current = false;
+    
+//     const initializeFeed = async () => {
+//       if (!isMounted.current) return;
+      
+//       setInitializing(true);
+//       setPosts([]);
+//       setPage(1);
+//       setHasMore(true);
+//       setCurrentIndex(0);
+//       setAuthors({});
+      
+//       try {
+//         let feedPosts = [];
+//         let targetIndex = -1;
+        
+//         // Build query params based on location
+//         let feedUrl = `/post/get-posts?status=approved&page=1&limit=${LIMIT}`;
+//         if (locationParam && locationParam !== "feed") {
+//           feedUrl += `&location=${locationParam}`;
+//         }
+        
+//         // Fetch initial feed posts
+//         const feedResponse = await API.get(feedUrl);
+//         feedPosts = feedResponse?.data?.posts || [];
+        
+//         // If there's a slug, fetch that specific post and merge
+//         if (slug) {
+//           try {
+//             const singleResponse = await API.get(`/post/get-post/${slug}`);
+//             const singlePost = singleResponse?.data?.post;
+            
+//             if (singlePost) {
+//               // Check if post already exists in feed
+//               const existingIndex = feedPosts.findIndex(p => p._id === singlePost._id);
+              
+//               if (existingIndex === -1) {
+//                 // Insert at top for immediate visibility
+//                 feedPosts = [singlePost, ...feedPosts];
+//                 targetIndex = 0;
+//               } else {
+//                 targetIndex = existingIndex;
+//               }
+//             }
+//           } catch (err) {
+//             console.error("Error fetching single post:", err);
+//           }
+//         }
+        
+//         if (isMounted.current) {
+//           setPosts(feedPosts);
+//           setPage(2);
+          
+//           // Scroll to target post if exists
+//           if (targetIndex !== -1) {
+//             setTimeout(() => {
+//               goToIndex(targetIndex);
+//             }, 200);
+//           }
+          
+//           initialLoadDone.current = true;
+//         }
+//       } catch (err) {
+//         console.error("Error initializing feed:", err);
+//       } finally {
+//         if (isMounted.current) {
+//           setInitializing(false);
+//         }
+//       }
+//     };
+    
+//     initializeFeed();
+//   }, [locationParam, slug, location.key]);
+
+//   // 🔥 FETCH MORE POSTS (PAGINATION)
+//   const fetchMorePosts = useCallback(async () => {
+//     if (loading || !hasMore || initializing || !initialLoadDone.current) return;
+    
+//     try {
+//       setLoading(true);
+      
+//       let feedUrl = `/post/get-posts?status=approved&page=${page}&limit=${LIMIT}`;
+//       if (locationParam && locationParam !== "feed") {
+//         feedUrl += `&location=${locationParam}`;
+//       }
+      
+//       const { data } = await API.get(feedUrl);
+      
+//       if (!isMounted.current) return;
+      
+//       if (!data?.posts?.length) {
+//         setHasMore(false);
+//         return;
+//       }
+      
+//       setPosts(prev => {
+//         const existingIds = new Set(prev.map(p => p._id));
+//         const newPosts = data.posts.filter(p => !existingIds.has(p._id));
+//         return [...prev, ...newPosts];
+//       });
+      
+//       setPage(prev => prev + 1);
+//     } catch (err) {
+//       console.error("Error fetching more posts:", err);
+//     } finally {
+//       if (isMounted.current) {
+//         setLoading(false);
+//       }
+//     }
+//   }, [loading, hasMore, page, initializing, locationParam]);
+
+//   // 🔥 SMOOTH SCROLL TO INDEX
+//   const goToIndex = useCallback((index) => {
+//     if (!containerRef.current || isScrolling.current) return;
+//     if (index < 0 || index >= posts.length) return;
+    
+//     isScrolling.current = true;
+    
+//     containerRef.current.scrollTo({
+//       top: index * window.innerHeight,
+//       behavior: "smooth",
+//     });
+    
+//     setCurrentIndex(index);
+    
+//     setTimeout(() => {
+//       isScrolling.current = false;
+//     }, 500);
+//   }, [posts.length]);
+
+//   // 🔥 TOUCH SWIPE HANDLER
+//   useEffect(() => {
+//     const container = containerRef.current;
+//     if (!container) return;
+    
+//     let touchStart = 0;
+//     let touchEnd = 0;
+    
+//     const handleTouchStart = (e) => {
+//       touchStart = e.touches[0].clientY;
+//     };
+    
+//     const handleTouchEnd = (e) => {
+//       touchEnd = e.changedTouches[0].clientY;
+//       const diff = touchStart - touchEnd;
+      
+//       if (Math.abs(diff) > 50) {
+//         if (diff > 0) {
+//           goToIndex(currentIndex + 1);
+//         } else {
+//           goToIndex(currentIndex - 1);
+//         }
+//       }
+//     };
+    
+//     container.addEventListener("touchstart", handleTouchStart);
+//     container.addEventListener("touchend", handleTouchEnd);
+    
+//     return () => {
+//       container.removeEventListener("touchstart", handleTouchStart);
+//       container.removeEventListener("touchend", handleTouchEnd);
+//     };
+//   }, [currentIndex, goToIndex]);
+
+//   // 🔥 INFINITE SCROLL OBSERVER
+//   const lastPostRef = useCallback((node) => {
+//     if (loading || !hasMore || initializing) return;
+    
+//     if (observer.current) observer.current.disconnect();
+    
+//     observer.current = new IntersectionObserver(
+//       (entries) => {
+//         if (entries[0].isIntersecting && hasMore && !loading && !initializing && initialLoadDone.current) {
+//           fetchMorePosts();
+//         }
+//       },
+//       {
+//         root: null,
+//         rootMargin: "200px",
+//         threshold: 0.1,
+//       }
+//     );
+    
+//     if (node) observer.current.observe(node);
+//   }, [loading, hasMore, fetchMorePosts, initializing]);
+
+//   // 🔥 SHARE HANDLER
+//   const handleShare = async (e, post) => {
+//     e.stopPropagation();
+    
+//     const url = `https://www.trendkari.in/feed/${locationParam || "all"}/${post.slug}`;
+    
+//     try {
+//       if (navigator.share) {
+//         await navigator.share({
+//           title: post.title,
+//           text: `📰 ${post.title}\n\n👉 पूरी खबर पढ़ें`,
+//           url,
+//         });
+//       } else {
+//         await navigator.clipboard.writeText(url);
+//         alert("लिंक कॉपी हो गया!");
+//       }
+//     } catch (err) {
+//       console.error("Share failed:", err);
+//     }
+//   };
+
+//   // 🔥 LOADING STATE
+//   if (initializing && posts.length === 0) {
+//     return (
+//       <div className="feed-container loading-container">
+//         <div className="loader">Loading...</div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="feed-container" ref={containerRef}>
+//       {posts.map((post, index) => {
+//         if (!post) return null;
+        
+//         const isLast = index === posts.length - 1;
+//         const author = authors[post.author];
+        
+//         return (
+//           <div
+//             key={`${post._id}-${index}`}
+//             ref={isLast ? lastPostRef : null}
+//             className="feed-card"
+//           >
+//             <div className="feed-image-wrapper">
+//               <img
+//                 src={post.image || "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png"}
+//                 alt={post.title}
+//                 className="feed-image"
+//                 loading={index < 3 ? "eager" : "lazy"}
+//                 onError={(e) => {
+//                   e.target.src = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
+//                 }}
+//               />
+              
+//               <div className="image-overlay" />
+              
+//               <button
+//                 className="share-btn"
+//                 onClick={(e) => handleShare(e, post)}
+//                 aria-label="Share"
+//               >
+//                 🔗
+//               </button>
+//             </div>
+            
+//             <div className="feed-content px-3">
+//               <div className="feed-meta">
+//                 {author && (
+//                   <span className="feed-author">
+//                     ✍️ {author.name || author.username || "लेखक"}
+//                   </span>
+//                 )}
+//                 <span className="feed-time">
+//                   🕒 {timeAgo(post.createdAt)}
+//                 </span>
+//               </div>
+//               <h3 className="feed-title">{post.title}</h3>
+//               <p className="feed-desc">
+//                 {post.description || post.content?.substring(0, 150) || ""}
+//                 {(post.description?.length > 150 || post.content?.length > 150) && "..."}
+//               </p>
+//             </div>
+//           </div>
+//         );
+//       })}
+      
+//       {loading && (
+//         <div className="loader-wrapper">
+//           <div className="loader">Loading more...</div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default SwipeFeed;
+
+
+
+
+
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import API from "../../utils/api";
@@ -1293,7 +2512,7 @@ const SwipeFeed = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
   const [initializing, setInitializing] = useState(true);
-  const [authors, setAuthors] = useState({}); // Cache author details
+  const [authors, setAuthors] = useState({});
   
   const containerRef = useRef(null);
   const observer = useRef();
@@ -1301,12 +2520,14 @@ const SwipeFeed = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const isMounted = useRef(true);
   const initialLoadDone = useRef(false);
+  const scrollTimeoutRef = useRef(null);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       isMounted.current = false;
       if (observer.current) observer.current.disconnect();
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
     };
   }, []);
 
@@ -1342,10 +2563,59 @@ const SwipeFeed = () => {
     }
   }, [posts, fetchAuthorDetails, authors]);
 
+  // 🔥 IMPROVED SMOOTH SCROLL TO INDEX
+  const goToIndex = useCallback((index, shouldScroll = true) => {
+    if (!containerRef.current) return;
+    if (index < 0 || index >= posts.length) return;
+    
+    // Clear any existing scroll timeout
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    if (shouldScroll) {
+      isScrolling.current = true;
+      
+      containerRef.current.scrollTo({
+        top: index * window.innerHeight,
+        behavior: "smooth",
+      });
+    }
+    
+    setCurrentIndex(index);
+    
+    // Reset scrolling flag after animation completes
+    scrollTimeoutRef.current = setTimeout(() => {
+      isScrolling.current = false;
+    }, 500);
+  }, [posts.length]);
+
+  // 🔥 HANDLE SCROLL EVENT TO UPDATE CURRENT INDEX
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const handleScroll = () => {
+      if (isScrolling.current) return;
+      
+      const scrollTop = container.scrollTop;
+      const windowHeight = window.innerHeight;
+      const newIndex = Math.round(scrollTop / windowHeight);
+      
+      if (newIndex !== currentIndex && newIndex >= 0 && newIndex < posts.length) {
+        setCurrentIndex(newIndex);
+      }
+    };
+    
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [currentIndex, posts.length]);
+
   // 🔥 SINGLE SOURCE OF TRUTH - INITIAL LOAD
   useEffect(() => {
     // Reset everything when route changes
     initialLoadDone.current = false;
+    isScrolling.current = false;
     
     const initializeFeed = async () => {
       if (!isMounted.current) return;
@@ -1398,10 +2668,22 @@ const SwipeFeed = () => {
           setPosts(feedPosts);
           setPage(2);
           
-          // Scroll to target post if exists
+          // IMPORTANT: Wait for DOM to render before scrolling
           if (targetIndex !== -1) {
             setTimeout(() => {
-              goToIndex(targetIndex);
+              if (containerRef.current) {
+                // Force scroll without animation for initial positioning
+                containerRef.current.scrollTo({
+                  top: targetIndex * window.innerHeight,
+                  behavior: "auto",
+                });
+                setCurrentIndex(targetIndex);
+                
+                // Reset scrolling flag after manual scroll
+                setTimeout(() => {
+                  isScrolling.current = false;
+                }, 100);
+              }
             }, 200);
           }
           
@@ -1456,25 +2738,6 @@ const SwipeFeed = () => {
     }
   }, [loading, hasMore, page, initializing, locationParam]);
 
-  // 🔥 SMOOTH SCROLL TO INDEX
-  const goToIndex = useCallback((index) => {
-    if (!containerRef.current || isScrolling.current) return;
-    if (index < 0 || index >= posts.length) return;
-    
-    isScrolling.current = true;
-    
-    containerRef.current.scrollTo({
-      top: index * window.innerHeight,
-      behavior: "smooth",
-    });
-    
-    setCurrentIndex(index);
-    
-    setTimeout(() => {
-      isScrolling.current = false;
-    }, 500);
-  }, [posts.length]);
-
   // 🔥 TOUCH SWIPE HANDLER
   useEffect(() => {
     const container = containerRef.current;
@@ -1488,14 +2751,22 @@ const SwipeFeed = () => {
     };
     
     const handleTouchEnd = (e) => {
+      if (isScrolling.current) return;
+      
       touchEnd = e.changedTouches[0].clientY;
       const diff = touchStart - touchEnd;
       
       if (Math.abs(diff) > 50) {
         if (diff > 0) {
-          goToIndex(currentIndex + 1);
+          // Swipe up - next post
+          if (currentIndex + 1 < posts.length) {
+            goToIndex(currentIndex + 1, true);
+          }
         } else {
-          goToIndex(currentIndex - 1);
+          // Swipe down - previous post
+          if (currentIndex - 1 >= 0) {
+            goToIndex(currentIndex - 1, true);
+          }
         }
       }
     };
@@ -1507,7 +2778,29 @@ const SwipeFeed = () => {
       container.removeEventListener("touchstart", handleTouchStart);
       container.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [currentIndex, goToIndex]);
+  }, [currentIndex, posts.length, goToIndex]);
+
+  // 🔥 KEYBOARD SUPPORT (Arrow keys)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (isScrolling.current) return;
+      
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        if (currentIndex - 1 >= 0) {
+          goToIndex(currentIndex - 1, true);
+        }
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        if (currentIndex + 1 < posts.length) {
+          goToIndex(currentIndex + 1, true);
+        }
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [currentIndex, posts.length, goToIndex]);
 
   // 🔥 INFINITE SCROLL OBSERVER
   const lastPostRef = useCallback((node) => {
@@ -1602,7 +2895,7 @@ const SwipeFeed = () => {
               <div className="feed-meta">
                 {author && (
                   <span className="feed-author">
-                    ✍️ {author.name || author.username || "लेखक"}
+                    ✍️ {post.author  || "लेखक"}
                   </span>
                 )}
                 <span className="feed-time">
@@ -1611,7 +2904,8 @@ const SwipeFeed = () => {
               </div>
               <h3 className="feed-title">{post.title}</h3>
               <p className="feed-desc">
-                {post.description || post.content || ""}
+                {post.description || post.content?.substring(0, 150) || ""}
+                {(post.description?.length > 150 || post.content?.length > 150) && "..."}
               </p>
             </div>
           </div>
