@@ -644,8 +644,11 @@ export const getPostBySlugController = async (req, res) => {
     const decodedSlug = decodeURIComponent(req.params.slug);
 
     const post = await postModel.findOne({ slug: decodedSlug, status: "approved", })
-      .populate("category")
-      .populate("author", "name avatar");
+      // .populate("category")
+      // .populate("author", "name avatar");
+      .select("title content image slug createdAt") // Select only needed fields
+      .lean() // ⚡ Faster query
+      .exec();
 
     if (!post) {
       return res.status(404).json(
