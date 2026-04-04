@@ -3857,7 +3857,7 @@ const SwipeFeed = () => {
   };
 
 
-  const getPostContent = (content) => {
+   const getPostContent = (content) => {
   if (!content) return "NO Content";
 
   // ✅ If already string
@@ -3881,6 +3881,7 @@ const SwipeFeed = () => {
   // fallback
   return "NO Content";
 };
+
 
   // Loading state
   if (initializing && posts.length === 0) {
@@ -3955,17 +3956,26 @@ const SwipeFeed = () => {
                 </span>
               </div>
               <h3 className="feed-title">{post.title}</h3>
+{/* 
 
- <p>
-  {getPostContent(post.content)}
-</p>
+>
+              <p>
+{post.content || "NO Content" }
+
+              </p> */}
               {/* <p >
                 {post.content || "NO Content"}
               </p> */}
+
+              <div>
+                {getPostContent(post.content)}
+              </div>
             </div>
           </div>
         );
       })}
+
+      
       
       {loading && (
         <div className="loader-wrapper">
