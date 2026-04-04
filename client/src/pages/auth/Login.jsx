@@ -9,7 +9,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [, setAuth] = useAuth(); // We only need setAuth here
+  const [, setAuth] = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -76,7 +76,7 @@ catch (error) {
   if (status === 404) toast.error("User not found. Please register.");
   else if (status === 401) toast.error("Incorrect email or password.");
   else if (status === 500) toast.error("Server error. Try again later.");
-  else toast.error(msg || "Login failed");
+ /// else toast.error(msg || "Login failed");
 }
 
   finally {
