@@ -238,10 +238,10 @@ const [showProfileModal, setShowProfileModal] = useState(false);
           <span>Home</span>
         </NavLink>
 
-        <NavLink to="/explore" className="footer-item">
+        {/* <NavLink to="/explore" className="footer-item">
           <FaCompass />
           <span>Discover</span>
-        </NavLink>
+        </NavLink> */}
 
         {/* CREATE POST */}
         <button
@@ -253,13 +253,13 @@ const [showProfileModal, setShowProfileModal] = useState(false);
         </button>
 
         {/* SEARCH / MY AREA */}
-        <button
+        {/* <button
           className="footer-item btn-reset"
           onClick={handleSearchClick}
         >
           <FaSearch />
           <span>My Area</span>
-        </button>
+        </button> */}
 
         {/* PROFILE */}
         {user ? (
