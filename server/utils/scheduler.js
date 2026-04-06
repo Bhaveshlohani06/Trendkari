@@ -98,7 +98,7 @@ cron.schedule("14 10 * * *", async () => {
 
 
 export function startNewsJob() {
-  cron.schedule("0 */6 * * *", async () => { // every 6 hours
+  cron.schedule("0 */5 * * *", async () => { // every 5 hours
     console.log("📰 Running News Cron at", new Date().toLocaleString());
 
     try {
