@@ -4740,41 +4740,187 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useLocation as useRouterLocation } from "react-router-dom";
+import { FaInstagram, FaShareAlt } from 'react-icons/fa';
 import API from "../../utils/api";
 import "../../css/Swipe.css";
 import { useLocation } from "../context/LocationContext";
 
+
 const LIMIT = 6;
 
 // Ad configuration for different cities
+// const CITY_ADS = {
+//   kota: [
+//     { id: 1, title: "🔥 Learn Stock Trading in 7 Days", description: "Master the stock market with expert guidance", cta: "Enroll Now", bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
+//     { id: 2, title: "🚀 Grow Instagram to 100K Followers", description: "Proven strategies for rapid growth", cta: "Get Started", bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" },
+//     { id: 3, title: "💼 Hiring Developers – Apply Now", description: "Remote positions available worldwide", cta: "Apply Today", bgColor: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" },
+//     { id: 4, title: "📚 Free Digital Marketing Course", description: "Learn SEO, Social Media & More", cta: "Join Free", bgColor: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" },
+//     { id: 5, title: "🏠 Property Deals in Your City", description: "Best real estate investment opportunities", cta: "View Deals", bgColor: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" }
+//   ],
+//   ramganjamndi: [
+//     { id: 1, title: "🏭 Industrial Training Program", description: "Get certified in manufacturing skills", cta: "Apply Now", bgColor: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" },
+//     { id: 2, title: "🚜 Modern Farming Techniques", description: "Increase crop yield by 200%", cta: "Learn More", bgColor: "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" },
+//     { id: 3, title: "💻 Computer Course for Youth", description: "Basic to Advanced IT skills", cta: "Join Now", bgColor: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)" }
+//   ],
+//   snagod: [
+//     { id: 1, title: "📖 Competitive Exam Prep", description: "Crack SSC, Bank & Railway exams", cta: "Start Prep", bgColor: "linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)" },
+//     { id: 2, title: "💪 Fitness Center Membership", description: "50% off for first 100 members", cta: "Book Now", bgColor: "linear-gradient(135deg, #96fbc4 0%, #f9f586 100%)" }
+//   ],
+//   ladpura: [
+//     { id: 1, title: "🏪 Small Business Loan", description: "Instant approval up to 10 lakhs", cta: "Apply Online", bgColor: "linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)" },
+//     { id: 2, title: "🎨 Art & Craft Workshop", description: "Weekend classes for all ages", cta: "Register", bgColor: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)" }
+//   ]
+// };
+
+// // Default ads for cities without specific ads
+// const DEFAULT_ADS = [
+//   { id: 1, title: "🔥 Special Offer in Your City", description: "Limited time discount on services", cta: "Claim Offer", bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
+//   { id: 2, title: "📱 Download Our App", description: "Get exclusive city updates", cta: "Install Now", bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" }
+// ];
+
 const CITY_ADS = {
   kota: [
-    { id: 1, title: "🔥 Learn Stock Trading in 7 Days", description: "Master the stock market with expert guidance", cta: "Enroll Now", bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
-    { id: 2, title: "🚀 Grow Instagram to 100K Followers", description: "Proven strategies for rapid growth", cta: "Get Started", bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" },
-    { id: 3, title: "💼 Hiring Developers – Apply Now", description: "Remote positions available worldwide", cta: "Apply Today", bgColor: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" },
-    { id: 4, title: "📚 Free Digital Marketing Course", description: "Learn SEO, Social Media & More", cta: "Join Free", bgColor: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" },
-    { id: 5, title: "🏠 Property Deals in Your City", description: "Best real estate investment opportunities", cta: "View Deals", bgColor: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" }
+    { 
+      id: 1, 
+      title: "📱 Best Laptops for Students", 
+      description: "Top-rated laptops under ₹50,000 for coding & exams",
+      cta: "Buy", 
+      affiliateLink: "https://www.amazon.in/acer-Professional-3-7330U-Graphics-TL14-42M/dp/B0FG3C3RQ9?crid=B1XBFZGCJVR2&dib=eyJ2IjoiMSJ9.R_4OxDV9_n-rZr_aKXUZh68N2u_WKN3kNMSoeCC71a9x8_4_fPoe6Ci0K5XGPqplFPUCollvmffT5Nc45gbu14D5LXII8xVQCqRKZCHB8e3H-J7PsCAcU21Nr1_iUrne9dAXeiFSQG23bV493MzZ0L0iJfOUHl3-OEVHtKBDAn64KTBuyPohA2SoNTRz9__Oke3Cj7kXLPtsWd-_Te1TXu8p-gXmeRdsdmUH2OwTFGA.ciLCxEilB6TOYFqAOs7UiPrJMUQFPiMJbLErL1c975Y&dib_tag=se&keywords=laptop&qid=1775920329&sprefix=lapto%2Caps%2C454&sr=8-17&th=1&linkCode=ll2&tag=bhaveshloha0f-21&linkId=d53e9f0f9868558eca64d4f05eb65666&ref_=as_li_ss_tl",  // Replace this
+      imageUrl: "https://m.media-amazon.com/images/I/71TPda7cwUL._SL1500_.jpg",
+      bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+    },
+    { 
+      id: 2, 
+      title: "🎧 Noise Cancelling Headphones", 
+      description: "Perfect for online classes & focused study",
+      cta: "Shop", 
+      affiliateLink: "https://www.amazon.in/boAt-Rockerz-650-Pro-Headphones/dp/B0DV5JTG17?crid=1WA6THXSDQW39&dib=eyJ2IjoiMSJ9.jZg68yaAY05WPf4nTY5lY1pL3QoQreZ07qtPB78Sv932P3K8IShZc_vKXhnj2cdX7Ffl1CTF9B2uIrurhnQIxUzns3sXbKF-SmtvpNsWJNbAd4e9plMvzkIKuU9JlU1GgpVys6VF4B5kxvvzCM7zIsJ8yaTGjoqTlXEMlVfXPf9YTFyFB5jsG10FCjKTNtXsMoqJYedrtk1AI0oVZzwuAztxa2XFtHjktmAyAvIYRyo.pPzv50bWrVmXVx2um0YxXEv7AoCUJeCMQk08x3LeBEY&dib_tag=se&keywords=Noise%2BCancelling%2BHeadphones&qid=1775922702&sprefix=noise%2Bcancelling%2Bheadphones%2Caps%2C660&sr=8-1-spons&aref=j5Bgkk7l7l&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1&linkCode=ll2&tag=bhaveshloha0f-21&linkId=0cbba45fa4386e9d30ac6c1898a65e02&ref_=as_li_ss_tl",  // Replace this
+      imageUrl: "https://static-01.daraz.com.np/p/0e8b2e7e6b6e6c5e6d4e3f2e1c0b9a8e.jpg",
+      bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" 
+    },
+    { 
+      id: 3, 
+      title: "📚 UPSC/JEE Preparation Books", 
+      description: "Best-selling guides & practice papers",
+      cta: "View", 
+      affiliateLink: "https://www.amazon.in/s?k=UPSC%2FJEE+Preparation+Books&crid=2B3CJS7OR8K39&sprefix=upsc%2Fjee+preparation+books%2Caps%2C1469&linkCode=ll2&tag=bhaveshloha0f-21&linkId=12f8e2ff6921fdb20877417795316901&ref_=as_li_ss_tl",  // Replace this
+      imageUrl: "https://images-na.ssl-images-amazon.com/images/I/81Q1qJqJqJL.jpg",
+      bgColor: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" 
+    },
+    { 
+      id: 4, 
+      title: "💻 Online Coding Course", 
+      description: "Learn Python, Web Dev - Placement Guarantee",
+      cta: "Enroll Now", 
+      affiliateLink: "YOUR_CODING_COURSE_AFFILIATE_LINK",  // Replace this
+      imageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97",
+      bgColor: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" 
+    },
+    { 
+      id: 5, 
+      title: "🏠 PG/Hostel Near Kota", 
+      description: "Safe & affordable stays for students",
+      cta: "Check Prices", 
+      affiliateLink: "YOUR_MAGICBRICKS_AFFILIATE_LINK",  // Replace this
+      imageUrl: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5",
+      bgColor: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" 
+    }
   ],
   ramganjamndi: [
-    { id: 1, title: "🏭 Industrial Training Program", description: "Get certified in manufacturing skills", cta: "Apply Now", bgColor: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" },
-    { id: 2, title: "🚜 Modern Farming Techniques", description: "Increase crop yield by 200%", cta: "Learn More", bgColor: "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" },
-    { id: 3, title: "💻 Computer Course for Youth", description: "Basic to Advanced IT skills", cta: "Join Now", bgColor: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)" }
+    { 
+      id: 1, 
+      title: "🔧 Power Tools for Workshops", 
+      description: "Heavy-duty tools at best prices",
+      cta: "Shop Now", 
+      affiliateLink: "https://www.amazon.in/s?k=Power+Tools+for+Workshops&crid=8MZW92KEUDL5&sprefix=power+tools+for+workshops%2Caps%2C514&linkCode=ll2&tag=bhaveshloha0f-21&linkId=d763f0beefa274d7847420da2fcf9e07&ref_=as_li_ss_tl",
+      imageUrl: "https://m.media-amazon.com/images/I/61jLgUYSZqL._SL1500_.jpg",
+      bgColor: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" 
+    },
+    { 
+      id: 2, 
+      title: "🚜 Tractor & Farming Equipment", 
+      description: "EMI options available",
+      cta: "View Offers", 
+      affiliateLink: "https://www.amazon.in/s?k=Tractor+%26+Farming+Equipment&crid=25QJVXRCMEYCW&sprefix=tractor+%26+farming+equipment%2Caps%2C443&linkCode=ll2&tag=bhaveshloha0f-21&linkId=9c05f4afc1031a3e7269b5920109ed8c&ref_=as_li_ss_tl",
+      imageUrl: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9",
+      bgColor: "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" 
+    },
+    { 
+      id: 3, 
+      title: "💻 Learn MS Office & Tally", 
+      description: "Get job-ready in 30 days",
+      cta: "Join Course", 
+      affiliateLink: "YOUR_UDEMY_AFFILIATE_LINK",
+      imageUrl: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd",
+      bgColor: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)" 
+    }
   ],
   snagod: [
-    { id: 1, title: "📖 Competitive Exam Prep", description: "Crack SSC, Bank & Railway exams", cta: "Start Prep", bgColor: "linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)" },
-    { id: 2, title: "💪 Fitness Center Membership", description: "50% off for first 100 members", cta: "Book Now", bgColor: "linear-gradient(135deg, #96fbc4 0%, #f9f586 100%)" }
+    { 
+      id: 1, 
+      title: "📖 SSC/Bank Exam Mock Tests", 
+      description: "5000+ previous year questions",
+      cta: "Start Free Trial", 
+      affiliateLink: "YOUR_TESTBOOK_AFFILIATE_LINK",
+      imageUrl: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173",
+      bgColor: "linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)" 
+    },
+    { 
+      id: 2, 
+      title: "💪 Home Gym Equipment", 
+      description: "Dumbbells, yoga mats, resistance bands",
+      cta: "Buy on Amazon", 
+      affiliateLink: "YOUR_AMAZON_GYM_AFFILIATE_LINK",
+      imageUrl: "https://m.media-amazon.com/images/I/71SW6g5z5VL._SL1500_.jpg",
+      bgColor: "linear-gradient(135deg, #96fbc4 0%, #f9f586 100%)" 
+    }
   ],
   ladpura: [
-    { id: 1, title: "🏪 Small Business Loan", description: "Instant approval up to 10 lakhs", cta: "Apply Online", bgColor: "linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)" },
-    { id: 2, title: "🎨 Art & Craft Workshop", description: "Weekend classes for all ages", cta: "Register", bgColor: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)" }
+    { 
+      id: 1, 
+      title: "🏦 Business Loan at 9.9%", 
+      description: "Instant approval, minimal documentation",
+      cta: "Check Eligibility", 
+      affiliateLink: "YOUR_BAJAJ_FINSERV_AFFILIATE_LINK",
+      imageUrl: "https://images.unsplash.com/photo-1556742393-d75f468bfcb0",
+      bgColor: "linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)" 
+    },
+    { 
+      id: 2, 
+      title: "🎨 Art Supplies Kit", 
+      description: "Paint, brushes, canvases - 30% off",
+      cta: "Shop Now", 
+      affiliateLink: "YOUR_AMAZON_ART_AFFILIATE_LINK",
+      imageUrl: "https://images.unsplash.com/photo-1513364776144-60967b0f800f",
+      bgColor: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)" 
+    }
   ]
 };
 
 // Default ads for cities without specific ads
 const DEFAULT_ADS = [
-  { id: 1, title: "🔥 Special Offer in Your City", description: "Limited time discount on services", cta: "Claim Offer", bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
-  { id: 2, title: "📱 Download Our App", description: "Get exclusive city updates", cta: "Install Now", bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" }
+  { 
+    id: 1, 
+    title: "🔥 Special Offer in Your City", 
+    description: "Limited time discount on services",
+    cta: "Claim Offer", 
+    affiliateLink: "https://www.amazon.in/gp/bestsellers?&linkCode=ll2&tag=bhaveshloha0f-21&linkId=315b5523cf1f376de8b016f5bf962b9a&ref_=as_li_ss_tl",
+    imageUrl: "https://images.unsplash.com/photo-1556741533-6e6a3bd8e0d1",
+    bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" 
+  },
+  { 
+    id: 2, 
+    title: "📱 Best Watch", 
+    description: "Get exclusive Analog Watches at best prices",
+    cta: "Check Now", 
+    affiliateLink: "https://www.amazon.in/Michael-Kors-Lexington-Gold-Tone-MK8286/dp/B00CQGRZAE?pd_rd_w=deQi7&content-id=amzn1.sym.2fa5ef78-d215-4b54-bdb7-fa3d3620b822&pf_rd_p=2fa5ef78-d215-4b54-bdb7-fa3d3620b822&pf_rd_r=Q7J3NRQ0K6SH8MC9GDDE&pd_rd_wg=OANLG&pd_rd_r=4a08453a-769e-4ea8-8485-4142fbdd9294&pd_rd_i=B00CQGRZAE&th=1&linkCode=ll2&tag=bhaveshloha0f-21&linkId=b9a76aa23c36d6d8e910394a0691b169&ref_=as_li_ss_tl",
+    imageUrl: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c",
+    bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" 
+  }
 ];
+
+// Function to handle ad click (add this to your click handler)
+
 
 // Helper function for time ago format
 const timeAgo = (date) => {
@@ -4822,10 +4968,29 @@ const AdCard = ({ ad, index }) => {
 
   const handleAdClick = () => {
     // Track ad click (you can send to analytics)
-    console.log(`Ad ${ad.id} clicked`);
+    // console.log(`Ad ${ad.affiliateLink} clicked`);
     // Add your affiliate link or action here
-    alert(`Opening: ${ad.title}\nThis is a demo ad. Integrate your actual link here.`);
+{/* <a href="${ad.affiliateLink }" target="_blank" rel="noopener noreferrer"></a> */}
+
+
+      if (ad.affiliateLink) {
+        window.open(ad.affiliateLink, '_blank');
+      } else {
+        console.log('No affiliate link configured for this ad');
+      }
+
+      
+
+   // alert(`Opening: ${ad.title}\n  ${ad.affiliateLink} This is a demo ad. Integrate your actual link here.`);
   };
+
+//   const handleAdClick = (ad) => {
+//   if (ad.affiliateLink) {
+//     window.open(ad.affiliateLink, '_blank');
+//   } else {
+//     console.log('No affiliate link configured for this ad');
+//   }
+// }
 
   return (
     <div 
@@ -5345,6 +5510,19 @@ const SwipeFeed = () => {
                 </div>
                 <h3 className="feed-title">{post.title}</h3>
                 <div>{getPostContent(post.content)}</div>
+
+    <div style={{ position: 'fixed', bottom: 70, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <a href="https://www.instagram.com/trendkari.in/" target="_blank" rel="noopener noreferrer" 
+         style={{ width: 50, height: 50, borderRadius: 50, background: 'linear-gradient(45deg, #f09433, #d62976, #962fbf)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 24 }}>
+        <FaInstagram />
+        {/* <p>Instagram</p> */}
+      </a>
+      {/* <button onClick={() => window.open('https://www.trendkari.in', '_blank')} 
+              style={{ width: 50, height: 50, borderRadius: 50, background: '#25D366', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 24, cursor: 'pointer' }}>
+        <FaShareAlt />
+      </button> */}
+    </div>
+
               </div>
             </div>
           );

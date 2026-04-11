@@ -1,4 +1,4 @@
-.feed-container {
+ .feed-container {
   height: 100vh;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
@@ -23,7 +23,10 @@
 
 /* IMAGE */
 .feed-image-wrapper {
-  height: 45%;
+    height: 30vh;  /* Using vh instead of % for consistency */
+  min-height: 180px;  /* Minimum height for very small phones */
+  max-height: 35vh; 
+  /* height: 45%; */
   position: relative;
   overflow: hidden;
 }
