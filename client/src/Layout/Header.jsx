@@ -548,6 +548,8 @@ import { FiSun, FiCloud, FiCloudRain } from "react-icons/fi";
 import API from "../../utils/api";
 import { FaBars } from "react-icons/fa";
 import Sidebar from "./Sidebar.jsx";
+import { getToken } from "firebase/messaging";
+import { messaging } from "../firebase.js"; // adjust path if needed
 
 const CITIES = [
   { key: "kota", label: "Kota" },
@@ -599,6 +601,40 @@ const Header = () => {
     navigate("/");
   };
 
+const handleEnableNotifications = async () => {
+  try {
+    if (Notification.permission === "granted") {
+      console.log("Already enabled");
+      return;
+    }
+
+    if (Notification.permission === "denied") {
+      alert("Please enable notifications from browser settings");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+
+    if (permission === "granted") {
+      const token = await getToken(messaging, {
+        vapidKey: "YOUR_VAPID_KEY",
+      });
+
+      console.log("TOKEN:", token);
+
+      await fetch("/save-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token }),
+      });
+    }
+  } catch (err) {
+    console.error("Notification error:", err);
+  }
+};
+
   return (
     <header className="tk-header d-flex justify-content-between align-items-center">
 
@@ -640,9 +676,15 @@ const Header = () => {
 
 
 
+
       {/* RIGHT */}
       <div className="tk-actions d-flex align-items-center gap-2">
         {/* 🔔 Notification */}
+
+<button onClick={handleEnableNotifications} className="notify-btn">
+  🔔 Alerts
+</button>
+
 
         <NotificationBell />
         {/* 👤 User */}

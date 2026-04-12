@@ -226,7 +226,7 @@ const App = () => {
 
     notificationInitialized.current = true;
 
-    requestNotificationPermission();
+    // requestNotificationPermission();
     initForegroundNotifications();
   }, []);
 
