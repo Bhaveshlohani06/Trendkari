@@ -4749,34 +4749,6 @@ import { useLocation } from "../context/LocationContext";
 const LIMIT = 6;
 
 // Ad configuration for different cities
-// const CITY_ADS = {
-//   kota: [
-//     { id: 1, title: "🔥 Learn Stock Trading in 7 Days", description: "Master the stock market with expert guidance", cta: "Enroll Now", bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
-//     { id: 2, title: "🚀 Grow Instagram to 100K Followers", description: "Proven strategies for rapid growth", cta: "Get Started", bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" },
-//     { id: 3, title: "💼 Hiring Developers – Apply Now", description: "Remote positions available worldwide", cta: "Apply Today", bgColor: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)" },
-//     { id: 4, title: "📚 Free Digital Marketing Course", description: "Learn SEO, Social Media & More", cta: "Join Free", bgColor: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)" },
-//     { id: 5, title: "🏠 Property Deals in Your City", description: "Best real estate investment opportunities", cta: "View Deals", bgColor: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)" }
-//   ],
-//   ramganjamndi: [
-//     { id: 1, title: "🏭 Industrial Training Program", description: "Get certified in manufacturing skills", cta: "Apply Now", bgColor: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)" },
-//     { id: 2, title: "🚜 Modern Farming Techniques", description: "Increase crop yield by 200%", cta: "Learn More", bgColor: "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)" },
-//     { id: 3, title: "💻 Computer Course for Youth", description: "Basic to Advanced IT skills", cta: "Join Now", bgColor: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)" }
-//   ],
-//   snagod: [
-//     { id: 1, title: "📖 Competitive Exam Prep", description: "Crack SSC, Bank & Railway exams", cta: "Start Prep", bgColor: "linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)" },
-//     { id: 2, title: "💪 Fitness Center Membership", description: "50% off for first 100 members", cta: "Book Now", bgColor: "linear-gradient(135deg, #96fbc4 0%, #f9f586 100%)" }
-//   ],
-//   ladpura: [
-//     { id: 1, title: "🏪 Small Business Loan", description: "Instant approval up to 10 lakhs", cta: "Apply Online", bgColor: "linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%)" },
-//     { id: 2, title: "🎨 Art & Craft Workshop", description: "Weekend classes for all ages", cta: "Register", bgColor: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)" }
-//   ]
-// };
-
-// // Default ads for cities without specific ads
-// const DEFAULT_ADS = [
-//   { id: 1, title: "🔥 Special Offer in Your City", description: "Limited time discount on services", cta: "Claim Offer", bgColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
-//   { id: 2, title: "📱 Download Our App", description: "Get exclusive city updates", cta: "Install Now", bgColor: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)" }
-// ];
 
 const CITY_ADS = {
   kota: [

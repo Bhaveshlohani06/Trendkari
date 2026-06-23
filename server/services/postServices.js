@@ -140,7 +140,7 @@ export const savePost = async (data) => {
     language: data.language === "hindi" ? "hi" : "en",
     location: data.location,
     slug: slug,
-    status: "pending",
+    status: "approved", // Directly approve for now, can be changed to "pending" if admin approval is needed
     isPublished: false,
     image: data.image || null, // This should be a URL string
     source: data.source || null,

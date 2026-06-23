@@ -190,6 +190,7 @@ import Emergency from "./pages/Emergency.jsx";
 import Advertise from "./pages/Advertise.jsx";
 import SwipeFeed from "./Components/SwipeFeed.jsx";
 import Layout from "./Layout/Layout.jsx";
+import TestSwipeFeed from "./Components/TESTSWIPEFEED.jsx";
 
 // Your GA Measurement ID
 
@@ -266,7 +267,7 @@ const App = () => {
       <SwipeFeed key={window.location.pathname} />
     </Layout>} />
 
-
+<Route path="/test" element={<TestSwipeFeed />} />
 
         {/* Blog detail (normal + location based) */}
         <Route path="/article/:slug" element={<BlogDetail />} />
