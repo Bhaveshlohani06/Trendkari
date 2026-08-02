@@ -10,23 +10,25 @@
   display: none;
 }
 
-/* CARD — full-bleed Shorts/Reels style */
+/* CARD — top half image, bottom half content */
 .feed-card {
   height: 100vh;
+  height: 100dvh; /* accounts for mobile browser address bar so the split stays accurate */
   scroll-snap-align: start;
   scroll-snap-stop: always;
 
-  position: relative;
-  overflow: hidden; 
-  background: #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* keeps the card locked to exactly one screen */
+  background: #fff;
 }
 
-/* IMAGE — fills the entire card, text sits on top of it */
+/* IMAGE — exactly the top half of the card */
 .feed-image-wrapper {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  flex: 0 0 50%;
   width: 100%;
-  height: 100%;
+  height: 50%;
   overflow: hidden;
 }
 
@@ -34,91 +36,116 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
-/* GRADIENT — covers the lower half+ of the image so white text stays readable
-   however long the caption gets */
+/* GRADIENT — just a light readability aid at the bottom edge of the image
+   (for the share button), not covering text anymore since content lives
+   in its own half below */
 .image-overlay {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.92) 0%,
-    rgba(0, 0, 0, 0.75) 22%,
-    rgba(0, 0, 0, 0.35) 45%,
-    rgba(0, 0, 0, 0) 68%
-  );
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 35%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.45), transparent);
   pointer-events: none;
 }
 
 /* SHARE */
 .share-btn {
   position: absolute;
-  top: 16px;
+  top: 12px;
   right: 12px;
   z-index: 10;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
   color: white;
   border: none;
   padding: 10px;
   border-radius: 50%;
   backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* CONTENT — pinned to the bottom of the card, over the gradient.
-   No fixed % height and no line-clamp: the headline and description
-   always render in full. If a caption is long, THIS box scrolls
-   internally instead of pushing the card past 100vh. */
-.feed-content {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 5;
-  max-height: 62vh; /* generous cap so long captions scroll instead of breaking the snap layout */
+/* CONTENT — exactly the bottom half of the card. Scrolls internally so a
+   long headline/description is always shown IN FULL, never clipped, and
+   never pushes the card past one screen. */
+/*
+   .feed-content {
+  flex: 1 1 50%;
+  height: 50%;
+  min-height: 0; 
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  padding: 18px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
   display: flex;
   flex-direction: column;
-  color: #fff;
+  padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  color: #111;
   box-sizing: border-box;
+  background: #fff;
+}
+*/
+
+
+.feed-content {
+    overflow-y: auto;
+    min-height: 0;
 }
 
+.feed-desc {
+    flex: 1;
+}
 .feed-content::-webkit-scrollbar {
   display: none;
 }
 
 .feed-title {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
   line-height: 1.35;
   margin: 0 0 8px 0;
-  color: #fff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  color: #111;
   white-space: normal;
   overflow-wrap: break-word;
   /* full headline, never clipped */
 }
 
-.feed-desc {
-  margin-top: 0px;
-  font-size: 15px;
+/* .feed-desc {
+  margin: 0;
+  font-size: 8px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.92);
-  white-space: normal;
-  overflow-wrap: break-word;
-  /* full description, never clipped */
-}
+  color: #444;
+  white-space: normal; 
+} */
 
 .feed-meta {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #888;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+/* MOBILE RESPONSIVE — tighter type and padding on small phones */
+@media (max-width: 480px) {
+  .feed-title {
+    font-size: 17px;
+  }
+  .feed-desc {
+    font-size: 8px;
+    line-height: 1.5;
+  }
+  .feed-content {
+    padding: 14px 14px calc(env(safe-area-inset-bottom, 0px) + 14px);
+  }
+  .share-btn {
+    padding: 8px;
+  }
 }
 
 /* Skeleton base */
@@ -146,24 +173,23 @@
 /* Full card skeleton */
 .feed-card.skeleton {
   height: 100vh;
-  position: relative;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-/* Image skeleton — fills the whole card, matching the live layout */
+/* Image skeleton — top half, matching the live layout */
 .feed-card.skeleton .feed-image-wrapper {
-  position: absolute;
-  inset: 0;
-  height: 100%;
+  flex: 0 0 50%;
+  height: 45%;
 }
 
-/* Content skeleton — pinned to the bottom like the live layout */
+/* Content skeleton — bottom half, matching the live layout */
 .feed-card.skeleton .feed-content {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 18px 16px 24px;
+  flex: 1 1 50%;
+  height: 50%;
+  padding: 16px;
   gap: 10px;
   display: flex;
   flex-direction: column;

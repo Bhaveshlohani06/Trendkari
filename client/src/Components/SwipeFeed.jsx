@@ -5397,7 +5397,7 @@ const SwipeFeed = () => {
           }
           return "";
         })
-        .join(" ");
+        .join("\n\n");
     }
     return "NO Content";
   };
