@@ -5471,7 +5471,7 @@ const SwipeFeed = () => {
                   🔗
                 </button>
               </div>
-              <div className="feed-content px-3">
+              <div className="feed-content">
                 <div className="feed-meta">
                   {author && (
                     <span className="feed-author">
@@ -5481,7 +5481,7 @@ const SwipeFeed = () => {
                   <span className="feed-time"> 🕒 {timeAgo(post.createdAt)} </span>
                 </div>
                 <h3 className="feed-title">{post.title}</h3>
-                <div>{getPostContent(post.content)}</div>
+                <p className="feed-desc">{getPostContent(post.content)}</p>
 
     <div style={{ position: 'fixed', bottom: 70, right: 20, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 10 }}>
       <a href="https://www.instagram.com/trendkari.in/" target="_blank" rel="noopener noreferrer" 

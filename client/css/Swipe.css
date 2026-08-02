@@ -10,24 +10,23 @@
   display: none;
 }
 
-/* CARD */
+/* CARD — full-bleed Shorts/Reels style */
 .feed-card {
   height: 100vh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
 
-  display: flex;
-  flex-direction: column;
-  background: #fff;
+  position: relative;
+  overflow: hidden; 
+  background: #000;
 }
 
-/* IMAGE */
+/* IMAGE — fills the entire card, text sits on top of it */
 .feed-image-wrapper {
-    height: 30vh;  /* Using vh instead of % for consistency */
-  min-height: 180px;  /* Minimum height for very small phones */
-  max-height: 35vh; 
-  /* height: 45%; */
-  position: relative;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -37,52 +36,89 @@
   object-fit: cover;
 }
 
-/* GRADIENT */
+/* GRADIENT — covers the lower half+ of the image so white text stays readable
+   however long the caption gets */
 .image-overlay {
   position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: 40%;
-  background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.75) 22%,
+    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0) 68%
+  );
+  pointer-events: none;
 }
 
 /* SHARE */
 .share-btn {
   position: absolute;
-  top: 12px;
+  top: 16px;
   right: 12px;
   z-index: 10;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.5);
   color: white;
   border: none;
-  padding: 8px;
+  padding: 10px;
   border-radius: 50%;
+  backdrop-filter: blur(4px);
 }
 
-/* CONTENT */
+/* CONTENT — pinned to the bottom of the card, over the gradient.
+   No fixed % height and no line-clamp: the headline and description
+   always render in full. If a caption is long, THIS box scrolls
+   internally instead of pushing the card past 100vh. */
 .feed-content {
-  height: 40%;
-  padding: 16px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  max-height: 62vh; /* generous cap so long captions scroll instead of breaking the snap layout */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 18px 16px calc(env(safe-area-inset-bottom, 0px) + 20px);
   display: flex;
   flex-direction: column;
+  color: #fff;
+  box-sizing: border-box;
+}
+
+.feed-content::-webkit-scrollbar {
+  display: none;
 }
 
 .feed-title {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
-  /* overflow: hidden;  */
+  line-height: 1.35;
+  margin: 0 0 8px 0;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  white-space: normal;
+  overflow-wrap: break-word;
+  /* full headline, never clipped */
 }
 
 .feed-desc {
   margin-top: 0px;
-  font-size: 16px;
-  color: #444;
-  /* -webkit-line-clamp: 4; */
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.92);
+  white-space: normal;
+  overflow-wrap: break-word;
+  /* full description, never clipped */
 }
 
 .feed-meta {
   font-size: 12px;
-  color: gray;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
 /* Skeleton base */
@@ -110,19 +146,27 @@
 /* Full card skeleton */
 .feed-card.skeleton {
   height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Image skeleton — fills the whole card, matching the live layout */
+.feed-card.skeleton .feed-image-wrapper {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+
+/* Content skeleton — pinned to the bottom like the live layout */
+.feed-card.skeleton .feed-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 16px 24px;
+  gap: 10px;
   display: flex;
   flex-direction: column;
-}
-
-/* Image skeleton */
-.feed-card.skeleton .feed-image-wrapper {
-  height: 60%;
-}
-
-/* Content skeleton */
-.feed-card.skeleton .feed-content {
-  height: 40%;
-  padding: 16px;
 }
 
 /* Lines */

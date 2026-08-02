@@ -111,7 +111,7 @@
 import postModel from "../models/postmodel.js";
 import slugify from "slugify";
 import { generateSlug } from "../utils/slugify.js"; 
-
+import { postNews } from "./telegramService.js";
 
 export const savePost = async (data) => {
   if (!data.title || !data.content) {
@@ -148,7 +148,26 @@ export const savePost = async (data) => {
   };
 
   // Save to DB
-  return await postModel.create(normalizedPost);
+//   return await postModel.create(normalizedPost);
+
+// const post = await postModel.create(normalizedPost);
+
+
+// await postNews(post);
+
+// return post;
+
+// Save to DB
+const post = await postModel.create(normalizedPost);
+
+console.log("✅ Post saved:", post._id);
+
+await postNews(post);
+
+console.log("✅ Telegram posted");
+
+return post;
+
 };
 
 export const isDuplicate = async (title) => {
