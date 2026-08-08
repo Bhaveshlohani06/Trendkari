@@ -818,45 +818,246 @@
 
 
 
-import Post from '../models/postmodel.js';
-import User from '../models/usermodel.js';
-import Category from '../models/categorymodel.js';
+// import Post from '../models/postmodel.js';
+// import User from '../models/usermodel.js';
+// import Category from '../models/categorymodel.js';
+// import { detectIntent } from "../utils/aiIntent.js";
+// import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
+
+// // 🔍 HELPER FUNCTION: Queries MongoDB across Posts, Users, & Categories
+// export const performBasicSearch = async (query) => {
+//   const searchTerm = (query || "").trim();
+//   if (!searchTerm) return { posts: [], users: [], categories: [] };
+
+//   // Search Posts (Title & Tags)
+//   const posts = await Post.find({
+//     $or: [
+//       { title: { $regex: searchTerm, $options: 'i' } },
+//       { tags: { $regex: searchTerm, $options: 'i' } }
+//     ]
+//   })
+//     .populate('author', 'name avatar')
+//     .populate('category', 'name')
+//     .sort({ createdAt: -1 })
+//     .limit(20);
+
+//   // Search Users
+//   const users = await User.find({
+//     $or: [
+//       { name: { $regex: searchTerm, $options: 'i' } },
+//       { bio: { $regex: searchTerm, $options: 'i' } }
+//     ]
+//   })
+//     .select('name avatar bio followersCount')
+//     .limit(10);
+
+//   // Search Categories
+//   const categories = await Category.find({
+//     name: { $regex: searchTerm, $options: 'i' }
+//   }).limit(5);
+
+//   return { posts, users, categories };
+// };
+
+// // ✅ BASIC SEARCH (GET /api/v1/search/basic?query=...)
+// export const basicSearch = async (req, res) => {
+//   try {
+//     const { query } = req.query;
+
+//     if (!query) {
+//       return res.status(400).json({ error: "Query required" });
+//     }
+
+//     const results = await performBasicSearch(query);
+
+//     return res.json({
+//       success: true,
+//       results
+//     });
+//   } catch (err) {
+//     console.error("Basic search error:", err);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+// // ✅ AUTOCOMPLETE (GET /api/v1/search/autocomplete?q=...)
+// export const autocomplete = async (req, res) => {
+//   try {
+//     const { q } = req.query;
+
+//     if (!q || q.length < 2) {
+//       return res.json({ suggestions: [] });
+//     }
+
+//     const results = await performBasicSearch(q);
+
+//     const suggestions = [
+//       ...results.posts.map((p) => ({ type: "post", text: p.title })),
+//       ...results.users.map((u) => ({ type: "user", text: u.name })),
+//       ...results.categories.map((c) => ({ type: "category", text: c.name }))
+//     ];
+
+//     return res.json({ suggestions });
+//   } catch (err) {
+//     console.error("Autocomplete error:", err);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+// // ✅ ADVANCED SEARCH (GET / POST)
+// export const advancedSearch = async (req, res) => {
+//   try {
+//     const query = req.body?.query || req.query?.query;
+
+//     if (!query) {
+//       return res.status(400).json({ error: "Query required" });
+//     }
+
+//     const results = await performBasicSearch(query);
+
+//     return res.json({
+//       success: true,
+//       results
+//     });
+//   } catch (err) {
+//     console.error("Advanced search error:", err);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+// // 🚀 ADVANCED SMART SEARCH (AI Intent Routing + DB Search + AI Fallback)
+// export const advancedSmartSearch = async (req, res) => {
+//   try {
+//     const { query } = req.body;
+
+//     if (!query) {
+//       return res.status(400).json({ error: "Query required" });
+//     }
+
+//     // STEP 1: Detect AI Intent
+//     let intentData = { intent: "general" };
+//     try {
+//       intentData = await detectIntent(query);
+//     } catch (e) {
+//       console.warn("Intent detection failed, defaulting to general:", e.message);
+//     }
+
+//     // STEP 2: Handle Route Redirect Intents
+//     if (["horoscope", "market", "weather", "news"].includes(intentData.intent)) {
+//       return res.json({
+//         type: "redirect",
+//         route: `/${intentData.intent}`,
+//         message: `Navigating to ${intentData.intent}`,
+//         meta: intentData
+//       });
+//     }
+
+//     // STEP 3: Execute Database Search
+//     const dbResults = await performBasicSearch(query);
+//     const hasResults =
+//       dbResults.posts.length > 0 ||
+//       dbResults.users.length > 0 ||
+//       dbResults.categories.length > 0;
+
+//     // STEP 4: Return DB Results if found
+//     if (hasResults) {
+//       return res.json({
+//         type: "search",
+//         source: "database",
+//         query,
+//         results: dbResults,
+//         intent: intentData,
+//         message: `Found ${dbResults.posts.length} posts, ${dbResults.users.length} users, and ${dbResults.categories.length} categories`
+//       });
+//     }
+
+//     // STEP 5: AI Fallback if Database is empty
+//     console.log("🤖 No database records found. Generating Gemini response...");
+
+//     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+//     const prompt = `The user searched for: "${query}". Provide a clear, helpful overview addressing this topic.`;
+
+//     const result = await model.generateContent(prompt);
+//     const aiResponse = await result.response.text();
+
+//     return res.json({
+//       type: "ai_response",
+//       source: "ai",
+//       query,
+//       response: aiResponse,
+//       intent: intentData,
+//       message: "No database results found. Here's information generated for your query."
+//     });
+//   } catch (err) {
+//     console.error("Smart search error:", err);
+//     return res.status(500).json({
+//       error: "Internal server error",
+//       message: "Search failed. Please try again."
+//     });
+//   }
+// };
+
+import Post from "../models/postmodel.js";
+import User from "../models/usermodel.js";
+import Category from "../models/categorymodel.js";
 import { detectIntent } from "../utils/aiIntent.js";
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
 
-// 🔍 HELPER FUNCTION: Queries MongoDB across Posts, Users, & Categories
+// Helper function to escape special characters for Safe Regex matching
+const cleanQuery = (str) =>
+  (str || "").trim().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+
+// 🔍 BILINGUAL & HINGLISH SEARCH (Posts, Users, & Categories)
 export const performBasicSearch = async (query) => {
   const searchTerm = (query || "").trim();
   if (!searchTerm) return { posts: [], users: [], categories: [] };
 
-  // Search Posts (Title & Tags)
+  const safeRegex = new RegExp(cleanQuery(searchTerm), "i");
+
+  // Splits "rajasthan me aaj ka mausam" into token regex for flexible Hinglish slug matching
+  const wordTokens = searchTerm.split(/\s+/).map(cleanQuery).filter(Boolean);
+  const tokenRegex = new RegExp(wordTokens.join("|"), "i");
+
+  // 1. Search Posts: Combined $text index search + multi-field regex fallback
   const posts = await Post.find({
-    $or: [
-      { title: { $regex: searchTerm, $options: 'i' } },
-      { tags: { $regex: searchTerm, $options: 'i' } }
-    ]
+    $and: [
+      { status: "approved" }, // Only show approved posts
+      {
+        $or: [
+          { $text: { $search: searchTerm } }, // Uses bilingual text index
+          { title: safeRegex },
+          { slug: safeRegex },
+          { slug: tokenRegex }, // Handles Hinglish slug matches like "rajasthan-me-aaj-ka-mausam"
+          { tags: safeRegex },
+          { description: safeRegex },
+        ],
+      },
+    ],
   })
-    .populate('author', 'name avatar')
-    .populate('category', 'name')
+    .populate("author", "name avatar")
+    .populate("category", "name slug")
     .sort({ createdAt: -1 })
     .limit(20);
 
-  // Search Users
+  // 2. Search Users
   const users = await User.find({
     $or: [
-      { name: { $regex: searchTerm, $options: 'i' } },
-      { bio: { $regex: searchTerm, $options: 'i' } }
-    ]
+      { name: safeRegex },
+      { username: safeRegex },
+      { bio: safeRegex },
+    ],
   })
-    .select('name avatar bio followersCount')
+    .select("name avatar bio followersCount")
     .limit(10);
 
-  // Search Categories
+  // 3. Search Categories
   const categories = await Category.find({
-    name: { $regex: searchTerm, $options: 'i' }
-  }).limit(5);
+    $or: [{ name: safeRegex }, { slug: safeRegex }],
+  }).limit(10);
 
   return { posts, users, categories };
 };
@@ -874,7 +1075,7 @@ export const basicSearch = async (req, res) => {
 
     return res.json({
       success: true,
-      results
+      results,
     });
   } catch (err) {
     console.error("Basic search error:", err);
@@ -882,31 +1083,43 @@ export const basicSearch = async (req, res) => {
   }
 };
 
-// ✅ AUTOCOMPLETE (GET /api/v1/search/autocomplete?q=...)
+// ✅ AUTOCOMPLETE SUGGESTIONS (GET /api/v1/search/autocomplete?q=...)
 export const autocomplete = async (req, res) => {
   try {
     const { q } = req.query;
 
-    if (!q || q.length < 2) {
+    if (!q || q.trim().length < 2) {
       return res.json({ suggestions: [] });
     }
 
     const results = await performBasicSearch(q);
 
     const suggestions = [
-      ...results.posts.map((p) => ({ type: "post", text: p.title })),
-      ...results.users.map((u) => ({ type: "user", text: u.name })),
-      ...results.categories.map((c) => ({ type: "category", text: c.name }))
+      ...results.posts.map((p) => ({
+        type: "post",
+        text: p.title,
+        slug: p.slug,
+      })),
+      ...results.categories.map((c) => ({
+        type: "category",
+        text: c.name,
+        slug: c.slug,
+      })),
+      ...results.users.map((u) => ({
+        type: "user",
+        text: u.name,
+        id: u._id,
+      })),
     ];
 
-    return res.json({ suggestions });
+    return res.json({ suggestions: suggestions.slice(0, 8) });
   } catch (err) {
     console.error("Autocomplete error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// ✅ ADVANCED SEARCH (GET / POST)
+// ✅ ADVANCED SEARCH (POST / GET)
 export const advancedSearch = async (req, res) => {
   try {
     const query = req.body?.query || req.query?.query;
@@ -919,7 +1132,7 @@ export const advancedSearch = async (req, res) => {
 
     return res.json({
       success: true,
-      results
+      results,
     });
   } catch (err) {
     console.error("Advanced search error:", err);
@@ -927,10 +1140,10 @@ export const advancedSearch = async (req, res) => {
   }
 };
 
-// 🚀 ADVANCED SMART SEARCH (AI Intent Routing + DB Search + AI Fallback)
+// 🚀 ADVANCED SMART SEARCH (AI Intent Routing + DB Search + Hindi Gemini Fallback)
 export const advancedSmartSearch = async (req, res) => {
   try {
-    const { query } = req.body;
+    const { query, location } = req.body;
 
     if (!query) {
       return res.status(400).json({ error: "Query required" });
@@ -950,18 +1163,18 @@ export const advancedSmartSearch = async (req, res) => {
         type: "redirect",
         route: `/${intentData.intent}`,
         message: `Navigating to ${intentData.intent}`,
-        meta: intentData
+        meta: intentData,
       });
     }
 
-    // STEP 3: Execute Database Search
+    // STEP 3: Execute Bilingual Database Search
     const dbResults = await performBasicSearch(query);
     const hasResults =
       dbResults.posts.length > 0 ||
       dbResults.users.length > 0 ||
       dbResults.categories.length > 0;
 
-    // STEP 4: Return DB Results if found
+    // STEP 4: Return Database Results if found
     if (hasResults) {
       return res.json({
         type: "search",
@@ -969,15 +1182,17 @@ export const advancedSmartSearch = async (req, res) => {
         query,
         results: dbResults,
         intent: intentData,
-        message: `Found ${dbResults.posts.length} posts, ${dbResults.users.length} users, and ${dbResults.categories.length} categories`
+        message: `Found ${dbResults.posts.length} posts, ${dbResults.users.length} users, and ${dbResults.categories.length} categories`,
       });
     }
 
-    // STEP 5: AI Fallback if Database is empty
-    console.log("🤖 No database records found. Generating Gemini response...");
+    // STEP 5: Gemini AI Fallback in Hindi when DB yields no matches
+    console.log(`🤖 No database records for "${query}". Generating Hindi response via Gemini...`);
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    const prompt = `The user searched for: "${query}". Provide a clear, helpful overview addressing this topic.`;
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const prompt = `User searched for: "${query}". Location context: "${location || "Kota, Rajasthan"}".
+    Provide a concise, helpful overview addressing this search topic in Hindi (हिंदी).
+    Keep the tone journalistic and appropriate for a local Hindi news app called Trendkari. Avoid preamble.`;
 
     const result = await model.generateContent(prompt);
     const aiResponse = await result.response.text();
@@ -986,15 +1201,17 @@ export const advancedSmartSearch = async (req, res) => {
       type: "ai_response",
       source: "ai",
       query,
-      response: aiResponse,
+      aiSummary: aiResponse,
+      response: aiResponse, // Maintained for backward compatibility
+      results: { posts: [], users: [], categories: [] },
       intent: intentData,
-      message: "No database results found. Here's information generated for your query."
+      message: "No database results found. Generated AI response in Hindi.",
     });
   } catch (err) {
     console.error("Smart search error:", err);
     return res.status(500).json({
       error: "Internal server error",
-      message: "Search failed. Please try again."
+      message: "Search failed. Please try again.",
     });
   }
 };
