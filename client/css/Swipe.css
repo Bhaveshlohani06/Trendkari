@@ -237,7 +237,6 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  flex-shrink: 0;
 
   font-size: 13px;
   font-weight: 600;
@@ -260,24 +259,17 @@
 }
 
 /* ==========================================================================
-   7. ARTICLE TITLE & DESCRIPTION (COMPLETE EXPANSION / ZERO TRUNCATION)
+   7. ARTICLE TITLE & DESCRIPTION (ZERO TRUNCATION)
    ========================================================================== */
 
-/* Title - Strict override targeting all tag variants */
-.feed-content h1.feed-title,
-.feed-content h2.feed-title,
-.feed-content h3.feed-title,
-.feed-content div.feed-title,
 .feed-content .feed-title,
 .feed-card .feed-title {
   display: block !important;
-  flex-shrink: 0 !important; /* Prevents flex parent compression */
-
   width: 100% !important;
   max-width: 100% !important;
 
   height: auto !important;
-  min-height: min-content !important;
+  min-height: 0 !important;
   max-height: none !important;
 
   margin: 0 !important;
@@ -293,35 +285,28 @@
 
   opacity: 1 !important;
 
-  /* Reset WebKit Clamping completely */
   white-space: normal !important;
   overflow: visible !important;
   text-overflow: clip !important;
 
-  line-clamp: none !important;
-  -webkit-line-clamp: none !important;
-  -webkit-box-orient: horizontal !important;
-
-  /* Robust wrapping across Hindi & English */
-  word-break: break-word !important;
+  word-break: normal !important;
   overflow-wrap: anywhere !important;
+
+  line-clamp: unset !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
 
   background: transparent !important;
 }
 
-/* Description - Dynamic height expansion */
-.feed-content p.feed-desc,
-.feed-content div.feed-desc,
 .feed-content .feed-desc,
 .feed-card .feed-desc {
   display: block !important;
-  flex-shrink: 0 !important;
-
   width: 100% !important;
   max-width: 100% !important;
 
   height: auto !important;
-  min-height: min-content !important;
+  min-height: 0 !important;
   max-height: none !important;
 
   margin: 0 !important;
@@ -336,16 +321,17 @@
 
   opacity: 1 !important;
 
+  /* Standard dynamic wrap for robust rendering of variable text */
   white-space: normal !important;
   overflow: visible !important;
   text-overflow: clip !important;
 
-  line-clamp: none !important;
-  -webkit-line-clamp: none !important;
-  -webkit-box-orient: horizontal !important;
-
-  word-break: break-word !important;
+  word-break: normal !important;
   overflow-wrap: anywhere !important;
+
+  line-clamp: unset !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
 
   background: transparent !important;
 }
