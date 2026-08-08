@@ -1,54 +1,59 @@
 /* ==========================================================================
-   TRENDKARI SWIPE FEED
+   TRENDKARI SWIPE FEED — PRODUCTION STYLESHEET
    ========================================================================== */
 
 /* ==========================================================================
-   FEED THEME VARIABLES
+   1. THEME VARIABLES & SOURCE OF TRUTH
    ========================================================================== */
 
 :root {
   --app-header-height: 60px;
   --app-footer-height: 64px;
 
-  /* Light theme */
-  --feed-bg: #ffffff;
+  /* Light Theme Defaults */
+  --feed-bg: #f4f5f7;
   --feed-card-bg: #ffffff;
-  --feed-text: #212529;
+  --feed-text: #1a1d20;
   --feed-muted: #6c757d;
-  --feed-border: #dee2e6;
+  --feed-border: #e9ecef;
   --feed-surface: #f8f9fa;
 
-  /* Dedicated title/description tokens (kept separate from --feed-text
-     so title/description can be tuned independently of author/meta
-     text). These are the single source of truth for feed article
-     text color — do not add a second, hardcoded override elsewhere. */
-  --feed-title-color: #212529;
-  --feed-description-color: #495057;
+  /* Dedicated Article Typography Tokens */
+  --feed-title-color: #111827;
+  --feed-description-color: #374151;
+  --feed-author-color: #1f2937;
+
+  /* Ad Tokens */
+  --ad-badge-bg: rgba(0, 0, 0, 0.65);
+  --ad-badge-text: #ffffff;
 }
 
-/* Dark theme */
 [data-theme="dark"] {
-  --feed-bg: #121212;
-  --feed-card-bg: #1e1e1e;
+  /* Dark Theme Overrides */
+  --feed-bg: #0a0a0c;
+  --feed-card-bg: #141416;
+  --feed-text: #f3f4f6;
+  --feed-muted: #9ca3af;
+  --feed-border: #27272a;
+  --feed-surface: #1f1f23;
 
-  /* Main feed text */
-  --feed-text: #ffffff;
-
-  /* Secondary text */
-  --feed-muted: #b0b3b8;
-
-  --feed-border: #2c2c2c;
-  --feed-surface: #252525;
-
+  /* Dedicated Article Typography Tokens */
   --feed-title-color: #ffffff;
-  --feed-description-color: #ffffff;
+  --feed-description-color: #e5e7eb;
+  --feed-author-color: #f9fafb;
+
+  /* Ad Tokens */
+  --ad-badge-bg: rgba(0, 0, 0, 0.75);
+  --ad-badge-text: #ffffff;
 }
 
 /* ==========================================================================
-   FEED ROOT / SCROLL CONTAINER
+   2. SCROLL CONTAINER
    ========================================================================== */
 
 .feed-container {
+  position: relative;
+  width: 100%;
   height: calc(100dvh - var(--app-header-height));
 
   overflow-y: auto;
@@ -64,132 +69,105 @@
   color: var(--feed-text);
 
   box-sizing: border-box;
+  touch-action: pan-y;
 }
 
 .feed-container::-webkit-scrollbar {
   display: none;
 }
 
-/* Desktop */
-
-@media (min-width: 900px) {
-  .feed-container {
-    background-color: var(--feed-bg) !important;
-  }
-}
-
 /* ==========================================================================
-   CARD
+   3. FEED CARD LAYOUT (VARIABLE HEIGHT SAFE)
    ========================================================================== */
+
 .feed-card,
 .feed-card-wrapper {
-    position: relative;
+  position: relative;
+  width: 100%;
 
-    width: 100%;
+  /* Guarantees full view on short posts while allowing expansion on long posts */
+  min-height: calc(
+    100dvh - var(--app-header-height) - var(--app-footer-height)
+  );
+  height: auto !important;
+  max-height: none !important;
 
-    min-height: calc(
-        100dvh -
-        var(--app-header-height) -
-        var(--app-footer-height)
-    );
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 
-    height: auto !important;
-    max-height: none !important;
+  box-sizing: border-box;
 
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
 
-    box-sizing: border-box;
+  background-color: var(--feed-card-bg) !important;
+  color: var(--feed-text) !important;
 
-    display: flex;
-    flex-direction: column;
+  margin: 0;
+  padding: 0;
 
-    background-color: var(--feed-card-bg) !important;
-    color: var(--feed-text) !important;
-
-    margin: 0;
-    padding: 0;
-
-    overflow: visible !important;
+  overflow: visible !important;
 }
 
-/* Desktop card */
-
+/* Desktop Constrained Column */
 @media (min-width: 900px) {
   .feed-card,
   .feed-card-wrapper {
     max-width: 520px;
-
     margin-left: auto;
     margin-right: auto;
-
     border-left: 1px solid var(--feed-border);
     border-right: 1px solid var(--feed-border);
   }
 }
 
 /* ==========================================================================
-   IMAGE
+   4. MEDIA / IMAGE WRAPPER
    ========================================================================== */
 
 .feed-image-wrapper {
   position: relative;
-
   width: 100%;
-
   flex-shrink: 0;
 
-  aspect-ratio: 4 / 3;
-
+  aspect-ratio: 16 / 9;
   max-height: min(38vh, 360px);
-
-  min-height: 170px;
+  min-height: 190px;
 
   overflow: hidden;
-
   background-color: var(--feed-surface);
 }
 
 .feed-image {
   width: 100%;
   height: 100%;
-
   object-fit: cover;
-
   display: block;
 
   opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease-in-out;
 }
 
 .feed-image.is-loaded {
   opacity: 1;
 }
 
-/* Shown until the image has actually decoded — reuses .skeleton-bg
-   (defined in the SKELETON section below) so there's one shimmer
-   animation, not two. Absolutely positioned to sit under the <img>
-   without affecting .feed-image-wrapper's own sizing. */
 .feed-image-skeleton {
   position: absolute;
   inset: 0;
   z-index: 1;
 }
 
-/* Image gradient */
-
 .image-overlay {
   position: absolute;
-
   bottom: 0;
   left: 0;
-
   width: 100%;
-  height: 45%;
+  height: 35%;
 
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.45),
     transparent
   );
 
@@ -197,20 +175,17 @@
 }
 
 /* ==========================================================================
-   SHARE BUTTON
+   5. ACTION BUTTONS & SHARE
    ========================================================================== */
 
 .share-btn {
   position: absolute;
-
   top: 12px;
   right: 12px;
-
   z-index: 10;
 
   width: 38px;
   height: 38px;
-
   min-width: 38px;
   min-height: 38px;
 
@@ -219,83 +194,58 @@
   justify-content: center;
 
   background: rgba(0, 0, 0, 0.55);
-
   color: #ffffff !important;
-
   border: none;
-
   font-size: 16px;
-
   border-radius: 50%;
 
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 
   cursor: pointer;
-
-  transition:
-    transform 0.15s ease,
-    background-color 0.15s ease;
+  transition: transform 0.15s ease, background-color 0.15s ease;
 }
 
 .share-btn:active {
-  transform: scale(0.9);
-
+  transform: scale(0.92);
   background: rgba(0, 0, 0, 0.75);
 }
 
 /* ==========================================================================
-   CONTENT
+   6. ARTICLE CONTENT AREA
    ========================================================================== */
 
 .feed-content {
   flex: 1 1 auto;
-
   display: flex;
   flex-direction: column;
-
-  gap: 10px;
+  gap: 12px;
 
   box-sizing: border-box;
-
   width: 100%;
 
-  padding:
-    16px
-    16px
-    calc(24px + var(--app-footer-height))
-    16px;
+  padding: 16px 16px calc(24px + var(--app-footer-height)) 16px;
 
   background-color: var(--feed-card-bg) !important;
-
   color: var(--feed-text) !important;
+  overflow: visible !important;
 }
 
-/* ==========================================================================
-   META
-   ========================================================================== */
-
+/* Meta Bar */
 .feed-meta {
   display: flex;
-
   align-items: center;
-
   flex-wrap: wrap;
-
   gap: 10px;
+  flex-shrink: 0;
 
   font-size: 13px;
-
   font-weight: 600;
-
   color: var(--feed-muted) !important;
 }
 
-/* Author */
-
 .feed-author {
-  color: var(--feed-text) !important;
-
+  color: var(--feed-author-color) !important;
   cursor: pointer;
 }
 
@@ -303,122 +253,102 @@
   text-decoration: underline;
 }
 
-/* Time */
-
 .feed-time {
   color: var(--feed-muted) !important;
-
-  opacity: 0.85;
-
+  opacity: 0.9;
   white-space: nowrap;
 }
 
 /* ==========================================================================
-   TITLE
-   ========================================================================== */
-/* ==========================================================================
-   ARTICLE TITLE
+   7. ARTICLE TITLE & DESCRIPTION (COMPLETE EXPANSION / ZERO TRUNCATION)
    ========================================================================== */
 
+/* Title - Strict override targeting all tag variants */
+.feed-content h1.feed-title,
+.feed-content h2.feed-title,
+.feed-content h3.feed-title,
+.feed-content div.feed-title,
 .feed-content .feed-title,
 .feed-card .feed-title {
-    display: block !important;
+  display: block !important;
+  flex-shrink: 0 !important; /* Prevents flex parent compression */
 
-    width: 100% !important;
-    max-width: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
 
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
+  height: auto !important;
+  min-height: min-content !important;
+  max-height: none !important;
 
-    margin: 0 !important;
-    padding: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 
-    font-size: clamp(19px, 4.6vw, 24px) !important;
-    font-weight: 800 !important;
-    line-height: 1.32 !important;
+  font-size: clamp(18px, 4.5vw, 23px) !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.01em;
 
-    color: var(--feed-title-color) !important;
-    -webkit-text-fill-color: var(--feed-title-color) !important;
+  color: var(--feed-title-color) !important;
+  -webkit-text-fill-color: var(--feed-title-color) !important;
 
-    opacity: 1 !important;
+  opacity: 1 !important;
 
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+  /* Reset WebKit Clamping completely */
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
 
-    word-break: normal !important;
-    overflow-wrap: anywhere !important;
+  line-clamp: none !important;
+  -webkit-line-clamp: none !important;
+  -webkit-box-orient: horizontal !important;
 
-    line-clamp: unset !important;
-    -webkit-line-clamp: unset !important;
+  /* Robust wrapping across Hindi & English */
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
 
-    background: transparent !important;
+  background: transparent !important;
 }
 
-
-/* ==========================================================================
-   ARTICLE DESCRIPTION
-   ========================================================================== */
-
+/* Description - Dynamic height expansion */
+.feed-content p.feed-desc,
+.feed-content div.feed-desc,
 .feed-content .feed-desc,
 .feed-card .feed-desc {
-    display: block !important;
+  display: block !important;
+  flex-shrink: 0 !important;
 
-    width: 100% !important;
-    max-width: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
 
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
+  height: auto !important;
+  min-height: min-content !important;
+  max-height: none !important;
 
-    margin: 0 !important;
-    padding: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 
-    font-size: 13.5px !important;
-    font-weight: 400 !important;
-    line-height: 1.68 !important;
+  font-size: 14.5px !important;
+  font-weight: 400 !important;
+  line-height: 1.65 !important;
 
-    color: var(--feed-description-color) !important;
-    -webkit-text-fill-color: var(--feed-description-color) !important;
+  color: var(--feed-description-color) !important;
+  -webkit-text-fill-color: var(--feed-description-color) !important;
 
-    opacity: 1 !important;
+  opacity: 1 !important;
 
-    white-space: pre-wrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
 
-    word-break: normal !important;
-    overflow-wrap: anywhere !important;
+  line-clamp: none !important;
+  -webkit-line-clamp: none !important;
+  -webkit-box-orient: horizontal !important;
 
-    line-clamp: unset !important;
-    -webkit-line-clamp: unset !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
 
-    background: transparent !important;
+  background: transparent !important;
 }
-
-
-/* ==========================================================================
-   THEME NOTE
-   ========================================================================== */
-
-/*
- * .feed-title / .feed-desc read color from --feed-title-color /
- * --feed-description-color (defined once, at the top of this file, for
- * both [data-theme="dark"] and the light default). That single
- * definition is what keeps them visible in both themes — even against
- * index.css's global `h1, h2, h3, p { color: ... }` rules — because
- * `.feed-content .feed-title` (two classes) already outranks a bare
- * element selector like `h3` on specificity, backed by !important as a
- * second line of defense. There is intentionally only ONE place this
- * color is set; a second hardcoded override here would just be able to
- * silently drift out of sync with it again, which is what happened
- * before this file was fixed.
- */
-
-/* ==========================================================================
-   PREVENT WIDTH ISSUES
-   ========================================================================== */
 
 .feed-meta,
 .feed-title,
@@ -427,100 +357,183 @@
 }
 
 /* ==========================================================================
-   SOCIAL FLOATING BUTTON
+   8. ADVERTISEMENT CARDS
+   ========================================================================== */
+
+.ad-card {
+  flex: 1 1 auto;
+  width: 100%;
+  cursor: pointer;
+}
+
+.ad-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: calc(
+    100dvh - var(--app-header-height) - var(--app-footer-height)
+  );
+
+  padding: 40px 24px calc(40px + var(--app-footer-height)) 24px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.ad-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  background: var(--ad-badge-bg);
+  color: var(--ad-badge-text) !important;
+
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+.ad-content {
+  position: relative;
+  z-index: 2;
+  max-width: 88%;
+}
+
+.ad-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff !important;
+  margin-bottom: 12px;
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.ad-description {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.95) !important;
+  margin-bottom: 24px;
+  line-height: 1.5;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ad-cta-btn {
+  background: #ffffff;
+  color: #111827 !important;
+  border: none;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ad-cta-btn:active {
+  transform: scale(0.96);
+}
+
+.ad-decoration {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 1;
+  opacity: 0.25;
+}
+
+.ad-icon {
+  font-size: 64px;
+}
+
+/* ==========================================================================
+   9. FLOATING SOCIAL BUTTON
    ========================================================================== */
 
 .feed-social-float {
   position: fixed;
-
   right: 16px;
-
-  bottom:
-    calc(
-      var(--app-footer-height) + 16px
-    );
-
+  bottom: calc(var(--app-footer-height) + 16px);
   z-index: 60;
 
   display: flex;
   flex-direction: column;
-
   gap: 10px;
 }
 
 .feed-social-float a {
   width: 46px;
   height: 46px;
-
   border-radius: 50%;
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
   color: #ffffff !important;
-
   font-size: 21px;
 
-  background:
-    linear-gradient(
-      45deg,
-      #f09433,
-      #d62976,
-      #962fbf
-    );
+  background: linear-gradient(
+    45deg,
+    #f09433,
+    #d62976,
+    #962fbf
+  );
 
-  box-shadow:
-    0 4px 14px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease;
+}
+
+.feed-social-float a:active {
+  transform: scale(0.92);
 }
 
 /* ==========================================================================
-   LOADING
+   10. LOADING, SKELETON, AND EMPTY STATES
    ========================================================================== */
 
 .loading-container,
 .empty-container {
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  background-color: var(--feed-card-bg);
-
+  min-height: calc(100dvh - var(--app-header-height));
+  background-color: var(--feed-bg);
   color: var(--feed-text);
 }
 
 .loader,
 .loader-wrapper {
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
   justify-content: center;
-
-  gap: 10px;
-
+  gap: 12px;
   padding: 32px 16px;
 
   color: var(--feed-muted) !important;
-
-  background-color: var(--feed-card-bg);
+  background-color: transparent;
 }
 
 .spinner,
 .spinner-small {
-  border: 3px solid
-    rgba(127, 127, 127, 0.25);
-
-  border-top-color:
-    var(--city-accent, #2563eb);
-
+  border: 3px solid rgba(127, 127, 127, 0.2);
+  border-top-color: var(--city-accent, #2563eb);
   border-radius: 50%;
-
-  animation:
-    tk-spin 0.8s linear infinite;
+  animation: tk-spin 0.8s linear infinite;
 }
 
 .spinner {
@@ -531,7 +544,6 @@
 .spinner-small {
   width: 22px;
   height: 22px;
-
   border-width: 2px;
 }
 
@@ -543,38 +555,27 @@
 
 .empty-state {
   text-align: center;
-
   color: var(--feed-muted) !important;
-
   background-color: var(--feed-card-bg);
-
   padding: 24px;
+  border-radius: 12px;
 }
 
-/* ==========================================================================
-   SKELETON
-   ========================================================================== */
-
 .skeleton-bg {
-  background:
-    linear-gradient(
-      90deg,
-      rgba(127, 127, 127, 0.15) 25%,
-      rgba(127, 127, 127, 0.25) 37%,
-      rgba(127, 127, 127, 0.15) 63%
-    );
-
+  background: linear-gradient(
+    90deg,
+    rgba(127, 127, 127, 0.12) 25%,
+    rgba(127, 127, 127, 0.22) 37%,
+    rgba(127, 127, 127, 0.12) 63%
+  );
   background-size: 400% 100%;
-
-  animation:
-    shimmer 1.4s ease infinite;
+  animation: shimmer 1.4s ease infinite;
 }
 
 @keyframes shimmer {
   0% {
     background-position: 100% 0;
   }
-
   100% {
     background-position: -100% 0;
   }
@@ -586,192 +587,28 @@
 
 .skeleton-line {
   height: 12px;
-
   border-radius: 6px;
-
-  background:
-    rgba(127, 127, 127, 0.2);
+  background: rgba(127, 127, 127, 0.18);
 }
 
-.w-25 {
-  width: 25%;
-}
-
-.w-75 {
-  width: 75%;
-}
-
-.w-90 {
-  width: 90%;
-}
-
-.w-100 {
-  width: 100%;
-}
+.w-25 { width: 25%; }
+.w-75 { width: 75%; }
+.w-90 { width: 90%; }
+.w-100 { width: 100%; }
 
 /* ==========================================================================
-   AD CARD
-   ========================================================================== */
-
-.ad-card {
-  flex: 1 1 auto;
-
-  width: 100%;
-
-  cursor: pointer;
-}
-
-.ad-wrapper {
-  position: relative;
-
-  width: 100%;
-  height: 100%;
-
-  min-height:
-    calc(
-      100dvh -
-      var(--app-header-height) -
-      var(--app-footer-height)
-    );
-
-  padding: 40px 24px;
-
-  display: flex;
-
-  flex-direction: column;
-
-  justify-content: center;
-  align-items: center;
-
-  text-align: center;
-
-  background-size: cover;
-
-  overflow: hidden;
-
-  box-sizing: border-box;
-}
-
-.ad-badge {
-  position: absolute;
-
-  top: 16px;
-  right: 16px;
-
-  background: rgba(0, 0, 0, 0.55);
-
-  color: #ffffff !important;
-
-  padding: 5px 12px;
-
-  border-radius: 20px;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  backdrop-filter: blur(5px);
-
-  z-index: 2;
-}
-
-.ad-content {
-  position: relative;
-
-  z-index: 2;
-
-  max-width: 85%;
-}
-
-.ad-title {
-  font-size: 26px;
-
-  font-weight: 800;
-
-  color: #ffffff !important;
-
-  margin-bottom: 14px;
-
-  text-shadow:
-    2px 2px 6px
-    rgba(0, 0, 0, 0.35);
-}
-
-.ad-description {
-  font-size: 16px;
-
-  color: rgba(255, 255, 255, 0.95) !important;
-
-  margin-bottom: 22px;
-
-  line-height: 1.5;
-
-  text-shadow:
-    1px 1px 3px
-    rgba(0, 0, 0, 0.25);
-}
-
-.ad-cta-btn {
-  background: #ffffff;
-
-  color: #222222 !important;
-
-  border: none;
-
-  padding: 12px 30px;
-
-  font-size: 15px;
-
-  font-weight: 700;
-
-  border-radius: 50px;
-
-  cursor: pointer;
-
-  box-shadow:
-    0 2px 10px
-    rgba(0, 0, 0, 0.25);
-
-  transition:
-    transform 0.2s ease;
-}
-
-.ad-cta-btn:active {
-  transform: scale(0.96);
-}
-
-.ad-decoration {
-  position: absolute;
-
-  bottom: 20px;
-  left: 20px;
-
-  z-index: 1;
-
-  opacity: 0.28;
-}
-
-.ad-icon {
-  font-size: 70px;
-}
-
-/* ==========================================================================
-   SMALL SCREENS
+   11. RESPONSIVE BREAKPOINTS & ACCESSIBILITY
    ========================================================================== */
 
 @media (max-width: 480px) {
   .ad-title {
-    font-size: 21px;
+    font-size: 20px;
   }
 
   .ad-description {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
-
-/* ==========================================================================
-   REDUCED MOTION
-   ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   .feed-container {
