@@ -3,6 +3,7 @@ import { useSearchParams, useLocation, Link } from "react-router-dom";
 import { Search, Sparkles, FileText, User, Tag, ArrowRight, RefreshCw } from "lucide-react";
 import API from "../../utils/api";
 import "../../css/SearchResult.css";
+import Layout from "../Layout/Layout.jsx";
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
@@ -56,6 +57,7 @@ const SearchResultsPage = () => {
   const isAiFallback = resultsData?.source === "ai" || resultsData?.type === "ai_response";
 
   return (
+    <Layout>
     <div className="tk-search-page">
       <div className="tk-search-page__header">
         <h1>
@@ -218,6 +220,7 @@ const SearchResultsPage = () => {
         </div>
       )}
     </div>
+    </Layout>
   );
 };
 

@@ -15,14 +15,21 @@ import {
 } from 'react-icons/fa';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { useAuth } from '../context/auth';
+import { useLocation } from '../context/LocationContext.jsx';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
+  const { location } = useLocation();
 
   const handleLogout = () => {
     setAuth({ user: null, token: '' });
     onClose();
+  };
+
+  const goHome = () => {
+    onClose();
+    navigate(`/feed/${location}`);
   };
 
   const handleQuickAction = (path) => {
@@ -47,19 +54,34 @@ const Sidebar = ({ isOpen, onClose }) => {
       style={{ width: '280px' }}
       className="bg-white text-dark border-end"
     >
-      <Offcanvas.Header className="border-bottom">
+      <Offcanvas.Header className="border-bottom tk-sidebar-header">
         <div className="d-flex align-items-center w-100 justify-content-between">
           <div className="d-flex align-items-center">
             <button
               onClick={onClose}
-              className="btn bg-transparent border-0 p-0 me-2"
+              className="tk-icon-btn me-2"
               aria-label="Close sidebar"
             >
-              <FaBars className="fs-4 text-dark" />
+              <FaBars className="fs-5" />
             </button>
             <div className="d-flex flex-column">
-              <Offcanvas.Title className="fw-bold fs-5 mb-0">Trendkari</Offcanvas.Title>
-              <small className="text-muted">Hyperlocal • Kota District</small>
+              {/* Same class, same left offset as the header's logo — when
+                  the drawer slides in this lands on top of / in place of
+                  the header logo instead of appearing as a separate brand
+                  mark. Doubles as a hyperlink back to the home feed. */}
+              <Offcanvas.Title
+                as="div"
+                className="tk-logo tk-sidebar-logo mb-0"
+                role="button"
+                tabIndex={0}
+                onClick={goHome}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') goHome();
+                }}
+              >
+                Trendkari
+              </Offcanvas.Title>
+              <small className="text-muted tk-sidebar-subtitle">Hyperlocal • Kota District</small>
             </div>
           </div>
         </div>

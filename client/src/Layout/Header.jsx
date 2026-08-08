@@ -44,6 +44,38 @@ const Header = () => {
   const headerRef = useRef(null);
   const searchInputRef = useRef(null);
 
+  // ---------------------------------------------------------------------
+  // Publish the header's real rendered height as a CSS var so the swipe
+  // feed (and any other full-bleed page) can size itself to exactly
+  // "100dvh minus header" without hardcoding a pixel value. This has to
+  // live here because the header is the only thing that knows its own
+  // true height at every breakpoint / state (e.g. search open vs closed).
+  // ---------------------------------------------------------------------
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+
+    const publishHeight = () => {
+      document.documentElement.style.setProperty(
+        "--app-header-height",
+        `${el.offsetHeight}px`
+      );
+    };
+
+    publishHeight();
+
+    const resizeObserver = new ResizeObserver(publishHeight);
+    resizeObserver.observe(el);
+    window.addEventListener("orientationchange", publishHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("orientationchange", publishHeight);
+    };
+  }, []);
+
+  const goHome = () => navigate(`/feed/${location}`);
+
   // Focus input automatically when search opens
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
@@ -120,9 +152,12 @@ const Header = () => {
     }
   };
 
+  const currentCityLabel = CITIES.find((c) => c.key === location)?.label || "Feed";
+
   return (
     <>
       <header className="tk-header" ref={headerRef}>
+        {/* ============ START: menu trigger + breadcrumb ============ */}
         <div className="tk-header__start">
           <button
             type="button"
@@ -134,20 +169,37 @@ const Header = () => {
           </button>
 
           {!isSearchOpen && (
-            <div
-              className="tk-logo"
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/feed/${location}`)}
-            >
-              Trendkari
-            </div>
+            <nav className="tk-breadcrumb" aria-label="Breadcrumb">
+              <button type="button" className="tk-breadcrumb__home" onClick={goHome}>
+                Home
+              </button>
+              <span className="tk-breadcrumb__sep" aria-hidden="true">/</span>
+              <span className="tk-breadcrumb__current">{currentCityLabel}</span>
+            </nav>
           )}
         </div>
 
-        {/* INLINE EXPANDABLE SEARCH BAR */}
-        {isSearchOpen ? (
-          <div className="tk-header__search-container">
+        {/* ============ CENTER: logo <-> search crossfade ============
+            Both elements are stacked in the exact same box (position:
+            absolute; inset:0 on a shared relative parent) so the search
+            bar visually "overlaps" the logo's position as it fades in,
+            instead of just appearing in an unrelated spot. */}
+        <div className="tk-header__center-stack">
+          <div className={`tk-logo-slot${isSearchOpen ? " tk-is-hidden" : ""}`}>
+            <div
+              className="tk-logo"
+              role="button"
+              tabIndex={isSearchOpen ? -1 : 0}
+              onClick={goHome}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") goHome();
+              }}
+            >
+              Trendkari
+            </div>
+          </div>
+
+          <div className={`tk-header__search-container${isSearchOpen ? " tk-is-visible" : ""}`}>
             <form className="tk-header__search-form" onSubmit={handleSearchSubmit}>
               <button
                 type="submit"
@@ -165,9 +217,10 @@ const Header = () => {
                 ref={searchInputRef}
                 type="text"
                 className="tk-header__search-input"
-                placeholder="Search news, topics, or ask AI..."
+                placeholder="Search Trendkari…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                tabIndex={isSearchOpen ? 0 : -1}
               />
 
               <button
@@ -175,13 +228,13 @@ const Header = () => {
                 className="tk-search-btn-icon"
                 onClick={closeSearch}
                 aria-label="Close search"
+                tabIndex={isSearchOpen ? 0 : -1}
               >
                 <X size={18} />
               </button>
             </form>
 
-            {/* AUTOCOMPLETE DROPDOWN ANCHORED DIRECTLY BELOW HEADER INPUT */}
-            {suggestions.length > 0 && (
+            {isSearchOpen && suggestions.length > 0 && (
               <ul className="tk-header__suggestions-menu">
                 {suggestions.map((item, index) => {
                   const text = typeof item === "string" ? item : item.text || item.title;
@@ -208,32 +261,9 @@ const Header = () => {
               </ul>
             )}
           </div>
-        ) : (
-          <div className="tk-header__center">
-            <select
-              value={location}
-              onChange={(e) => {
-                changeLocation(e.target.value);
-                navigate("/");
-              }}
-              className="tk-city-select"
-            >
-              {CITIES.map((city) => (
-                <option key={city.key} value={city.key}>
-                  {city.label}
-                </option>
-              ))}
-            </select>
+        </div>
 
-            {weather && (
-              <span className="tk-weather" title={weather.condition}>
-                {getWeatherIcon(weather.condition)}
-                <span>{weather.temp}°C</span>
-              </span>
-            )}
-          </div>
-        )}
-
+        {/* ============ END: search trigger, notifications, theme, user ============ */}
         <div className="tk-header__end">
           {!isSearchOpen && (
             <button
@@ -247,7 +277,46 @@ const Header = () => {
             </button>
           )}
 
-          <button type="button" className="tk-icon-btn" onClick={toggleTheme}>
+          {/*
+            City / weather selector — kept, intentionally disabled for now
+            while the breadcrumb + inline search own this part of the
+            header. Re-enable by uncommenting this block (and swapping
+            the breadcrumb back out if you want the full dropdown again).
+
+          {!isSearchOpen && (
+            <div className="tk-header__center">
+              <select
+                value={location}
+                onChange={(e) => {
+                  changeLocation(e.target.value);
+                  navigate("/");
+                }}
+                className="tk-city-select"
+              >
+                {CITIES.map((city) => (
+                  <option key={city.key} value={city.key}>
+                    {city.label}
+                  </option>
+                ))}
+              </select>
+
+              {weather && (
+                <span className="tk-weather" title={weather.condition}>
+                  {getWeatherIcon(weather.condition)}
+                  <span>{weather.temp}°C</span>
+                </span>
+              )}
+            </div>
+          )}
+          */}
+
+          <button
+            type="button"
+            className="tk-icon-btn"
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            title={theme === "dark" ? "Light mode" : "Dark mode"}
+          >
             {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
@@ -257,6 +326,7 @@ const Header = () => {
             type="button"
             className="tk-icon-btn"
             onClick={() => navigate("/about")}
+            aria-label="About Trendkari"
           >
             <User size={18} />
           </button>
