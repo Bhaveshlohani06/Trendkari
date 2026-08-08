@@ -4,7 +4,13 @@
   left: 0;
   right: 0;
 
-  height: 64px;
+  /* height is auto: it grows by exactly the safe-area inset on phones
+     with a home indicator, and Header/StickyFooterNav measure the
+     real result via ResizeObserver — nothing here is hardcoded. */
+  min-height: 64px;
+  padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0;
+  box-sizing: border-box;
+
   background: var(--footer-bg);
   border-top: 2px solid var(--footer-border);
 
@@ -20,7 +26,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+
+  min-height: 44px;
+  min-width: 44px;
 
   font-size: 11px;
   color: var(--footer-text);
@@ -53,7 +63,12 @@
 
   font-size: 20px;
   margin-top: -24px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease;
+}
+
+.footer-create-btn:active {
+  transform: scale(0.92);
 }
 
 /* Reset button style */

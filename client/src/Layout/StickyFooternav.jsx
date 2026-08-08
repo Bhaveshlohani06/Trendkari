@@ -170,7 +170,7 @@
 
 
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -186,7 +186,6 @@ import CreatePostModal from "../Components/forms/CreatePostModal";
 import SearchModal from "../Components/SearchModal";
 import ProfileMenuModal from "../Components/ProfileMenuModal";
 import "./stickyfooternav.css";
-import { useRef } from "react";
 import toast from "react-hot-toast";
 import { Button, Nav, NavDropdown, Image } from "react-bootstrap";
 import { FaPen } from "react-icons/fa";
@@ -200,6 +199,35 @@ const StickyFooterNav = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
 const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const footerRef = useRef(null);
+
+  // Publish the nav's real rendered height (including the safe-area
+  // inset padding added in stickyfooternav.css) so pages like the
+  // SwipeFeed can reserve exactly enough space above it — nothing
+  // hardcoded, nothing hidden behind the bar.
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+
+    const publishHeight = () => {
+      document.documentElement.style.setProperty(
+        "--app-footer-height",
+        `${el.offsetHeight}px`
+      );
+    };
+
+    publishHeight();
+
+    const resizeObserver = new ResizeObserver(publishHeight);
+    resizeObserver.observe(el);
+    window.addEventListener("orientationchange", publishHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("orientationchange", publishHeight);
+    };
+  }, []);
   
 
 
@@ -232,7 +260,7 @@ const [showProfileModal, setShowProfileModal] = useState(false);
   return (
     <>
       {/* ---------- FOOTER ---------- */}
-      <nav className="sticky-footer" data-theme={theme}>
+      <nav className="sticky-footer" data-theme={theme} ref={footerRef}>
         <NavLink to="/" className="footer-item">
           <FaHome />
           <span>Home</span>

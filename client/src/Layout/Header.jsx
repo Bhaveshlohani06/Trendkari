@@ -1,555 +1,16 @@
-// import { Bell, User } from "lucide-react";
-// import "./header.css";
-// import { useLocation } from "../context/LocationContext.jsx";
-// import NotificationBell from "../Components/NotificationBell.jsx";
-// import {
-//   useLocation as useRouterLocation,
-//   useNavigate,
-// } from "react-router-dom";
-// import { requestNotificationPermission } from "../notification.js";
-// import { use, useState } from "react";
-
-// const CITIES = [
-//   { key: "kota", label: "Kota" },
-//   { key: "ramganjmandi", label: "Ramganjmandi" },
-//   { key: "sangod", label: "Sangod" },
-//   { key: "ladpura", label: "Ladpura" },
-//  // { key: "kaithoon", label: "Kaithoon" },
-//   { key: "rural-kota", label: "Rural Kota" },
-// ];
-
-// const pushEnabled = localStorage.getItem("pushEnabled") === "true";
-
-// const Header = () => {
-//   const { location, changeLocation } = useLocation();
-//   const [weather, setWeather] = useState(null);
-
-//   const navigate = useNavigate(); // ✅ MISSING LINE
-//   const routerLocation = useRouterLocation();
-
-//   const handleCityChange = (cityKey) => {
-//     changeLocation(cityKey);
-
-//     // ✅ Redirect to homepage if not already there
-//   //   if (routerLocation.pathname !== "/") {
-//   //     navigate("/");
-//   //   }
-//   // };
-
-
-
-//   if (routerLocation.pathname !== "/") {
-//   navigate("/", { replace: true });  
-// }
-// };
-
-//   const fetchWeather = async (city) => {
-//     try {
-//       const { data } = await API.get(`/weather?city=${city}`);
-//       setWeather(data);
-//     } catch {
-//       setWeather(null);
-//     }
-
-//     useEffect(() => {
-//       if (location) {
-//         fetchWeather(location);
-//       } 
-//     }, [location]);
-//   };
-
-//     const getWeatherIcon = () => {
-//       if (!weather?.condition) return <FiSun />;
-//       const text = weather.condition.toLowerCase();
-//       if (text.includes("rain")) return <FiCloudRain />;
-//       if (text.includes("cloud")) return <FiCloud />;
-//       return <FiSun />;
-//     };
-
-
-//   return (
-//     <header className="tk-header">
-      
-//       {/* Logo */}
-//       <div className="tk-logo" onClick={() => navigate("/")}>
-//         Trendkari
-//       </div>
-
-//         {weather && <small>{getWeatherIcon()} {weather.temp}°C | {weather.condition}</small>}
-
-
-//       {/* <button onClick={requestNotificationPermission}>
-//   {pushEnabled ? <BellRing /> : <Bell />}
-
-//     </button> */}
-
-//       {/* City Selector */}
-//       <div className="tk-city-scroll">
-//         {CITIES.map((city) => (
-//           <span
-//             key={city.key}
-//             className={`tk-city ${
-//               location === city.key ? "active" : ""
-//             }`}
-//             onClick={() => handleCityChange(city.key)}
-//           >
-//             {city.label}
-//           </span>
-//         ))}
-//       </div>
-
-//       {/* Actions */}
-//       <div className="tk-actions">
-//         <NotificationBell />
-//         {/* <User className="tk-icon" /> */}
-
-//         <User
-//   className="tk-icon"
-//   onClick={() => navigate("/about")}
-//   title="About Trendkari"
-// />
-
-//       </div>
-
-//     </header>
-//   );
-// };
-
-// export default Header;
-
-
-// import { User } from "lucide-react";
-// import "./header.css";
-// import { useLocation } from "../context/LocationContext.jsx";
-// import NotificationBell from "../Components/NotificationBell.jsx";
-// import {
-//   useLocation as useRouterLocation,
-//   useNavigate,
-// } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import API from "../../utils/api"; // ✅ ADD THIS
-
-// const CITIES = [
-//   { key: "kota", label: "Kota" },
-//   { key: "ramganjmandi", label: "Ramganjmandi" },
-//   { key: "sangod", label: "Sangod" },
-//   { key: "ladpura", label: "Ladpura" },
-//   { key: "rural-kota", label: "Rural Kota" },
-// ];
-
-// const Header = () => {
-//   const { location, changeLocation } = useLocation();
-//   const [weather, setWeather] = useState(null);
-
-//   const navigate = useNavigate();
-
-//   /* ---------------- FETCH WEATHER ---------------- */
-//   useEffect(() => {
-//     const fetchWeather = async () => {
-//       try {
-//         const { data } = await API.get(`/weather?city=${location}`);
-//         setWeather(data);
-//       } catch {
-//         setWeather(null);
-//       }
-//     };
-
-//     if (location) fetchWeather();
-//   }, [location]);
-
-//   /* ---------------- HANDLE CITY ---------------- */
-//   const handleCityChange = (e) => {
-//     changeLocation(e.target.value);
-//   };
-
-//   return (
-//     <header className="tk-header d-flex align-items-center justify-content-between px-3">
-
-//       {/* Logo */}
-//       <div className="tk-logo" onClick={() => navigate("/")}>
-//         Trendkari
-//       </div>
-
-//       {/* CITY DROPDOWN */}
-//       <select
-//         value={location}
-//         onChange={handleCityChange}
-//         className="form-select w-auto mx-3"
-//         style={{ maxWidth: "180px" }}
-//       >
-//         {CITIES.map((city) => (
-//           <option key={city.key} value={city.key}>
-//             {city.label}
-//           </option>
-//         ))}
-//       </select>
-
-//       {/* WEATHER */}
-//       {weather && (
-//         <div className="small text-muted">
-//           🌤 {weather.temp}°C | {weather.condition}
-//         </div>
-//       )}
-
-//       {/* ACTIONS */}
-//       <div className="tk-actions d-flex align-items-center gap-3">
-//         <NotificationBell />
-
-//         <User
-//           className="tk-icon"
-//           onClick={() => navigate("/about")}
-//           title="About Trendkari"
-//         />
-//       </div>
-
-//     </header>
-//   );
-// };
-
-// export default Header;
-
-
-// import { User } from "lucide-react";
-// import "./header.css";
-// import { useLocation } from "../context/LocationContext.jsx";
-// import NotificationBell from "../Components/NotificationBell.jsx";
-// import { useNavigate } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import API from "../../utils/api";
-
-// const CITIES = [
-//   { key: "kota", label: "Kota" },
-//   { key: "ramganjmandi", label: "Ramganjmandi" },
-//   { key: "sangod", label: "Sangod" },
-//   { key: "ladpura", label: "Ladpura" },
-//   { key: "rural-kota", label: "Rural Kota" },
-// ];
-
-
-
-// const Header = () => {
-//   const { location, changeLocation } = useLocation();
-//   const [weather, setWeather] = useState(null);
-//   const navigate = useNavigate();
-
-//   /* ================= WEATHER FETCH ================= */
-//      const fetchWeather = async () => {
-//       try {
-//         const { data } = await API.get(`/weather?city=${location}`);
-//         setWeather(data);
-//       } catch (err) {
-//         console.log("Weather error:", err);
-//         setWeather(null);
-//       }
-//     };
-
-//   useEffect(() => {
-//     if (location) fetchWeather();
-//   }, [location]);
-
-//   /* ================= CITY CHANGE ================= */
-//   const handleCityChange = (e) => {
-//     const selectedCity = e.target.value;
-//     changeLocation(selectedCity);
-
-//     // ✅ Navigate to homepage so content refreshes
-//     navigate("/");
-//   };
-
-//   return (
-//     <header className="tk-header">
-
-//       {/* LEFT SECTION */}
-//       <div className="d-flex align-items-center gap-2">
-
-//         {/* LOGO */}
-//         <div
-//           className="tk-logo"
-//           onClick={() => navigate("/")}
-//         >
-//           Trendkari
-//         </div>
-
-//         {/* CITY DROPDOWN */}
-//         <select
-//           value={location}
-//           onChange={handleCityChange}
-//           className="form-select form-select-sm"
-//           style={{ maxWidth: "140px" }}
-//         >
-//           {CITIES.map((city) => (
-//             <option key={city.key} value={city.key}>
-//               {city.label}
-//             </option>
-//           ))}
-//         </select>
-//       </div>
-
-//       {/* CENTER SECTION (WEATHER) */}
-//       {weather && (
-//         <div
-//           className="small d-none d-md-block"
-//           style={{ color: "var(--text)" }}
-//         >
-//           🌤 {weather.temp}°C | {weather.condition}
-//         </div>
-//       )}
-
-//       {/* RIGHT SECTION */}
-//       <div className="tk-actions">
-
-//         {/* 🔔 Notification Bell */}
-//         <NotificationBell />
-
-//         {/* 👤 User */}
-//         <User
-//           className="tk-icon"
-//           onClick={() => navigate("/about")}
-//           title="About Trendkari"
-//         />
-
-//       </div>
-//     </header>
-//   );
-// };
-
-// export default Header;
-
-
-
-// import { Bell, User } from "lucide-react";
-// import "./header.css";
-// import { useLocation } from "../context/LocationContext.jsx";
-// import NotificationBell from "../Components/NotificationBell.jsx";
-// import {
-//   useLocation as useRouterLocation,
-//   useNavigate,
-// } from "react-router-dom";
-// import { requestNotificationPermission } from "../notification.js";
-// import { use, useState } from "react";
-
-// const CITIES = [
-//   { key: "kota", label: "Kota" },
-//   { key: "ramganjmandi", label: "Ramganjmandi" },
-//   { key: "sangod", label: "Sangod" },
-//   { key: "ladpura", label: "Ladpura" },
-//  // { key: "kaithoon", label: "Kaithoon" },
-//   { key: "rural-kota", label: "Rural Kota" },
-// ];
-
-// const pushEnabled = localStorage.getItem("pushEnabled") === "true";
-
-// const Header = () => {
-//   const { location, changeLocation } = useLocation();
-//   const [weather, setWeather] = useState(null);
-
-//   const navigate = useNavigate(); // ✅ MISSING LINE
-//   const routerLocation = useRouterLocation();
-
-//   const handleCityChange = (cityKey) => {
-//     changeLocation(cityKey);
-
-//     // ✅ Redirect to homepage if not already there
-//   //   if (routerLocation.pathname !== "/") {
-//   //     navigate("/");
-//   //   }
-//   // };
-
-
-
-//   if (routerLocation.pathname !== "/") {
-//   navigate("/", { replace: true });  
-// }
-// };
-
-//   const fetchWeather = async (city) => {
-//     try {
-//       const { data } = await API.get(`/weather?city=${city}`);
-//       setWeather(data);
-//     } catch {
-//       setWeather(null);
-//     }
-
-//     useEffect(() => {
-//       if (location) {
-//         fetchWeather(location);
-//       } 
-//     }, [location]);
-//   };
-
-//     const getWeatherIcon = () => {
-//       if (!weather?.condition) return <FiSun />;
-//       const text = weather.condition.toLowerCase();
-//       if (text.includes("rain")) return <FiCloudRain />;
-//       if (text.includes("cloud")) return <FiCloud />;
-//       return <FiSun />;
-//     };
-
-
-//   return (
-//     <header className="tk-header">
-      
-//       {/* Logo */}
-//       <div className="tk-logo" onClick={() => navigate("/")}>
-//         Trendkari
-//       </div>
-
-//         {weather && <small>{getWeatherIcon()} {weather.temp}°C | {weather.condition}</small>}
-
-
-//       {/* <button onClick={requestNotificationPermission}>
-//   {pushEnabled ? <BellRing /> : <Bell />}
-
-//     </button> */}
-
-//       {/* City Selector */}
-//       <div className="tk-city-scroll">
-//         {CITIES.map((city) => (
-//           <span
-//             key={city.key}
-//             className={`tk-city ${
-//               location === city.key ? "active" : ""
-//             }`}
-//             onClick={() => handleCityChange(city.key)}
-//           >
-//             {city.label}
-//           </span>
-//         ))}
-//       </div>
-
-//       {/* Actions */}
-//       <div className="tk-actions">
-//         <NotificationBell />
-//         {/* <User className="tk-icon" /> */}
-
-//         <User
-//   className="tk-icon"
-//   onClick={() => navigate("/about")}
-//   title="About Trendkari"
-// />
-
-//       </div>
-
-//     </header>
-//   );
-// };
-
-// export default Header;
-
-
-
-
-// import { User } from "lucide-react";
-// import "./header.css";
-// import { useLocation } from "../context/LocationContext.jsx";
-// import NotificationBell from "../Components/NotificationBell.jsx";
-// import { useNavigate } from "react-router-dom";
-// import { useEffect, useState } from "react";
-// import API from "../../utils/api";
-
-// const CITIES = [
-//   { key: "kota", label: "Kota" },
-//   { key: "ramganjmandi", label: "Ramganjmandi" },
-//   { key: "sangod", label: "Sangod" },
-//   { key: "ladpura", label: "Ladpura" },
-//   { key: "rural-kota", label: "Rural Kota" },
-// ];
-
-// const Header = () => {
-//   const { location, changeLocation } = useLocation();
-//   const [weather, setWeather] = useState(null);
-//   const navigate = useNavigate();
-
-//   /* ================= WEATHER FETCH ================= */
-//   useEffect(() => {
-//     const fetchWeather = async () => {
-//       try {
-//         const { data } = await API.get(`/weather?city=${city}`);
-//         setWeather(data);
-//       } catch (err) {
-//         console.log("Weather error:", err);
-//         setWeather(null);
-//       }
-//     };
-
-//     if (location) fetchWeather(location);
-//   }, [location]);
-
-//   /* ================= CITY CHANGE ================= */
-//   const handleCityChange = (e) => {
-//     const selectedCity = e.target.value;
-//     changeLocation(selectedCity);
-
-//     // ✅ Important: redirect to homepage
-//     navigate("/");
-//   };
-
-//   return (
-//     <header className="tk-header d-flex justify-content-between align-items-center">
-
-//       {/* LEFT */}
-//       <div className="d-flex align-items-center gap-2">
-
-//         <div className="tk-logo" onClick={() => navigate("/")}>
-//           Trendkari
-//         </div>
-
-//         <select
-//           value={location}
-//           onChange={handleCityChange}
-//           className="form-select form-select-sm"
-//           style={{ maxWidth: "140px" }}
-//         >
-//           {CITIES.map((city) => (
-//             <option key={city.key} value={city.key}>
-//               {city.label}
-//             </option>
-//           ))}
-//         </select>
-//       </div>
-
-//       {/* CENTER - WEATHER */}
-//       {weather && (
-//         <div className="small d-none d-md-block">
-//           🌤 {weather.temp}°C | {weather.condition}
-//         </div>
-//       )}
-
-//       {/* RIGHT */}
-//       <div className="tk-actions">
-
-//         {/* 🔔 Notification */}
-//         <NotificationBell />
-
-//         {/* 👤 User */}
-//         <User
-//           className="tk-icon"
-//           onClick={() => navigate("/about")}
-//         />
-
-//       </div>
-
-//     </header>
-//   );
-// };
-
-// export default Header;
-
-
-
-
-import { User } from "lucide-react";
-import "./header.css";
-import { useLocation } from "../context/LocationContext.jsx";
-import NotificationBell from "../Components/NotificationBell.jsx";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { FiSun, FiCloud, FiCloudRain } from "react-icons/fi";
-import API from "../../utils/api";
-import { FaBars } from "react-icons/fa";
-import Sidebar from "./Sidebar.jsx";
+import { User, Moon, Sun, Menu } from "lucide-react";
+import { FiSun, FiCloud, FiCloudRain, FiBell } from "react-icons/fi";
 import { getToken } from "firebase/messaging";
-import { messaging } from "../firebase.js"; // adjust path if needed
+
+import { useLocation } from "../context/LocationContext.jsx";
+import { useTheme } from "../context/ThemeContext";
+import { messaging } from "../firebase.js";
+import API from "../../utils/api";
+import NotificationBell from "../Components/NotificationBell.jsx";
+import Sidebar from "./Sidebar.jsx";
+import "./header.css";
 
 const CITIES = [
   { key: "kota", label: "Kota" },
@@ -559,149 +20,190 @@ const CITIES = [
   { key: "rural-kota", label: "Rural Kota" },
 ];
 
+const getWeatherIcon = (condition) => {
+  const text = (condition || "").toLowerCase();
+  if (text.includes("rain")) return <FiCloudRain aria-hidden="true" />;
+  if (text.includes("cloud")) return <FiCloud aria-hidden="true" />;
+  return <FiSun aria-hidden="true" />;
+};
+
 const Header = () => {
   const { location, changeLocation } = useLocation();
-  const [weather, setWeather] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
+  const [weather, setWeather] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const headerRef = useRef(null);
 
-    const getWeatherIcon = () => {
-      if (!weather?.condition) return <FiSun />;
-      const text = weather.condition.toLowerCase();
-      if (text.includes("rain")) return <FiCloudRain />;
-      if (text.includes("cloud")) return <FiCloud />;
-      return <FiSun />;
+  // Publish the header's *actual* rendered height (safe-area padding,
+  // weather-chip-hidden breakpoint, etc. all included) as a CSS var so
+  // any page — most importantly the SwipeFeed — can size itself to
+  // "100dvh minus header" without hardcoding a pixel value that only
+  // works on one phone.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+
+    const publishHeight = () => {
+      document.documentElement.style.setProperty(
+        "--app-header-height",
+        `${el.offsetHeight}px`
+      );
     };
 
-  /* ================= WEATHER FETCH ================= */
+    publishHeight();
+
+    const resizeObserver = new ResizeObserver(publishHeight);
+    resizeObserver.observe(el);
+    window.addEventListener("orientationchange", publishHeight);
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener("orientationchange", publishHeight);
+    };
+  }, []);
+
+  // Weather is decorative header chrome, not core business logic — a
+  // failed fetch just hides the chip instead of surfacing an error.
+  // (Bug fix: the previous version referenced an undefined `city`
+  // variable here instead of `location`, so weather silently never
+  // loaded — fixed by using the actual `location` value.)
   useEffect(() => {
+    if (!location) return;
+    let cancelled = false;
+
     const fetchWeather = async () => {
       try {
-        // FIXED: Use location instead of undefined 'city' variable
         const { data } = await API.get(`/weather?city=${location}`);
-        setWeather(data);
+        if (!cancelled) setWeather(data);
       } catch (err) {
         console.log("Weather error:", err);
-        setWeather(null);
+        if (!cancelled) setWeather(null);
       }
     };
 
-    if (location) {
-      fetchWeather(location);
-    }
+    fetchWeather();
+    return () => {
+      cancelled = true;
+    };
   }, [location]);
 
-  /* ================= CITY CHANGE ================= */
   const handleCityChange = (e) => {
-    const selectedCity = e.target.value;
-    changeLocation(selectedCity);
-
-    // ✅ Important: redirect to homepage
+    changeLocation(e.target.value);
     navigate("/");
   };
 
-const handleEnableNotifications = async () => {
-  try {
-    if (Notification.permission === "granted") {
-      console.log("Already enabled");
-      return;
+  const handleEnableNotifications = async () => {
+    try {
+      if (Notification.permission === "granted") return;
+      if (Notification.permission === "denied") {
+        alert("Please enable notifications from browser settings");
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission === "granted") {
+        const token = await getToken(messaging, { vapidKey: "YOUR_VAPID_KEY" });
+        await fetch("/save-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+      }
+    } catch (err) {
+      console.error("Notification error:", err);
     }
-
-    if (Notification.permission === "denied") {
-      alert("Please enable notifications from browser settings");
-      return;
-    }
-
-    const permission = await Notification.requestPermission();
-
-    if (permission === "granted") {
-      const token = await getToken(messaging, {
-        vapidKey: "YOUR_VAPID_KEY",
-      });
-
-      console.log("TOKEN:", token);
-
-      await fetch("/save-token", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-    }
-  } catch (err) {
-    console.error("Notification error:", err);
-  }
-};
+  };
 
   return (
-    <header className="tk-header d-flex justify-content-between align-items-center">
+    <>
+      <header className="tk-header" ref={headerRef}>
+        <div className="tk-header__start">
+          <button
+            type="button"
+            className="tk-icon-btn"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
 
-      {/* LEFT */}
-      <div className="d-flex align-items-center gap-2">
-   <button
-    className="btn p-0 border-0"
-    onClick={() => setSidebarOpen(true)}
-  >
-    <FaBars size={20} />
-  </button>
+          <div
+            className="tk-logo"
+            role="button"
+            tabIndex={0}
+            onClick={() => {
+              window.location.href = `/feed/${location}`;
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") window.location.href = `/feed/${location}`;
+            }}
+          >
+            Trendkari
+          </div>
+        </div>
 
-  <div
-  className="tk-logo"
-  onClick={() => {
-    window.location.href = `/feed/${location}`;
-  }}
->
-  Trendkari
-</div>
+        <div className="tk-header__center">
+          <select
+            value={location}
+            onChange={handleCityChange}
+            className="tk-city-select"
+            aria-label="Select city"
+          >
+            {CITIES.map((city) => (
+              <option key={city.key} value={city.key}>
+                {city.label}
+              </option>
+            ))}
+          </select>
 
-<select
-  value={location}
-  onChange={handleCityChange}
-  className="form-select form-select-sm"
-  style={{ maxWidth: "140px" }}
->
-  {CITIES.map((city) => (
-    <option key={city.key} value={city.key}>
-      {city.label}
-    </option>
-  ))}
-</select>
-      </div>
+          {weather && (
+            <span className="tk-weather" title={weather.condition}>
+              {getWeatherIcon(weather.condition)}
+              <span>{weather.temp}°C</span>
+            </span>
+          )}
+        </div>
 
-      {/* CENTER - WEATHER */}
-        {weather && <small>{getWeatherIcon()} {weather.temp}°C | {weather.condition}</small>}
-       {/* <p>Kota</p>  */}
+        <div className="tk-header__end">
+          <button
+            type="button"
+            className="tk-icon-btn"
+            onClick={toggleTheme}
+            aria-label={
+              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+            }
+            title={theme === "dark" ? "Light mode" : "Dark mode"}
+          >
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
 
+          <button
+            type="button"
+            className="tk-icon-btn"
+            onClick={handleEnableNotifications}
+            aria-label="Enable push notifications"
+            title="Enable alerts"
+          >
+            <FiBell size={18} />
+          </button>
 
+          <NotificationBell />
 
+          <button
+            type="button"
+            className="tk-icon-btn"
+            onClick={() => navigate("/about")}
+            aria-label="About Trendkari"
+          >
+            <User size={18} />
+          </button>
+        </div>
+      </header>
 
-      {/* RIGHT */}
-      <div className="tk-actions d-flex align-items-center gap-2">
-        {/* 🔔 Notification */}
-
-<button onClick={handleEnableNotifications} className="notify-btn">
-  🔔 Alerts
-</button>
-
-
-        <NotificationBell />
-        {/* 👤 User */}
-        <User
-          className="tk-icon"
-          onClick={() => navigate("/about")}
-          style={{ cursor: "pointer" }}
-        />
-      </div>
-      <Sidebar
-  isOpen={sidebarOpen}
-  onClose={() => setSidebarOpen(false)}
-/>
-
-    </header>
-
-);
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    </>
+  );
 };
 
 export default Header;

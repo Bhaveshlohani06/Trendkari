@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation as useRouterLocation } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
 import Sidebar from "./Sidebar";
@@ -22,6 +23,12 @@ const Layout = ({
     const [location, setLocation] = useState(
     localStorage.getItem("preferredLocation") || "kota"
   );
+
+  // The swipe feed wants to be an edge-to-edge app screen, not a
+  // centered/padded website column. Every other page keeps the
+  // existing Bootstrap Container/Row/Col behavior untouched.
+  const routerLocation = useRouterLocation();
+  const isFeedRoute = routerLocation.pathname.startsWith("/feed");
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
@@ -86,16 +93,22 @@ const handleClosePopup = () => {
       <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
 
       {/* Main Content */}
-      <Container fluid className="mt-3">
-        <Row className="justify-content-center">
-          <Col xs={12} md={10} lg={8}>
-            <main style={{ minHeight: "70vh" }}>
-              <Toaster position="top-right" />
-              {children}
-            </main>
-          </Col>
-        </Row>
-      </Container>
+      <Toaster position="top-right" />
+
+      {isFeedRoute ? (
+        // Full-bleed: the feed manages its own viewport height and
+        // scroll snapping, so it must not be constrained by a
+        // centered/padded Bootstrap column.
+        <main>{children}</main>
+      ) : (
+        <Container fluid className="mt-3">
+          <Row className="justify-content-center">
+            <Col xs={12} md={10} lg={8}>
+              <main style={{ minHeight: "70vh" }}>{children}</main>
+            </Col>
+          </Row>
+        </Container>
+      )}
 
       {/* Footer */}
 

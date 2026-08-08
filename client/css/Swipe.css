@@ -1,395 +1,786 @@
- .feed-container {
-  height: 100vh;
-  overflow-y: scroll;
+/* ==========================================================================
+   TRENDKARI SWIPE FEED
+   ========================================================================== */
+
+/* ==========================================================================
+   FEED THEME VARIABLES
+   ========================================================================== */
+
+:root {
+  --app-header-height: 60px;
+  --app-footer-height: 64px;
+
+  /* Light theme */
+  --feed-bg: #ffffff;
+  --feed-card-bg: #ffffff;
+  --feed-text: #212529;
+  --feed-muted: #6c757d;
+  --feed-border: #dee2e6;
+  --feed-surface: #f8f9fa;
+
+  /* Dedicated title/description tokens (kept separate from --feed-text
+     so title/description can be tuned independently of author/meta
+     text). These are the single source of truth for feed article
+     text color — do not add a second, hardcoded override elsewhere. */
+  --feed-title-color: #212529;
+  --feed-description-color: #495057;
+}
+
+/* Dark theme */
+[data-theme="dark"] {
+  --feed-bg: #121212;
+  --feed-card-bg: #1e1e1e;
+
+  /* Main feed text */
+  --feed-text: #ffffff;
+
+  /* Secondary text */
+  --feed-muted: #b0b3b8;
+
+  --feed-border: #2c2c2c;
+  --feed-surface: #252525;
+
+  --feed-title-color: #ffffff;
+  --feed-description-color: #ffffff;
+}
+
+/* ==========================================================================
+   FEED ROOT / SCROLL CONTAINER
+   ========================================================================== */
+
+.feed-container {
+  height: calc(100dvh - var(--app-header-height));
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
   scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+
   scrollbar-width: none;
-  border: rgba(0, 0, 0, 0.467) solid 1px;
+  -ms-overflow-style: none;
+
+  background-color: var(--feed-bg) !important;
+  color: var(--feed-text);
+
+  box-sizing: border-box;
 }
 
 .feed-container::-webkit-scrollbar {
   display: none;
 }
 
-/* CARD — top half image, bottom half content */
-.feed-card {
-  height: 100vh;
-  height: 100dvh; /* accounts for mobile browser address bar so the split stays accurate */
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+/* Desktop */
 
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* keeps the card locked to exactly one screen */
-  background: #fff;
+@media (min-width: 900px) {
+  .feed-container {
+    background-color: var(--feed-bg) !important;
+  }
 }
 
-/* IMAGE — exactly the top half of the card */
+/* ==========================================================================
+   CARD
+   ========================================================================== */
+.feed-card,
+.feed-card-wrapper {
+    position: relative;
+
+    width: 100%;
+
+    min-height: calc(
+        100dvh -
+        var(--app-header-height) -
+        var(--app-footer-height)
+    );
+
+    height: auto !important;
+    max-height: none !important;
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: var(--feed-card-bg) !important;
+    color: var(--feed-text) !important;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: visible !important;
+}
+
+/* Desktop card */
+
+@media (min-width: 900px) {
+  .feed-card,
+  .feed-card-wrapper {
+    max-width: 520px;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    border-left: 1px solid var(--feed-border);
+    border-right: 1px solid var(--feed-border);
+  }
+}
+
+/* ==========================================================================
+   IMAGE
+   ========================================================================== */
+
 .feed-image-wrapper {
   position: relative;
-  flex: 0 0 50%;
+
   width: 100%;
-  height: 50%;
+
+  flex-shrink: 0;
+
+  aspect-ratio: 4 / 3;
+
+  max-height: min(38vh, 360px);
+
+  min-height: 170px;
+
   overflow: hidden;
+
+  background-color: var(--feed-surface);
 }
 
 .feed-image {
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+
   display: block;
+
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
-/* GRADIENT — just a light readability aid at the bottom edge of the image
-   (for the share button), not covering text anymore since content lives
-   in its own half below */
+.feed-image.is-loaded {
+  opacity: 1;
+}
+
+/* Shown until the image has actually decoded — reuses .skeleton-bg
+   (defined in the SKELETON section below) so there's one shimmer
+   animation, not two. Absolutely positioned to sit under the <img>
+   without affecting .feed-image-wrapper's own sizing. */
+.feed-image-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Image gradient */
+
 .image-overlay {
   position: absolute;
-  left: 0;
-  right: 0;
+
   bottom: 0;
-  height: 35%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.45), transparent);
+  left: 0;
+
+  width: 100%;
+  height: 45%;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.55),
+    transparent
+  );
+
   pointer-events: none;
 }
 
-/* SHARE */
+/* ==========================================================================
+   SHARE BUTTON
+   ========================================================================== */
+
 .share-btn {
   position: absolute;
+
   top: 12px;
   right: 12px;
+
   z-index: 10;
-  background: rgba(0, 0, 0, 0.55);
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 50%;
-  backdrop-filter: blur(4px);
+
+  width: 38px;
+  height: 38px;
+
+  min-width: 38px;
+  min-height: 38px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  color: #ffffff !important;
+
+  border: none;
+
+  font-size: 16px;
+
+  border-radius: 50%;
+
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
 }
 
-/* CONTENT — exactly the bottom half of the card. Scrolls internally so a
-   long headline/description is always shown IN FULL, never clipped, and
-   never pushes the card past one screen. */
-/*
-   .feed-content {
-  flex: 1 1 50%;
-  height: 50%;
-  min-height: 0; 
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px);
-  color: #111;
-  box-sizing: border-box;
-  background: #fff;
-}
-*/
+.share-btn:active {
+  transform: scale(0.9);
 
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* ==========================================================================
+   CONTENT
+   ========================================================================== */
 
 .feed-content {
-    overflow-y: auto;
-    min-height: 0;
+  flex: 1 1 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  box-sizing: border-box;
+
+  width: 100%;
+
+  padding:
+    16px
+    16px
+    calc(24px + var(--app-footer-height))
+    16px;
+
+  background-color: var(--feed-card-bg) !important;
+
+  color: var(--feed-text) !important;
 }
 
-.feed-desc {
-    flex: 1;
-}
-.feed-content::-webkit-scrollbar {
-  display: none;
-}
-
-.feed-title {
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.35;
-  margin: 0 0 8px 0;
-  color: #111;
-  white-space: normal;
-  overflow-wrap: break-word;
-  /* full headline, never clipped */
-}
-
-/* .feed-desc {
-  margin: 0;
-  font-size: 8px;
-  line-height: 1.55;
-  color: #444;
-  white-space: normal; 
-} */
+/* ==========================================================================
+   META
+   ========================================================================== */
 
 .feed-meta {
-  font-size: 12px;
-  color: #888;
   display: flex;
+
   align-items: center;
+
   flex-wrap: wrap;
+
   gap: 10px;
-  margin-bottom: 8px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  color: var(--feed-muted) !important;
 }
 
-/* MOBILE RESPONSIVE — tighter type and padding on small phones */
-@media (max-width: 480px) {
-  .feed-title {
-    font-size: 17px;
-  }
-  .feed-desc {
-    font-size: 8px;
-    line-height: 1.5;
-  }
-  .feed-content {
-    padding: 14px 14px calc(env(safe-area-inset-bottom, 0px) + 14px);
-  }
-  .share-btn {
-    padding: 8px;
+/* Author */
+
+.feed-author {
+  color: var(--feed-text) !important;
+
+  cursor: pointer;
+}
+
+.feed-author:hover {
+  text-decoration: underline;
+}
+
+/* Time */
+
+.feed-time {
+  color: var(--feed-muted) !important;
+
+  opacity: 0.85;
+
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   TITLE
+   ========================================================================== */
+/* ==========================================================================
+   ARTICLE TITLE
+   ========================================================================== */
+
+.feed-content .feed-title,
+.feed-card .feed-title {
+    display: block !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: clamp(19px, 4.6vw, 24px) !important;
+    font-weight: 800 !important;
+    line-height: 1.32 !important;
+
+    color: var(--feed-title-color) !important;
+    -webkit-text-fill-color: var(--feed-title-color) !important;
+
+    opacity: 1 !important;
+
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+
+    line-clamp: unset !important;
+    -webkit-line-clamp: unset !important;
+
+    background: transparent !important;
+}
+
+
+/* ==========================================================================
+   ARTICLE DESCRIPTION
+   ========================================================================== */
+
+.feed-content .feed-desc,
+.feed-card .feed-desc {
+    display: block !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    font-size: 13.5px !important;
+    font-weight: 400 !important;
+    line-height: 1.68 !important;
+
+    color: var(--feed-description-color) !important;
+    -webkit-text-fill-color: var(--feed-description-color) !important;
+
+    opacity: 1 !important;
+
+    white-space: pre-wrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+
+    line-clamp: unset !important;
+    -webkit-line-clamp: unset !important;
+
+    background: transparent !important;
+}
+
+
+/* ==========================================================================
+   THEME NOTE
+   ========================================================================== */
+
+/*
+ * .feed-title / .feed-desc read color from --feed-title-color /
+ * --feed-description-color (defined once, at the top of this file, for
+ * both [data-theme="dark"] and the light default). That single
+ * definition is what keeps them visible in both themes — even against
+ * index.css's global `h1, h2, h3, p { color: ... }` rules — because
+ * `.feed-content .feed-title` (two classes) already outranks a bare
+ * element selector like `h3` on specificity, backed by !important as a
+ * second line of defense. There is intentionally only ONE place this
+ * color is set; a second hardcoded override here would just be able to
+ * silently drift out of sync with it again, which is what happened
+ * before this file was fixed.
+ */
+
+/* ==========================================================================
+   PREVENT WIDTH ISSUES
+   ========================================================================== */
+
+.feed-meta,
+.feed-title,
+.feed-desc {
+  max-width: 100%;
+}
+
+/* ==========================================================================
+   SOCIAL FLOATING BUTTON
+   ========================================================================== */
+
+.feed-social-float {
+  position: fixed;
+
+  right: 16px;
+
+  bottom:
+    calc(
+      var(--app-footer-height) + 16px
+    );
+
+  z-index: 60;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.feed-social-float a {
+  width: 46px;
+  height: 46px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff !important;
+
+  font-size: 21px;
+
+  background:
+    linear-gradient(
+      45deg,
+      #f09433,
+      #d62976,
+      #962fbf
+    );
+
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+/* ==========================================================================
+   LOADING
+   ========================================================================== */
+
+.loading-container,
+.empty-container {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background-color: var(--feed-card-bg);
+
+  color: var(--feed-text);
+}
+
+.loader,
+.loader-wrapper {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  padding: 32px 16px;
+
+  color: var(--feed-muted) !important;
+
+  background-color: var(--feed-card-bg);
+}
+
+.spinner,
+.spinner-small {
+  border: 3px solid
+    rgba(127, 127, 127, 0.25);
+
+  border-top-color:
+    var(--city-accent, #2563eb);
+
+  border-radius: 50%;
+
+  animation:
+    tk-spin 0.8s linear infinite;
+}
+
+.spinner {
+  width: 34px;
+  height: 34px;
+}
+
+.spinner-small {
+  width: 22px;
+  height: 22px;
+
+  border-width: 2px;
+}
+
+@keyframes tk-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-/* Skeleton base */
+.empty-state {
+  text-align: center;
+
+  color: var(--feed-muted) !important;
+
+  background-color: var(--feed-card-bg);
+
+  padding: 24px;
+}
+
+/* ==========================================================================
+   SKELETON
+   ========================================================================== */
+
 .skeleton-bg {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 37%,
-    #f0f0f0 63%
-  );
+  background:
+    linear-gradient(
+      90deg,
+      rgba(127, 127, 127, 0.15) 25%,
+      rgba(127, 127, 127, 0.25) 37%,
+      rgba(127, 127, 127, 0.15) 63%
+    );
+
   background-size: 400% 100%;
-  animation: shimmer 1.4s ease infinite;
+
+  animation:
+    shimmer 1.4s ease infinite;
 }
 
-/* Animation */
 @keyframes shimmer {
   0% {
     background-position: 100% 0;
   }
+
   100% {
     background-position: -100% 0;
   }
 }
 
-/* Full card skeleton */
-.feed-card.skeleton {
-  height: 100vh;
-  height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-/* Image skeleton — top half, matching the live layout */
 .feed-card.skeleton .feed-image-wrapper {
-  flex: 0 0 50%;
-  height: 45%;
+  background: none;
 }
 
-/* Content skeleton — bottom half, matching the live layout */
-.feed-card.skeleton .feed-content {
-  flex: 1 1 50%;
-  height: 50%;
-  padding: 16px;
-  gap: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Lines */
 .skeleton-line {
   height: 12px;
+
   border-radius: 6px;
-  background: #e0e0e0;
+
+  background:
+    rgba(127, 127, 127, 0.2);
 }
 
-.w-25 { width: 25%; }
-.w-75 { width: 75%; }
-.w-90 { width: 90%; }
-.w-100 { width: 100%; }
+.w-25 {
+  width: 25%;
+}
 
+.w-75 {
+  width: 75%;
+}
 
+.w-90 {
+  width: 90%;
+}
 
+.w-100 {
+  width: 100%;
+}
 
+/* ==========================================================================
+   AD CARD
+   ========================================================================== */
 
-
-
-
-
-
-
-
-
-
-
-/* Ad Card Styles */
 .ad-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  cursor: pointer;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
+  flex: 1 1 auto;
 
-.ad-card:hover {
-  transform: scale(1.02);
+  width: 100%;
+
+  cursor: pointer;
 }
 
 .ad-wrapper {
   position: relative;
+
   width: 100%;
   height: 100%;
-  padding: 40px 20px;
+
+  min-height:
+    calc(
+      100dvh -
+      var(--app-header-height) -
+      var(--app-footer-height)
+    );
+
+  padding: 40px 24px;
+
   display: flex;
+
   flex-direction: column;
+
   justify-content: center;
   align-items: center;
+
   text-align: center;
+
   background-size: cover;
+
   overflow: hidden;
+
+  box-sizing: border-box;
 }
 
 .ad-badge {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
+
+  top: 16px;
+  right: 16px;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  color: #ffffff !important;
+
   padding: 5px 12px;
+
   border-radius: 20px;
+
   font-size: 12px;
-  font-weight: 500;
+
+  font-weight: 600;
+
   backdrop-filter: blur(5px);
+
   z-index: 2;
 }
 
 .ad-content {
   position: relative;
+
   z-index: 2;
-  max-width: 80%;
+
+  max-width: 85%;
 }
 
 .ad-title {
-  font-size: 28px;
-  font-weight: bold;
-  color: white;
-  margin-bottom: 15px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  animation: fadeInUp 0.6s ease;
+  font-size: 26px;
+
+  font-weight: 800;
+
+  color: #ffffff !important;
+
+  margin-bottom: 14px;
+
+  text-shadow:
+    2px 2px 6px
+    rgba(0, 0, 0, 0.35);
 }
 
 .ad-description {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.95);
-  margin-bottom: 25px;
+  font-size: 16px;
+
+  color: rgba(255, 255, 255, 0.95) !important;
+
+  margin-bottom: 22px;
+
   line-height: 1.5;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-  animation: fadeInUp 0.6s ease 0.1s both;
+
+  text-shadow:
+    1px 1px 3px
+    rgba(0, 0, 0, 0.25);
 }
 
 .ad-cta-btn {
-  background: white;
-  color: #333;
+  background: #ffffff;
+
+  color: #222222 !important;
+
   border: none;
+
   padding: 12px 30px;
-  font-size: 16px;
-  font-weight: bold;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
   border-radius: 50px;
+
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  animation: fadeInUp 0.6s ease 0.2s both;
+
+  box-shadow:
+    0 2px 10px
+    rgba(0, 0, 0, 0.25);
+
+  transition:
+    transform 0.2s ease;
 }
 
-.ad-cta-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+.ad-cta-btn:active {
+  transform: scale(0.96);
 }
 
 .ad-decoration {
   position: absolute;
+
   bottom: 20px;
   left: 20px;
+
   z-index: 1;
-  opacity: 0.3;
+
+  opacity: 0.28;
 }
 
 .ad-icon {
-  font-size: 80px;
-  animation: float 3s ease-in-out infinite;
+  font-size: 70px;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* ==========================================================================
+   SMALL SCREENS
+   ========================================================================== */
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .ad-title {
-    font-size: 22px;
+    font-size: 21px;
   }
-  
+
   .ad-description {
-    font-size: 16px;
-  }
-  
-  .ad-cta-btn {
-    padding: 10px 25px;
-    font-size: 14px;
-  }
-  
-  .ad-content {
-    max-width: 90%;
-  }
-  
-  .ad-icon {
-    font-size: 60px;
+    font-size: 15px;
   }
 }
 
-/* Optional: Add shimmer effect on ad load */
-.ad-wrapper::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  animation: shimmer 2s infinite;
-}
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
 
-@keyframes shimmer {
-  0% {
-    left: -100%;
+@media (prefers-reduced-motion: reduce) {
+  .feed-container {
+    scroll-behavior: auto;
   }
-  100% {
-    left: 100%;
+
+  .skeleton-bg,
+  .spinner,
+  .spinner-small {
+    animation: none;
   }
 }

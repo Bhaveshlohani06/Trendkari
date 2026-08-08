@@ -1,92 +1,158 @@
-/* ========== CSS VARIABLES ========== */
-:root {
-  /* Light mode colors */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f9fafb;
-  --text-primary: #111827;
-  --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --hover-bg: #f3f4f6;
-  --notification-bg: #eff6ff;
-  --notification-hover: #dbeafe;
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --shadow-color-light: rgba(0, 0, 0, 0.04);
-  --icon-color: #111827;
-  --icon-hover: #3b82f6;
-  --badge-bg: #ef4444;
-  --dropdown-bg: #ffffff;
-  --unread-badge: #3b82f6;
-}
-
-/* Dark mode */
-[data-theme="dark"] {
-  --bg-primary: #1f2937;
-  --bg-secondary: #111827;
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --border-color: #374151;
-  --hover-bg: #374151;
-  --notification-bg: #1e3a8a;
-  --notification-hover: #1e40af;
-  --shadow-color: rgba(0, 0, 0, 0.3);
-  --shadow-color-light: rgba(0, 0, 0, 0.2);
-  --icon-color: #f9fafb;
-  --icon-hover: #60a5fa;
-  --badge-bg: #dc2626;
-  --dropdown-bg: #1f2937;
-  --unread-badge: #60a5fa;
-}
+/* ==========================================================================
+   TRENDKARI HEADER — compact, sticky, three-zone grid app bar.
+   Color no longer defined here — it comes entirely from theme.css tokens
+   (--tk-*). This file only owns header-specific layout and component CSS.
+   ========================================================================== */
 
 /* ========== HEADER ROOT ========== */
 .tk-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  height: 56px;
-  padding: 0 14px;
+
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+
+  height: calc(var(--tk-header-h) + var(--tk-safe-top));
+  padding: var(--tk-safe-top) max(12px, var(--tk-safe-right)) 0
+    max(12px, var(--tk-safe-left));
+  box-sizing: border-box;
+
+  background-color: var(--tk-surface);
+  border-bottom: 1px solid var(--tk-border);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  transition: background-color var(--tk-duration-base) var(--tk-ease),
+    border-color var(--tk-duration-base) var(--tk-ease);
+}
+
+.tk-header__start,
+.tk-header__center,
+.tk-header__end {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background-color: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  gap: 8px;
+  min-width: 0;
+}
+
+.tk-header__center {
+  overflow: hidden;
+}
+
+.tk-header__end {
+  justify-content: flex-end;
 }
 
 /* ========== LOGO ========== */
 .tk-logo {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: clamp(15px, 4vw, 18px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--tk-text-primary);
   white-space: nowrap;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color var(--tk-duration-fast) var(--tk-ease);
 }
 
 .tk-logo:hover {
-  color: var(--icon-hover);
+  color: var(--tk-accent);
 }
 
-/* ========== ACTIONS SECTION ========== */
-.tk-actions {
-  display: flex;
+/* ========== ICON BUTTONS ==========
+   44px minimum touch target (WCAG 2.5.5 / accessibility requirement),
+   visually 40px with padding making up the difference so the header
+   doesn't look oversized while still meeting the touch-target floor. */
+.tk-icon-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: var(--tk-radius-full);
+  background: transparent;
+  color: var(--tk-text-primary);
+  cursor: pointer;
+  transition: background-color var(--tk-duration-fast) var(--tk-ease),
+    transform var(--tk-duration-fast) var(--tk-ease);
 }
 
-/* ========== ICONS ========== */
+.tk-icon-btn:hover {
+  background-color: var(--tk-border);
+}
+
+.tk-icon-btn:active {
+  transform: scale(0.92);
+}
+
+.tk-icon-btn:focus-visible {
+  outline: 2px solid var(--tk-accent);
+  outline-offset: 2px;
+}
+
+/* Legacy alias kept in case other markup still uses .tk-icon directly */
 .tk-icon {
   cursor: pointer;
-  color: var(--icon-color);
-  transition: all 0.2s;
+  color: var(--tk-text-primary);
   font-size: 20px;
+  transition: color var(--tk-duration-fast) var(--tk-ease);
 }
 
 .tk-icon:hover {
-  color: var(--icon-hover);
-  transform: scale(1.05);
+  color: var(--tk-accent);
 }
 
-/* ========== NOTIFICATION BELL STYLES ========== */
+/* ========== CITY SELECT ========== */
+.tk-city-select {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--tk-border);
+  border-radius: var(--tk-radius-full);
+  background-color: var(--tk-bg);
+  color: var(--tk-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 28px 6px 14px;
+  min-height: 32px;
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  background-image: linear-gradient(
+      45deg,
+      transparent 50%,
+      var(--tk-text-secondary) 50%
+    ),
+    linear-gradient(135deg, var(--tk-text-secondary) 50%, transparent 50%);
+  background-position: right 14px center, right 9px center;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  transition: border-color var(--tk-duration-fast) var(--tk-ease);
+}
+
+.tk-city-select:hover,
+.tk-city-select:focus-visible {
+  border-color: var(--tk-accent);
+  outline: none;
+}
+
+/* ========== WEATHER CHIP ========== */
+.tk-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--tk-text-secondary);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+/* ========== NOTIFICATION BELL ========== */
 .notification-container {
   position: relative;
   display: inline-block;
@@ -99,20 +165,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--tk-radius-full);
+  transition: background-color var(--tk-duration-fast) var(--tk-ease),
+    transform var(--tk-duration-fast) var(--tk-ease);
 }
 
 .notification-trigger:hover {
-  transform: scale(1.05);
+  background-color: var(--tk-border);
 }
 
 .notification-count {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  background-color: var(--badge-bg);
+  top: 2px;
+  right: 2px;
+  background-color: var(--tk-danger);
   color: white;
-  border-radius: 9999px;
+  border-radius: var(--tk-radius-full);
   padding: 2px 6px;
   font-size: 10px;
   font-weight: bold;
@@ -122,50 +192,43 @@
   align-items: center;
   justify-content: center;
   line-height: 1;
-  box-shadow: 0 0 0 2px var(--bg-primary);
-  animation: pulse 2s infinite;
+  box-shadow: 0 0 0 2px var(--tk-surface);
+  animation: tk-pulse 2s infinite;
 }
 
-@keyframes pulse {
-  0% {
+@keyframes tk-pulse {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
     transform: scale(1.1);
   }
-  100% {
-    transform: scale(1);
-  }
 }
 
-/* Backdrop for closing dropdown */
 .notification-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   z-index: 999;
-  background-color: rgba(0, 0, 0, 0);
+  background-color: transparent;
 }
 
-/* Dropdown Menu */
 .notification-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   width: 380px;
-  background-color: var(--dropdown-bg);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px var(--shadow-color), 
-              0 10px 10px -5px var(--shadow-color-light);
+  max-width: calc(100vw - 24px);
+  background-color: var(--tk-surface-raised);
+  border-radius: var(--tk-radius-md);
+  box-shadow: var(--tk-shadow-lg);
   z-index: 1000;
   overflow: hidden;
-  animation: slideDown 0.2s ease-out;
-  border: 1px solid var(--border-color);
+  animation: tk-slide-down 0.2s var(--tk-ease);
+  border: 1px solid var(--tk-border);
 }
 
-@keyframes slideDown {
+@keyframes tk-slide-down {
   from {
     opacity: 0;
     transform: translateY(-10px);
@@ -178,8 +241,7 @@
 
 .notification-header {
   padding: 16px 20px;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--dropdown-bg);
+  border-bottom: 1px solid var(--tk-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -187,71 +249,54 @@
 
 .notification-header strong {
   font-size: 16px;
-  color: var(--text-primary);
+  color: var(--tk-text-primary);
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 22px;
   cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.2s;
+  color: var(--tk-text-secondary);
   padding: 0;
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: var(--tk-radius-sm);
+  transition: background-color var(--tk-duration-fast) var(--tk-ease),
+    color var(--tk-duration-fast) var(--tk-ease);
 }
 
 .close-btn:hover {
-  color: var(--badge-bg);
-  background-color: var(--hover-bg);
+  color: var(--tk-danger);
+  background-color: var(--tk-border);
 }
 
 .notification-list {
   max-height: 400px;
   overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-/* Scrollbar styling for light mode */
 .notification-list::-webkit-scrollbar {
   width: 6px;
 }
 
 .notification-list::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
-  border-radius: 3px;
+  background: var(--tk-bg);
 }
 
 .notification-list::-webkit-scrollbar-thumb {
-  background: var(--text-secondary);
+  background: var(--tk-text-tertiary);
   border-radius: 3px;
-}
-
-.notification-list::-webkit-scrollbar-thumb:hover {
-  background: var(--icon-hover);
-}
-
-/* Scrollbar styling for dark mode */
-[data-theme="dark"] .notification-list::-webkit-scrollbar-track {
-  background: #374151;
-}
-
-[data-theme="dark"] .notification-list::-webkit-scrollbar-thumb {
-  background: #6b7280;
-}
-
-[data-theme="dark"] .notification-list::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
 }
 
 .notification-empty {
   padding: 48px 20px;
   text-align: center;
-  color: var(--text-secondary);
+  color: var(--tk-text-secondary);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -266,32 +311,27 @@
 .notification-item {
   padding: 12px 20px;
   cursor: pointer;
-  transition: background-color 0.2s;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--dropdown-bg);
+  transition: background-color var(--tk-duration-fast) var(--tk-ease);
+  border-bottom: 1px solid var(--tk-border);
 }
 
 .notification-item:hover {
-  background-color: var(--hover-bg);
+  background-color: var(--tk-border);
 }
 
 .notification-item.unread {
-  background-color: var(--notification-bg);
+  background-color: var(--tk-accent-soft);
   position: relative;
 }
 
 .notification-item.unread::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   width: 3px;
-  background-color: var(--unread-badge);
-}
-
-.notification-item.unread:hover {
-  background-color: var(--notification-hover);
+  background-color: var(--tk-info);
 }
 
 .notification-content {
@@ -302,90 +342,42 @@
 
 .notification-message {
   font-size: 14px;
-  color: var(--text-primary);
+  color: var(--tk-text-primary);
   line-height: 1.4;
   font-weight: 500;
 }
 
 .notification-time {
   font-size: 11px;
-  color: var(--text-secondary);
-}
-
-/* ========== WEATHER ========== */
-.tk-header .small {
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-
-/* ========== SELECT DROPDOWN ========== */
-.form-select-sm {
-  font-size: 0.875rem;
-  padding: 0.25rem 1.75rem 0.25rem 0.5rem;
-  border-color: var(--border-color);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.form-select-sm:hover {
-  border-color: var(--icon-hover);
-}
-
-.form-select-sm:focus {
-  border-color: var(--icon-hover);
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-/* Dark mode specific for select dropdown */
-[data-theme="dark"] .form-select-sm {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-}
-
-[data-theme="dark"] .form-select-sm option {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
+  color: var(--tk-text-secondary);
 }
 
 /* ========== RESPONSIVE ========== */
-@media (max-width: 640px) {
-  .notification-dropdown {
-    width: calc(100vw - 32px);
-    right: -10px;
-    left: -10px;
-    margin: 0 auto;
-  }
-  
-  .tk-logo {
-    font-size: 16px;
-  }
-  
+@media (max-width: 480px) {
   .tk-header {
-    padding: 0 10px;
+    gap: 6px;
+    padding-left: max(8px, var(--tk-safe-left));
+    padding-right: max(8px, var(--tk-safe-right));
   }
-  
-  .tk-actions {
-    gap: 12px;
+  .tk-weather {
+    display: none; /* reclaim space for actions on small phones */
+  }
+  .tk-city-select {
+    max-width: 30vw;
+    font-size: 12px;
+  }
+  .tk-header__end {
+    gap: 0;
+  }
+  .notification-dropdown {
+    width: calc(100vw - 24px);
+    right: -4px;
   }
 }
 
-/* ========== ANIMATIONS ========== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+@media (min-width: 720px) {
+  .tk-header {
+    padding-left: 20px;
+    padding-right: 20px;
   }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Smooth transitions for theme switching */
-* {
-  transition: background-color 0.3s ease, 
-              border-color 0.3s ease, 
-              color 0.2s ease;
 }
