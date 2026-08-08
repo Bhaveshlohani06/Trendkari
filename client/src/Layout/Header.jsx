@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { User, Moon, Sun, Menu } from "lucide-react";
+import { User, Moon, Sun, Menu, Search, X, Sparkles, FileText, Tag, ArrowRight } from "lucide-react";
 import { FiSun, FiCloud, FiCloudRain, FiBell } from "react-icons/fi";
 import { getToken } from "firebase/messaging";
 
@@ -34,84 +34,89 @@ const Header = () => {
 
   const [weather, setWeather] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Search state
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   const headerRef = useRef(null);
+  const searchInputRef = useRef(null);
 
-  // Publish the header's *actual* rendered height (safe-area padding,
-  // weather-chip-hidden breakpoint, etc. all included) as a CSS var so
-  // any page — most importantly the SwipeFeed — can size itself to
-  // "100dvh minus header" without hardcoding a pixel value that only
-  // works on one phone.
+  // Focus input automatically when search opens
   useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
-    const publishHeight = () => {
-      document.documentElement.style.setProperty(
-        "--app-header-height",
-        `${el.offsetHeight}px`
-      );
-    };
-
-    publishHeight();
-
-    const resizeObserver = new ResizeObserver(publishHeight);
-    resizeObserver.observe(el);
-    window.addEventListener("orientationchange", publishHeight);
-
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener("orientationchange", publishHeight);
-    };
-  }, []);
-
-  // Weather is decorative header chrome, not core business logic — a
-  // failed fetch just hides the chip instead of surfacing an error.
-  // (Bug fix: the previous version referenced an undefined `city`
-  // variable here instead of `location`, so weather silently never
-  // loaded — fixed by using the actual `location` value.)
+  // Autocomplete suggestions debounce
   useEffect(() => {
-    if (!location) return;
-    let cancelled = false;
+    if (!searchQuery.trim() || searchQuery.length < 2) {
+      setSuggestions([]);
+      return;
+    }
 
-    const fetchWeather = async () => {
+    const timer = setTimeout(async () => {
       try {
-        const { data } = await API.get(`/weather?city=${location}`);
-        if (!cancelled) setWeather(data);
+        const { data } = await API.get(`/search/autocomplete?q=${encodeURIComponent(searchQuery)}`);
+        setSuggestions(data?.suggestions || []);
       } catch (err) {
-        console.log("Weather error:", err);
-        if (!cancelled) setWeather(null);
+        console.error("Autocomplete search error:", err);
       }
-    };
+    }, 300);
 
-    fetchWeather();
-    return () => {
-      cancelled = true;
-    };
-  }, [location]);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
-  const handleCityChange = (e) => {
-    changeLocation(e.target.value);
-    navigate("/");
-  };
+  // Submit search query
+  const handleSearchSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!searchQuery.trim()) return;
 
-  const handleEnableNotifications = async () => {
+    setIsSearching(true);
     try {
-      if (Notification.permission === "granted") return;
-      if (Notification.permission === "denied") {
-        alert("Please enable notifications from browser settings");
+      const { data } = await API.post("/search/ai-search", {
+        query: searchQuery,
+        location: location,
+      });
+
+      if (data?.type === "redirect") {
+        closeSearch();
+        navigate(data.route);
         return;
       }
-      const permission = await Notification.requestPermission();
-      if (permission === "granted") {
-        const token = await getToken(messaging, { vapidKey: "YOUR_VAPID_KEY" });
-        await fetch("/save-token", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
-      }
+
+      closeSearch();
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`, {
+        state: { searchResults: data },
+      });
     } catch (err) {
-      console.error("Notification error:", err);
+      console.error("AI Search Error:", err);
+      closeSearch();
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const closeSearch = () => {
+    setIsSearchOpen(false);
+    setSearchQuery("");
+    setSuggestions([]);
+  };
+
+  const renderBadge = (type) => {
+    switch (type) {
+      case "post":
+        return <span className="tk-badge tk-badge--info"><FileText size={10} /> Post</span>;
+      case "user":
+        return <span className="tk-badge tk-badge--success"><User size={10} /> User</span>;
+      case "category":
+        return <span className="tk-badge tk-badge--warning"><Tag size={10} /> Category</span>;
+      default:
+        return <Search size={14} className="text-muted" />;
     }
   };
 
@@ -128,64 +133,122 @@ const Header = () => {
             <Menu size={20} />
           </button>
 
-          <div
-            className="tk-logo"
-            role="button"
-            tabIndex={0}
-            onClick={() => {
-              window.location.href = `/feed/${location}`;
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") window.location.href = `/feed/${location}`;
-            }}
-          >
-            Trendkari
-          </div>
-        </div>
-
-        <div className="tk-header__center">
-          <select
-            value={location}
-            onChange={handleCityChange}
-            className="tk-city-select"
-            aria-label="Select city"
-          >
-            {CITIES.map((city) => (
-              <option key={city.key} value={city.key}>
-                {city.label}
-              </option>
-            ))}
-          </select>
-
-          {weather && (
-            <span className="tk-weather" title={weather.condition}>
-              {getWeatherIcon(weather.condition)}
-              <span>{weather.temp}°C</span>
-            </span>
+          {!isSearchOpen && (
+            <div
+              className="tk-logo"
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate(`/feed/${location}`)}
+            >
+              Trendkari
+            </div>
           )}
         </div>
 
-        <div className="tk-header__end">
-          <button
-            type="button"
-            className="tk-icon-btn"
-            onClick={toggleTheme}
-            aria-label={
-              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-            }
-            title={theme === "dark" ? "Light mode" : "Dark mode"}
-          >
-            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+        {/* INLINE EXPANDABLE SEARCH BAR */}
+        {isSearchOpen ? (
+          <div className="tk-header__search-container">
+            <form className="tk-header__search-form" onSubmit={handleSearchSubmit}>
+              <button
+                type="submit"
+                className="tk-search-btn-icon"
+                disabled={isSearching}
+              >
+                {isSearching ? (
+                  <Sparkles size={16} className="tk-spin-icon text-accent" />
+                ) : (
+                  <Search size={16} className="text-muted" />
+                )}
+              </button>
 
-          <button
-            type="button"
-            className="tk-icon-btn"
-            onClick={handleEnableNotifications}
-            aria-label="Enable push notifications"
-            title="Enable alerts"
-          >
-            <FiBell size={18} />
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="tk-header__search-input"
+                placeholder="Search news, topics, or ask AI..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+
+              <button
+                type="button"
+                className="tk-search-btn-icon"
+                onClick={closeSearch}
+                aria-label="Close search"
+              >
+                <X size={18} />
+              </button>
+            </form>
+
+            {/* AUTOCOMPLETE DROPDOWN ANCHORED DIRECTLY BELOW HEADER INPUT */}
+            {suggestions.length > 0 && (
+              <ul className="tk-header__suggestions-menu">
+                {suggestions.map((item, index) => {
+                  const text = typeof item === "string" ? item : item.text || item.title;
+                  const type = typeof item === "object" ? item.type : null;
+
+                  return (
+                    <li
+                      key={index}
+                      className="tk-suggestion-row"
+                      onClick={() => {
+                        setSearchQuery(text);
+                        closeSearch();
+                        navigate(`/search?q=${encodeURIComponent(text)}`);
+                      }}
+                    >
+                      <div className="tk-suggestion-info">
+                        {type ? renderBadge(type) : <Search size={14} className="text-muted me-2" />}
+                        <span>{text}</span>
+                      </div>
+                      <ArrowRight size={14} className="text-muted" />
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        ) : (
+          <div className="tk-header__center">
+            <select
+              value={location}
+              onChange={(e) => {
+                changeLocation(e.target.value);
+                navigate("/");
+              }}
+              className="tk-city-select"
+            >
+              {CITIES.map((city) => (
+                <option key={city.key} value={city.key}>
+                  {city.label}
+                </option>
+              ))}
+            </select>
+
+            {weather && (
+              <span className="tk-weather" title={weather.condition}>
+                {getWeatherIcon(weather.condition)}
+                <span>{weather.temp}°C</span>
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className="tk-header__end">
+          {!isSearchOpen && (
+            <button
+              type="button"
+              className="tk-icon-btn"
+              onClick={() => setIsSearchOpen(true)}
+              aria-label="Search"
+              title="Search"
+            >
+              <Search size={18} />
+            </button>
+          )}
+
+          <button type="button" className="tk-icon-btn" onClick={toggleTheme}>
+            {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
           <NotificationBell />
@@ -194,7 +257,6 @@ const Header = () => {
             type="button"
             className="tk-icon-btn"
             onClick={() => navigate("/about")}
-            aria-label="About Trendkari"
           >
             <User size={18} />
           </button>

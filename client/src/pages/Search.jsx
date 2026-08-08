@@ -1,233 +1,224 @@
-// components/Search.jsx
-import { useState, useEffect } from 'react';
-import API  from '../../utils/api.js';
-import { Link } from 'react-router-dom';
-import Layout from '../Layout/Layout.jsx';
+import { useEffect, useState } from "react";
+import { useSearchParams, useLocation, Link } from "react-router-dom";
+import { Search, Sparkles, FileText, User, Tag, ArrowRight, RefreshCw } from "lucide-react";
+import API from "../../utils/api";
+import "../../css/SearchResult.css";
 
-const Search = () => {
-  const [query, setQuery] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
-  const [results, setResults] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+const SearchResultsPage = () => {
+  const [searchParams] = useSearchParams();
+  const locationState = useLocation();
 
-  // Autocomplete suggestions
+  const query = searchParams.get("q") || "";
+
+  const [loading, setLoading] = useState(!locationState.state?.searchResults);
+  const [resultsData, setResultsData] = useState(
+    locationState.state?.searchResults || null
+  );
+  const [activeTab, setActiveTab] = useState("all");
+
+  // Fetch from API if user reloads page directly or changes query parameter
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      if (query.length < 2) {
-        setSuggestions([]);
-        return;
-      }
+    let isMounted = true;
 
+    const fetchResults = async () => {
+      if (!query.trim()) return;
+
+      setLoading(true);
       try {
-        const response = await API.get(`/search/autocomplete?q=${encodeURIComponent(query)}`);
-        setSuggestions(response.data.suggestions);
-      } catch (error) {
-        console.error('Error fetching suggestions:', error);
+        const { data } = await API.post("/search/ai-search", { query });
+        if (isMounted) setResultsData(data);
+      } catch (err) {
+        console.error("Search fetch error:", err);
+        if (isMounted) {
+          setResultsData({ error: "Failed to load results. Please try again." });
+        }
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
-    const debounceTimer = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounceTimer);
-  }, [query]);
-
-  const handleSearch = async (searchQuery = query, advanced = false) => {
-    if (!searchQuery.trim()) return;
-
-    setLoading(true);
-    try {
-      const endpoint = advanced ? '/search/advanced' : '/search/basic';
-      const response = await API.get(`${endpoint}?query=${encodeURIComponent(searchQuery)}`);
-      setResults(response.data);
-      setShowSuggestions(false);
-    } catch (error) {
-      console.error('Search error:', error);
-      alert('Search failed. Please try again.');
-    } finally {
+    if (!locationState.state?.searchResults) {
+      fetchResults();
+    } else {
+      setResultsData(locationState.state.searchResults);
       setLoading(false);
     }
-  };
 
-  const handleSuggestionClick = (suggestion) => {
-    setQuery(suggestion.text);
-    handleSearch(suggestion.text);
-  };
+    return () => {
+      isMounted = false;
+    };
+  }, [query, locationState.state]);
+
+  const posts = resultsData?.results?.posts || [];
+  const users = resultsData?.results?.users || [];
+  const categories = resultsData?.results?.categories || [];
+  const aiSummary = resultsData?.aiSummary || resultsData?.response || null;
+  const isAiFallback = resultsData?.source === "ai" || resultsData?.type === "ai_response";
 
   return (
-
-    <Layout>
-    <div className="container py-4">
-      {/* Search Input */}
-      <div className="row justify-content-center">
-        <div className="col-md-8 position-relative">
-          <div className="input-group mb-3">
-            <input
-              type="text"
-              className="form-control form-control-lg"
-              placeholder="Search for posts, users, categories..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setShowSuggestions(true)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={() => handleSearch()}
-              disabled={loading}
-            >
-              {loading ? 'Searching...' : 'Search'}
-            </button>
-            <button
-              className="btn btn-outline-secondary"
-              type="button"
-              onClick={() => handleSearch(query, true)}
-              disabled={loading}
-              title="AI-Powered Search"
-            >
-              <i className="fas fa-robot"></i> AI Search
-            </button>
-          </div>
-
-          {/* Suggestions Dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
-            <div className="list-group position-absolute w-100" style={{ zIndex: 1000, top: '100%' }}>
-              {suggestions.map((suggestion, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  className="list-group-item list-group-item-action"
-                  onClick={() => handleSuggestionClick(suggestion)}
-                >
-                  <span className={`badge bg-${suggestion.type === 'post' ? 'info' : suggestion.type === 'user' ? 'success' : 'warning'} me-2`}>
-                    {suggestion.type}
-                  </span>
-                  {suggestion.text}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+    <div className="tk-search-page">
+      <div className="tk-search-page__header">
+        <h1>
+          Search results for <span>"{query}"</span>
+        </h1>
+        {resultsData && !loading && (
+          <p className="tk-search-page__subtitle">
+            {isAiFallback
+              ? "No exact match in database. Generated AI Overview:"
+              : `Found ${posts.length} posts, ${users.length} users, and ${categories.length} categories.`}
+          </p>
+        )}
       </div>
 
-      {/* Search Results */}
-      {results && (
-        <div className="row mt-4">
-          <div className="col-12">
-            {/* AI Analysis Section */}
-            {results.aiAnalysis && (
-              <div className="card mb-4 border-primary">
-                <div className="card-header bg-primary text-white">
-                  <i className="fas fa-robot me-2"></i> AI Insights
-                </div>
-                <div className="card-body">
-                  <h6>Summary:</h6>
-                  <p>{results.aiAnalysis.summary}</p>
-                  
-                  <h6>Search Intent:</h6>
-                  <p>{results.aiAnalysis.searchIntent}</p>
-                  
-                  <h6>Related Searches:</h6>
-                  <div className="d-flex flex-wrap gap-2">
-                    {results.aiAnalysis.relatedSearches.map((search, index) => (
-                      <button
-                        key={index}
-                        className="btn btn-outline-primary btn-sm"
-                        onClick={() => {
-                          setQuery(search);
-                          handleSearch(search, true);
-                        }}
-                      >
-                        {search}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {results.aiAnalysis.insights && (
-                    <>
-                      <h6 className="mt-3">Additional Insights:</h6>
-                      <p>{results.aiAnalysis.insights}</p>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
+      {/* FILTER TABS */}
+      {!isAiFallback && !loading && (
+        <div className="tk-search-tabs">
+          <button
+            className={`tk-tab ${activeTab === "all" ? "active" : ""}`}
+            onClick={() => setActiveTab("all")}
+          >
+            All Results
+          </button>
+          {posts.length > 0 && (
+            <button
+              className={`tk-tab ${activeTab === "posts" ? "active" : ""}`}
+              onClick={() => setActiveTab("posts")}
+            >
+              Posts ({posts.length})
+            </button>
+          )}
+          {users.length > 0 && (
+            <button
+              className={`tk-tab ${activeTab === "users" ? "active" : ""}`}
+              onClick={() => setActiveTab("users")}
+            >
+              Users ({users.length})
+            </button>
+          )}
+          {categories.length > 0 && (
+            <button
+              className={`tk-tab ${activeTab === "categories" ? "active" : ""}`}
+              onClick={() => setActiveTab("categories")}
+            >
+              Categories ({categories.length})
+            </button>
+          )}
+        </div>
+      )}
 
-            {/* Posts Results */}
-            {results.results.posts.length > 0 && (
-              <div className="mb-4">
-                <h4 className="border-bottom pb-2">Posts</h4>
-                <div className="row">
-                  {results.results.posts.map(post => (
-                    <div key={post._id} className="col-md-6 mb-3">
-                      <div className="card h-100">
-                        <img src={post.image} className="card-img-top" alt={post.title} style={{ height: '200px', objectFit: 'cover' }} />
-                        <div className="card-body">
-                          <h5 className="card-title">{post.title}</h5>
-                          <p className="card-text">{post.content.substring(0, 100)}...</p>
-                          <Link to={`/blog/${post.slug}`} className="btn btn-primary btn-sm">Read More</Link>
-                        </div>
-                      </div>
+      {/* LOADING STATE */}
+      {loading && (
+        <div className="tk-search-loading">
+          <Sparkles size={28} className="tk-spin-icon text-accent" />
+          <p>Searching Trendkari & generating AI insights...</p>
+        </div>
+      )}
+
+      {/* RESULTS DISPLAY */}
+      {!loading && (
+        <div className="tk-search-results-content">
+          {/* AI GEMINI ANSWER SECTION */}
+          {aiSummary && (
+            <div className="tk-ai-card">
+              <div className="tk-ai-card__header">
+                <Sparkles size={20} className="text-accent" />
+                <h3>AI Insights Overview</h3>
+              </div>
+              <div className="tk-ai-card__body">
+                <p>{aiSummary}</p>
+              </div>
+            </div>
+          )}
+
+          {/* POSTS SECTION */}
+          {(activeTab === "all" || activeTab === "posts") && posts.length > 0 && (
+            <section className="tk-results-section">
+              <h2><FileText size={18} /> Related Posts</h2>
+              <div className="tk-posts-grid">
+                {posts.map((post) => (
+                  <Link
+                    key={post._id}
+                    to={`/blog/${post.slug || post._id}`}
+                    className="tk-post-card"
+                  >
+                    {post.image && (
+                      <img src={post.image} alt={post.title} className="tk-post-card__img" />
+                    )}
+                    <div className="tk-post-card__info">
+                      <span className="tk-post-card__cat">
+                        {post.category?.name || "General"}
+                      </span>
+                      <h3>{post.title}</h3>
+                      <small className="text-muted">
+                        {new Date(post.createdAt).toLocaleDateString()}
+                      </small>
                     </div>
-                  ))}
-                </div>
+                  </Link>
+                ))}
               </div>
-            )}
+            </section>
+          )}
 
-            {/* Users Results */}
-            {results.results.users.length > 0 && (
-              <div className="mb-4">
-                <h4 className="border-bottom pb-2">Users</h4>
-                <div className="row">
-                  {results.results.users.map(user => (
-                    <div key={user._id} className="col-md-4 mb-3">
-                      <div className="card text-center">
-                        <img src={user.avatar} className="card-img-top rounded-circle w-50 mx-auto mt-3" alt={user.name} style={{ width: '100px', height: '100px', objectFit: 'cover' }} />
-                        <div className="card-body">
-                          <h5 className="card-title">{user.name}</h5>
-                          <p className="card-text">{user.bio?.substring(0, 80)}...</p>
-                          <Link to={`/profile/${user._id}`} className="btn btn-outline-primary btn-sm">View Profile</Link>
-                        </div>
-                      </div>
+          {/* USERS SECTION */}
+          {(activeTab === "all" || activeTab === "users") && users.length > 0 && (
+            <section className="tk-results-section">
+              <h2><User size={18} /> Users</h2>
+              <div className="tk-users-list">
+                {users.map((user) => (
+                  <Link
+                    key={user._id}
+                    to={`/dashboard/user/profile/${user._id}`}
+                    className="tk-user-card"
+                  >
+                    <img
+                      src={user.avatar || "/default-avatar.png"}
+                      alt={user.name}
+                      className="tk-user-card__avatar"
+                      onError={(e) => { e.target.src = "/default-avatar.png"; }}
+                    />
+                    <div>
+                      <h4>{user.name}</h4>
+                      {user.bio && <p>{user.bio.substring(0, 70)}...</p>}
                     </div>
-                  ))}
-                </div>
+                  </Link>
+                ))}
               </div>
-            )}
+            </section>
+          )}
 
-            {/* Categories Results */}
-            {results.results.categories.length > 0 && (
-              <div className="mb-4">
-                <h4 className="border-bottom pb-2">Categories</h4>
-                <div className="d-flex flex-wrap gap-2">
-                  {results.results.categories.map(category => (
-                    <Link
-                      key={category._id}
-                      to={`/category/${category.slug || category._id}`}
-                      className="btn btn-outline-info"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
+          {/* CATEGORIES SECTION */}
+          {(activeTab === "all" || activeTab === "categories") && categories.length > 0 && (
+            <section className="tk-results-section">
+              <h2><Tag size={18} /> Categories</h2>
+              <div className="tk-categories-flex">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat._id}
+                    to={`/category/${cat.slug || cat._id}`}
+                    className="tk-category-badge"
+                  >
+                    {cat.name} <ArrowRight size={14} />
+                  </Link>
+                ))}
               </div>
-            )}
+            </section>
+          )}
 
-            {/* No Results Message */}
-            {results.results.posts.length === 0 && 
-             results.results.users.length === 0 && 
-             results.results.categories.length === 0 && (
-              <div className="text-center py-5">
-                <h4>No results found for "{query}"</h4>
-                <p className="text-muted">Try different keywords or try our AI-powered search</p>
+          {/* ABSOLUTE EMPTY STATE */}
+          {!aiSummary &&
+            posts.length === 0 &&
+            users.length === 0 &&
+            categories.length === 0 && (
+              <div className="tk-empty-search">
+                <Search size={40} className="text-muted mb-2" />
+                <h3>No results found</h3>
+                <p>Try searching for different keywords or topics.</p>
               </div>
             )}
-          </div>
         </div>
       )}
     </div>
-    </Layout>
   );
 };
 
-export default Search;
+export default SearchResultsPage;

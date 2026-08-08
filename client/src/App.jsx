@@ -145,7 +145,7 @@ import BlogDetail from "./pages/BlogDetail";
 import AllBlogs from "./pages/AllBlog";
 import CategoryPosts from "./pages/CategoryPosts";
 import CityFeed from "./Components/CityFeed";
-import Search from "./pages/Search";
+import SearchResultsPage from "./pages/Search";
 import Cover from "./pages/Cover";
 import Contact from "./pages/Contact";
 import AboutUs from "./Components/Aboutus";
@@ -275,7 +275,7 @@ const App = () => {
 
         <Route path="/category/:slug" element={<CategoryPosts />} />
         <Route path="/city/:location" element={<CityFeed />} />
-        <Route path="/search" element={<Search />} />
+        <Route path="/search" element={<SearchResultsPage />} />
         <Route path="/coverpage" element={<Cover />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<AboutUs />} />

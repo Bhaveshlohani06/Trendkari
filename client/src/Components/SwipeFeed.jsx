@@ -179,18 +179,30 @@ const timeAgo = (date) => {
 // Turns EditorJS-style block content (or a plain string) into text.
 const getPostContent = (content) => {
   if (!content) return "";
-  if (typeof content === "string") return content;
-  if (typeof content === "object" && content.blocks) {
-    return content.blocks
+  
+  let rawText = "";
+
+  if (typeof content === "string") {
+    rawText = content;
+  } else if (typeof content === "object" && content.blocks) {
+    rawText = content.blocks
       .map((block) => {
         if (block.type === "paragraph" || block.type === "header") {
           return block.data?.text || "";
         }
         return "";
       })
+      .filter(Boolean)
       .join(" ");
   }
-  return "";
+
+  if (!rawText) return "";
+
+  // Strip HTML tags and replace non-breaking spaces with standard spaces
+  return rawText
+    .replace(/<[^>]*>/g, "") // Strips tags like <br>, <b>, etc.
+    .replace(/&nbsp;/g, " ")
+    .trim();
 };
 
 // ---------------------------------------------------------------------------
