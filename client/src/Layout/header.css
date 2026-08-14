@@ -1,7 +1,5 @@
 /* ==========================================================================
    TRENDKARI HEADER — compact, sticky, three-zone grid app bar.
-   Color no longer defined here — it comes entirely from theme.css tokens
-   (--tk-*). This file only owns header-specific layout and component CSS.
    ========================================================================== */
 
 /* ========== HEADER ROOT ========== */
@@ -9,23 +7,22 @@
   position: sticky;
   top: 0;
   z-index: 1000;
-
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  display: flex;
   align-items: center;
-  gap: 10px;
-
-  height: calc(var(--tk-header-h) + var(--tk-safe-top));
-  padding: var(--tk-safe-top) max(12px, var(--tk-safe-right)) 0
-    max(12px, var(--tk-safe-left));
-  box-sizing: border-box;
-
-  background-color: var(--tk-surface);
-border-bottom: 1px solid var(--border-color, #e2e8f0);
+  justify-content: space-between;
+  height: 56px;
+  padding: 0 12px;
+  background-color: var(--tk-surface, var(--bg-card, #ffffff));
+  border-bottom: 1px solid var(--tk-border, var(--border-color, #e2e8f0));
   backdrop-filter: saturate(180%) blur(12px);
   -webkit-backdrop-filter: saturate(180%) blur(12px);
-  transition: background-color var(--tk-duration-base) var(--tk-ease),
-    border-color var(--tk-duration-base) var(--tk-ease);
+  transition: background-color var(--tk-duration-base, 0.2s) var(--tk-ease, ease),
+    border-color var(--tk-duration-base, 0.2s) var(--tk-ease, ease),
+    color var(--tk-duration-base, 0.2s) var(--tk-ease, ease);
+}
+
+.tk-header--search-active {
+  padding: 0 8px;
 }
 
 .tk-header__start,
@@ -50,20 +47,17 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   font-size: clamp(15px, 4vw, 18px);
   font-weight: 800;
   letter-spacing: -0.01em;
-  color: var(--tk-text-primary);
+  color: var(--tk-text-primary, #0f172a);
   white-space: nowrap;
   cursor: pointer;
-  transition: color var(--tk-duration-fast) var(--tk-ease);
+  transition: color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
 }
 
 .tk-logo:hover {
-  color: var(--tk-accent);
+  color: var(--tk-accent, #3b82f6);
 }
 
-/* ========== ICON BUTTONS ==========
-   44px minimum touch target (WCAG 2.5.5 / accessibility requirement),
-   visually 40px with padding making up the difference so the header
-   doesn't look oversized while still meeting the touch-target floor. */
+/* ========== ICON BUTTONS ========== */
 .tk-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -73,16 +67,16 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   min-width: 44px;
   min-height: 44px;
   border: none;
-  border-radius: var(--tk-radius-full);
+  border-radius: var(--tk-radius-full, 9999px);
   background: transparent;
-  color: var(--tk-text-primary);
+  color: var(--tk-text-primary, #0f172a);
   cursor: pointer;
-  transition: background-color var(--tk-duration-fast) var(--tk-ease),
-    transform var(--tk-duration-fast) var(--tk-ease);
+  transition: background-color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease),
+    transform var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
 }
 
 .tk-icon-btn:hover {
-  background-color: var(--tk-border);
+  background-color: var(--tk-border, #e2e8f0);
 }
 
 .tk-icon-btn:active {
@@ -90,30 +84,29 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
 }
 
 .tk-icon-btn:focus-visible {
-  outline: 2px solid var(--tk-accent);
+  outline: 2px solid var(--tk-accent, #3b82f6);
   outline-offset: 2px;
 }
 
-/* Legacy alias kept in case other markup still uses .tk-icon directly */
 .tk-icon {
   cursor: pointer;
-  color: var(--tk-text-primary);
+  color: var(--tk-text-primary, #0f172a);
   font-size: 20px;
-  transition: color var(--tk-duration-fast) var(--tk-ease);
+  transition: color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
 }
 
 .tk-icon:hover {
-  color: var(--tk-accent);
+  color: var(--tk-accent, #3b82f6);
 }
 
 /* ========== CITY SELECT ========== */
 .tk-city-select {
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid var(--tk-border);
-  border-radius: var(--tk-radius-full);
-  background-color: var(--tk-bg);
-  color: var(--tk-text-primary);
+  border: 1px solid var(--tk-border, #cbd5e1);
+  border-radius: var(--tk-radius-full, 9999px);
+  background-color: var(--tk-bg, #f8fafc);
+  color: var(--tk-text-primary, #0f172a);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 28px 6px 14px;
@@ -122,21 +115,19 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  background-image: linear-gradient(
-      45deg,
-      transparent 50%,
-      var(--tk-text-secondary) 50%
-    ),
-    linear-gradient(135deg, var(--tk-text-secondary) 50%, transparent 50%);
+  background-image: 
+    linear-gradient(45deg, transparent 50%, var(--tk-text-secondary, #64748b) 50%),
+    linear-gradient(135deg, var(--tk-text-secondary, #64748b) 50%, transparent 50%);
   background-position: right 14px center, right 9px center;
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
-  transition: border-color var(--tk-duration-fast) var(--tk-ease);
+  transition: border-color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease),
+    background-color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
 }
 
 .tk-city-select:hover,
 .tk-city-select:focus-visible {
-  border-color: var(--tk-accent);
+  border-color: var(--tk-accent, #3b82f6);
   outline: none;
 }
 
@@ -147,7 +138,7 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   gap: 4px;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--tk-text-secondary);
+  color: var(--tk-text-secondary, #64748b);
   white-space: nowrap;
   flex: 0 0 auto;
 }
@@ -167,22 +158,22 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
-  border-radius: var(--tk-radius-full);
-  transition: background-color var(--tk-duration-fast) var(--tk-ease),
-    transform var(--tk-duration-fast) var(--tk-ease);
+  border-radius: var(--tk-radius-full, 9999px);
+  transition: background-color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease),
+    transform var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
 }
 
 .notification-trigger:hover {
-  background-color: var(--tk-border);
+  background-color: var(--tk-border, #e2e8f0);
 }
 
 .notification-count {
   position: absolute;
   top: 2px;
   right: 2px;
-  background-color: var(--tk-danger);
-  color: white;
-  border-radius: var(--tk-radius-full);
+  background-color: var(--tk-danger, #ef4444);
+  color: #ffffff;
+  border-radius: var(--tk-radius-full, 9999px);
   padding: 2px 6px;
   font-size: 10px;
   font-weight: bold;
@@ -192,13 +183,12 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   align-items: center;
   justify-content: center;
   line-height: 1;
-  box-shadow: 0 0 0 2px var(--tk-surface);
+  box-shadow: 0 0 0 2px var(--tk-surface, #ffffff);
   animation: tk-pulse 2s infinite;
 }
 
 @keyframes tk-pulse {
-  0%,
-  100% {
+  0%, 100% {
     transform: scale(1);
   }
   50% {
@@ -219,13 +209,13 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   right: 0;
   width: 380px;
   max-width: calc(100vw - 24px);
-  background-color: var(--tk-surface-raised);
-  border-radius: var(--tk-radius-md);
-  box-shadow: var(--tk-shadow-lg);
+  background-color: var(--tk-surface-raised, #ffffff);
+  border-radius: var(--tk-radius-md, 8px);
+  box-shadow: var(--tk-shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
   z-index: 1000;
   overflow: hidden;
-  animation: tk-slide-down 0.2s var(--tk-ease);
-  border: 1px solid var(--tk-border);
+  animation: tk-slide-down 0.2s var(--tk-ease, ease);
+  border: 1px solid var(--tk-border, #e2e8f0);
 }
 
 @keyframes tk-slide-down {
@@ -241,7 +231,7 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
 
 .notification-header {
   padding: 16px 20px;
-  border-bottom: 1px solid var(--tk-border);
+  border-bottom: 1px solid var(--tk-border, #e2e8f0);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -249,7 +239,7 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
 
 .notification-header strong {
   font-size: 16px;
-  color: var(--tk-text-primary);
+  color: var(--tk-text-primary, #0f172a);
 }
 
 .close-btn {
@@ -257,21 +247,21 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   border: none;
   font-size: 22px;
   cursor: pointer;
-  color: var(--tk-text-secondary);
+  color: var(--tk-text-secondary, #64748b);
   padding: 0;
   width: 28px;
   height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--tk-radius-sm);
-  transition: background-color var(--tk-duration-fast) var(--tk-ease),
-    color var(--tk-duration-fast) var(--tk-ease);
+  border-radius: var(--tk-radius-sm, 4px);
+  transition: background-color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease),
+    color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
 }
 
 .close-btn:hover {
-  color: var(--tk-danger);
-  background-color: var(--tk-border);
+  color: var(--tk-danger, #ef4444);
+  background-color: var(--tk-border, #e2e8f0);
 }
 
 .notification-list {
@@ -285,18 +275,18 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
 }
 
 .notification-list::-webkit-scrollbar-track {
-  background: var(--tk-bg);
+  background: var(--tk-bg, #f8fafc);
 }
 
 .notification-list::-webkit-scrollbar-thumb {
-  background: var(--tk-text-tertiary);
+  background: var(--tk-text-tertiary, #94a3b8);
   border-radius: 3px;
 }
 
 .notification-empty {
   padding: 48px 20px;
   text-align: center;
-  color: var(--tk-text-secondary);
+  color: var(--tk-text-secondary, #64748b);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -311,16 +301,16 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
 .notification-item {
   padding: 12px 20px;
   cursor: pointer;
-  transition: background-color var(--tk-duration-fast) var(--tk-ease);
-  border-bottom: 1px solid var(--tk-border);
+  transition: background-color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
+  border-bottom: 1px solid var(--tk-border, #e2e8f0);
 }
 
 .notification-item:hover {
-  background-color: var(--tk-border);
+  background-color: var(--tk-border, #e2e8f0);
 }
 
 .notification-item.unread {
-  background-color: var(--tk-accent-soft);
+  background-color: var(--tk-accent-soft, #eff6ff);
   position: relative;
 }
 
@@ -331,7 +321,7 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   top: 0;
   bottom: 0;
   width: 3px;
-  background-color: var(--tk-info);
+  background-color: var(--tk-info, #3b82f6);
 }
 
 .notification-content {
@@ -342,25 +332,198 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
 
 .notification-message {
   font-size: 14px;
-  color: var(--tk-text-primary);
+  color: var(--tk-text-primary, #0f172a);
   line-height: 1.4;
   font-weight: 500;
 }
 
 .notification-time {
   font-size: 11px;
-  color: var(--tk-text-secondary);
+  color: var(--tk-text-secondary, #64748b);
+}
+
+/* ========== BREADCRUMB ========== */
+.tk-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tk-text-secondary, #64748b);
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.tk-breadcrumb__home {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--tk-text-secondary, #64748b);
+  cursor: pointer;
+  transition: color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
+}
+
+.tk-breadcrumb__home:hover,
+.tk-breadcrumb__home:focus-visible {
+  color: var(--tk-accent, #3b82f6);
+  outline: none;
+}
+
+.tk-breadcrumb__sep {
+  opacity: 0.5;
+}
+
+.tk-breadcrumb__current {
+  color: var(--tk-text-primary, #0f172a);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 26vw;
+}
+
+/* ========== FULL-WIDTH HEADER SEARCH ========== */
+.tk-header__full-search {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  animation: tkFadeInSearch 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tk-full-search-form {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 42px;
+  background-color: var(--bg-hover, #f1f5f9);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 22px;
+  padding: 0 6px 0 12px;
+  gap: 8px;
+}
+
+.tk-full-search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  color: var(--tk-text-primary, #0f172a);
+}
+
+.tk-full-search-input::placeholder {
+  color: var(--tk-text-secondary, #94a3b8);
+}
+
+.tk-close-search-btn {
+  color: var(--tk-text-primary, #0f172a) !important;
+  background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tk-close-search-btn:hover {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.tk-header__suggestions-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: var(--tk-surface-raised, #ffffff);
+  border: 1px solid var(--tk-border, #e2e8f0);
+  border-radius: 12px;
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  z-index: 1100;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.tk-suggestion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--tk-text-primary, #0f172a);
+}
+
+.tk-suggestion-row:hover {
+  background-color: var(--tk-border, #f1f5f9);
+}
+
+@keyframes tkFadeInSearch {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   DARK THEME OVERRIDES (Supports both [data-theme="dark"] and .dark class)
+   ========================================================================== */
+
+:root[data-theme="dark"],
+body[data-theme="dark"],
+.dark {
+  --tk-surface: #0f172a;
+  --tk-surface-raised: #1e293b;
+  --tk-bg: #020617;
+  --tk-text-primary: #f8fafc;
+  --tk-text-secondary: #94a3b8;
+  --tk-border: #334155;
+  --border-color: #334155;
+  --bg-card: #0f172a;
+  --bg-hover: #1e293b;
+  --tk-accent-soft: rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="dark"] .tk-full-search-form,
+.dark .tk-full-search-form {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .tk-full-search-input,
+.dark .tk-full-search-input {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .tk-close-search-btn,
+.dark .tk-close-search-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .tk-close-search-btn:hover,
+.dark .tk-close-search-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 480px) {
   .tk-header {
     gap: 6px;
-    padding-left: max(8px, var(--tk-safe-left));
-    padding-right: max(8px, var(--tk-safe-right));
+    padding-left: max(8px, var(--tk-safe-left, 0px));
+    padding-right: max(8px, var(--tk-safe-right, 0px));
   }
   .tk-weather {
-    display: none; /* reclaim space for actions on small phones */
+    display: none;
   }
   .tk-city-select {
     max-width: 30vw;
@@ -375,317 +538,15 @@ border-bottom: 1px solid var(--border-color, #e2e8f0);
   }
 }
 
+@media (max-width: 400px) {
+  .tk-breadcrumb {
+    display: none;
+  }
+}
+
 @media (min-width: 720px) {
   .tk-header {
     padding-left: 20px;
     padding-right: 20px;
   }
-}
-
-
-
-/* ==========================================================================
-   BREADCRUMB (start zone) — compact wayfinding: Home / {City}
-   ========================================================================== */
-
-.tk-breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--tk-text-secondary);
-  white-space: nowrap;
-  min-width: 0;
-}
-
-.tk-breadcrumb__home {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: var(--tk-text-secondary);
-  cursor: pointer;
-  transition: color var(--tk-duration-fast) var(--tk-ease);
-}
-
-.tk-breadcrumb__home:hover,
-.tk-breadcrumb__home:focus-visible {
-  color: var(--tk-accent);
-  outline: none;
-}
-
-.tk-breadcrumb__sep {
-  opacity: 0.5;
-}
-
-.tk-breadcrumb__current {
-  color: var(--tk-text-primary);
-  font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 26vw;
-}
-
-@media (max-width: 400px) {
-  .tk-breadcrumb {
-    display: none; /* reclaim space for search/actions on very small phones */
-  }
-}
-
-/* ==========================================================================
-   LOGO <-> SEARCH CROSSFADE (center zone)
-   Both the logo and the search bar occupy the exact same box, so the
-   search bar visually "arrives" on top of / overlapping the logo's
-   position rather than appearing somewhere unrelated.
-   ========================================================================== */
-
-.tk-header__center-stack {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.tk-logo-slot {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.tk-logo-slot.tk-is-hidden {
-  opacity: 0;
-  transform: scale(0.92);
-  pointer-events: none;
-}
-
-/* Main Search Container - overlaps the logo slot, crossfades in on open */
-.tk-header__search-container {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  opacity: 0;
-  transform: scale(1.04);
-  pointer-events: none;
-  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.tk-header__search-container.tk-is-visible {
-  opacity: 1;
-  transform: scale(1);
-  pointer-events: auto;
-}
-
-/* Search Form - Matches exact header design theme */
-.tk-header__search-form {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 38px;
-  background-color: var(--header-input-bg, rgba(0, 0, 0, 0.04));
-  border: 1px solid var(--header-border-color, rgba(0, 0, 0, 0.1));
-  border-radius: 20px;
-  padding: 0 8px;
-  gap: 6px;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-.tk-header__search-form:focus-within {
-  border-color: var(--accent-color, #0284c7);
-  background-color: var(--bg-card, #ffffff);
-}
-
-/* Input Styling */
-.tk-header__search-input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 0.9rem;
-  color: var(--text-primary, #0f172a);
-  padding: 0 4px;
-}
-
-.tk-header__search-input::placeholder {
-  color: var(--text-muted, #94a3b8);
-}
-
-/* Icon Buttons inside Search Form */
-.tk-search-btn-icon {
-  background: transparent;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 50%;
-  cursor: pointer;
-  color: var(--text-muted, #64748b);
-  transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-.tk-search-btn-icon:hover {
-  color: var(--text-primary, #0f172a);
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-/* Suggestions Dropdown - Floats cleanly under the input */
-.tk-header__suggestions-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background-color: var(--bg-card, #ffffff);
-  border: 1px solid var(--header-border-color, rgba(0, 0, 0, 0.1));
-  border-radius: 12px;
-  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
-  list-style: none;
-  margin: 0;
-  padding: 6px 0;
-  z-index: 1100;
-  max-height: 300px;
-  overflow-y: auto;
-  animation: tkFadeInDown 0.18s ease-out;
-}
-
-/* Individual Suggestion Row */
-.tk-suggestion-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 14px;
-  font-size: 0.875rem;
-  color: var(--text-primary, #1e293b);
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.tk-suggestion-row:hover {
-  background-color: var(--bg-hover, #f1f5f9);
-}
-
-.tk-suggestion-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Category & Post Badges */
-.tk-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 0.675rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-transform: uppercase;
-}
-
-.tk-badge--info { background-color: #e0f2fe; color: #0369a1; }
-.tk-badge--success { background-color: #dcfce7; color: #15803d; }
-.tk-badge--warning { background-color: #fef3c7; color: #b45309; }
-
-/* Keyframe Animations */
-@keyframes tkExpandSearch {
-  from {
-    opacity: 0;
-    transform: scaleX(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-}
-
-@keyframes tkFadeInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.tk-spin-icon {
-  animation: tkSpin 1s linear infinite;
-}
-
-@keyframes tkSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Dark Theme Compatibility */
-[data-theme='dark'] {
-  --header-input-bg: rgba(255, 255, 255, 0.08);
-  --header-border-color: rgba(255, 255, 255, 0.12);
-}
-
-[data-theme='dark'] .tk-header__search-form:focus-within {
-  background-color: #1e293b;
-  border-color: #38bdf8;
-}
-
-[data-theme='dark'] .tk-header__search-input {
-  color: #f8fafc;
-}
-
-[data-theme='dark'] .tk-header__suggestions-menu {
-  background-color: #1e293b;
-  border-color: #334155;
-}
-
-[data-theme='dark'] .tk-suggestion-row:hover {
-  background-color: #334155;
-}
-
-[data-theme='dark'] .tk-search-btn-icon:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-}
-
-[data-theme='dark'] .tk-badge--info { background-color: #075985; color: #e0f2fe; }
-[data-theme='dark'] .tk-badge--success { background-color: #166534; color: #dcfce7; }
-[data-theme='dark'] .tk-badge--warning { background-color: #854d0e; color: #fef3c7; }
-
-/* ==========================================================================
-   SIDEBAR <-> HEADER CONTINUITY
-   The sidebar's own header reuses the exact same left padding, icon-button
-   size, and .tk-logo typography as the app header. That means when the
-   drawer slides in from the left edge, its logo comes to rest at the same
-   on-screen x/y coordinates as the header's logo — the two visually
-   "hand off" to each other instead of looking like two unrelated bars.
-   ========================================================================== */
-
-.tk-sidebar-header {
-  padding: var(--tk-safe-top) max(12px, var(--tk-safe-right)) 14px
-    max(12px, var(--tk-safe-left)) !important;
-  box-sizing: border-box;
-}
-
-.tk-sidebar-logo {
-  cursor: pointer;
-  display: inline-block;
-}
-
-.tk-sidebar-logo:hover {
-  color: var(--tk-accent);
-}
-
-.tk-sidebar-subtitle {
-  font-size: 11px;
-  margin-top: 1px;
 }

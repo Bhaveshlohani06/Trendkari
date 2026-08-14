@@ -228,13 +228,12 @@ const Header = () => {
                 <Menu size={20} />
               </button>
 
-              <nav className="tk-breadcrumb" aria-label="Breadcrumb">
+              {/* <nav className="tk-breadcrumb" aria-label="Breadcrumb">
                 <button type="button" className="tk-breadcrumb__home" onClick={goHome}>
                   Home
                 </button>
-                <span className="tk-breadcrumb__sep" aria-hidden="true">/</span>
-                <span className="tk-breadcrumb__current">{currentCityLabel}</span>
-              </nav>
+                <span className="tk-breadcrumb__sep" aria-hidden="true"></span>
+              </nav> */}
             </div>
 
             <div className="tk-header__center">
