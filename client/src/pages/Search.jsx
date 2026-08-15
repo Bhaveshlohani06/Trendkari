@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useLocation, Link, useNavigate } from "react-router-dom";
 import { Search, Sparkles, FileText, User, Tag, ArrowRight } from "lucide-react";
 import API from "../../utils/api";
-import "./../../css/searchresult.css";
+//import "./../../css/searchresult.css";
 import Layout from "../Layout/Layout.jsx";
 
 
