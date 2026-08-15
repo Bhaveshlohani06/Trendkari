@@ -1,9 +1,20 @@
 import React, { useEffect, useState, useRef, useCallback, useMemo, memo } from "react";
-import { useParams, useLocation as useRouterLocation } from "react-router-dom";
-import { FaInstagram } from "react-icons/fa";
+import { useParams, useLocation as useRouterLocation, Link } from "react-router-dom";
+import {
+  FaInstagram,
+  FaHeart,
+  FaRegHeart,
+  FaRegComment,
+  FaBookmark,
+  FaRegBookmark,
+  FaShareAlt,
+} from "react-icons/fa";
+import { toast } from "react-hot-toast";
 import API from "../../utils/api";
 import "../../css/Swipe.css";
 import { useLocation } from "../context/LocationContext";
+import { useAuth } from "../context/auth";
+import CommentSheet from "../Components/CommentSheet"
 
 const LIMIT = 6;
 const FALLBACK_IMAGE = "https://ik.imagekit.io/f4dxqg3tf/posts/KOTA.png";
@@ -206,6 +217,58 @@ const getPostContent = (content) => {
 };
 
 // ---------------------------------------------------------------------------
+// Engagement helpers — mirror exactly what BlogDetail.jsx already assumes
+// about the post shape (post.likes is an array of user ids, checked against
+// auth.user._id) so the feed and the detail page never disagree about
+// whether a post is liked. If the feed endpoint ever starts sending
+// lighter, feed-optimized fields (isLiked/likeCount) instead of the full
+// likes array, these fall back to those automatically — nothing here
+// invents data that isn't present.
+// ---------------------------------------------------------------------------
+const getInitialLikeState = (post, userId) => {
+  if (Array.isArray(post.likes)) {
+    return {
+      liked: userId ? post.likes.includes(userId) : false,
+      likeCount: post.likes.length,
+    };
+  }
+  return {
+    liked: !!post.isLiked,
+    likeCount: post.likeCount ?? post.likesCount ?? 0,
+  };
+};
+
+const getInitialCommentCount = (post) => {
+  if (typeof post.commentCount === "number") return post.commentCount;
+  if (typeof post.commentsCount === "number") return post.commentsCount;
+  if (Array.isArray(post.comments)) return post.comments.length;
+  return 0;
+};
+
+// Same avatar contract as BlogDetail's SafeAvatar: only trust http(s)
+// image URLs, otherwise fall back to initials so we never render a
+// broken-image icon in the feed.
+const AuthorAvatar = ({ src, name, size = 36 }) => {
+  const [broken, setBroken] = useState(false);
+  const showImage = src && src.startsWith("http") && !broken;
+  const initial = (name || "T").trim().charAt(0).toUpperCase();
+
+  return showImage ? (
+    <img
+      src={src}
+      alt={name || "Author"}
+      className="feed-avatar"
+      style={{ width: size, height: size }}
+      onError={() => setBroken(true)}
+    />
+  ) : (
+    <div className="feed-avatar feed-avatar--fallback" style={{ width: size, height: size }}>
+      {initial}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
 // Ad card — one full "screen" in the feed, styled to look native rather
 // than like a banner ad.
 // ---------------------------------------------------------------------------
@@ -261,63 +324,138 @@ AdCard.displayName = "AdCard";
 // only re-renders when its own props actually change, not on every
 // currentIndex update in the parent.
 // ---------------------------------------------------------------------------
-const NewsCard = memo(({ post, index, isActive, cardRef, onShare }) => {
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgSrc, setImgSrc] = useState(post.image || FALLBACK_IMAGE);
-  const author = post.author;
+const NewsCard = memo(
+  ({ post, index, isActive, cardRef, onShare, engagement, onToggleLike, onOpenComments, onToggleSave }) => {
+    const [imgLoaded, setImgLoaded] = useState(false);
+    const [imgSrc, setImgSrc] = useState(post.image || FALLBACK_IMAGE);
+    const [showBurst, setShowBurst] = useState(false);
+    const burstTimeout = useRef(null);
+    const author = post.author;
 
-  return (
-    <article
-      ref={cardRef}
-      className="feed-card"
-      data-index={index}
-      data-active={isActive}
-    >
-      <div className="feed-image-wrapper">
-        {!imgLoaded && (
-          <div className="feed-image-skeleton skeleton-bg" aria-hidden="true" />
-        )}
-        <img
-          src={imgSrc}
-          alt={post.title}
-          className={`feed-image${imgLoaded ? " is-loaded" : ""}`}
-          loading={index < 3 ? "eager" : "lazy"}
-          decoding="async"
-          onLoad={() => setImgLoaded(true)}
-          onError={() => {
-            if (imgSrc !== FALLBACK_IMAGE) setImgSrc(FALLBACK_IMAGE);
-            else setImgLoaded(true);
-          }}
-        />
-        <div className="image-overlay" />
-        <button
-          className="share-btn"
-          onClick={(e) => onShare(e, post)}
-          aria-label="Share this article"
-        >
-          🔗
-        </button>
-      </div>
+    const { liked = false, likeCount = 0, commentCount = 0, saved = false } = engagement || {};
 
-      <div className="feed-content">
-        <div className="feed-meta">
-          {author && (
-            <span className="feed-author">
-              ✍️ {author.name || author.username || post.author || "Trendkari Team"}
-            </span>
+    useEffect(() => () => clearTimeout(burstTimeout.current), []);
+
+    const fireBurst = useCallback(() => {
+      setShowBurst(true);
+      clearTimeout(burstTimeout.current);
+      burstTimeout.current = setTimeout(() => setShowBurst(false), 750);
+    }, []);
+
+    // Instagram-style double-tap on the media to like. dblclick fires from
+    // both a real double-click and a mobile double-tap, so this needs no
+    // extra gesture library. Only *adds* a like — never toggles it off,
+    // matching the platform convention this is modeled on.
+    const handleDoubleTap = useCallback(() => {
+      if (!liked) onToggleLike(post._id);
+      fireBurst();
+    }, [liked, onToggleLike, post._id, fireBurst]);
+
+    return (
+      <article
+        ref={cardRef}
+        className="feed-card"
+        data-index={index}
+        data-active={isActive}
+      >
+        <div className="feed-image-wrapper" onDoubleClick={handleDoubleTap}>
+          {!imgLoaded && (
+            <div className="feed-image-skeleton skeleton-bg" aria-hidden="true" />
           )}
-          <span className="feed-time">🕒 {timeAgo(post.createdAt)}</span>
+          <img
+            src={imgSrc}
+            alt={post.title}
+            className={`feed-image${imgLoaded ? " is-loaded" : ""}`}
+            loading={index < 3 ? "eager" : "lazy"}
+            decoding="async"
+            onLoad={() => setImgLoaded(true)}
+            onError={() => {
+              if (imgSrc !== FALLBACK_IMAGE) setImgSrc(FALLBACK_IMAGE);
+              else setImgLoaded(true);
+            }}
+          />
+          <div className="image-overlay" />
+
+          {showBurst && (
+            <FaHeart className="feed-heart-burst" aria-hidden="true" />
+          )}
+
+          <button
+            className="share-btn"
+            onClick={(e) => onShare(e, post)}
+            aria-label="Share this article"
+          >
+            🔗
+          </button>
         </div>
 
-        <h3 className="feed-title">{post.title}</h3>
+        <div className="feed-content">
+          <div className="feed-meta">
+            <AuthorAvatar src={author?.avatar} name={author?.name || author?.username} size={30} />
+            <span className="feed-author">
+              {author?.name || author?.username || post.author || "Trendkari Team"}
+            </span>
+            <span className="feed-time">• {timeAgo(post.createdAt)}</span>
+          </div>
 
-        <p className="feed-desc">
-          {getPostContent(post.content) || "No description available"}
-        </p>
-      </div>
-    </article>
-  );
-});
+          <h3 className="feed-title">{post.title}</h3>
+
+          <p className="feed-desc">
+            {getPostContent(post.content) || "No description available"}
+          </p>
+
+          {post.slug && (
+            <Link to={`/article/${post.slug}`} className="feed-readmore">
+              Read full article
+            </Link>
+          )}
+
+          <div className="feed-actions">
+            <button
+              type="button"
+              className={`feed-action-btn${liked ? " is-liked" : ""}`}
+              onClick={() => onToggleLike(post._id)}
+              aria-pressed={liked}
+              aria-label={liked ? "Unlike" : "Like"}
+            >
+              {liked ? <FaHeart /> : <FaRegHeart />}
+              <span>{likeCount}</span>
+            </button>
+
+            <button
+              type="button"
+              className="feed-action-btn"
+              onClick={() => onOpenComments(post)}
+              aria-label="View comments"
+            >
+              <FaRegComment />
+              <span>{commentCount}</span>
+            </button>
+
+            <button
+              type="button"
+              className="feed-action-btn"
+              onClick={(e) => onShare(e, post)}
+              aria-label="Share this article"
+            >
+              <FaShareAlt />
+            </button>
+
+            <button
+              type="button"
+              className={`feed-action-btn feed-action-btn--end${saved ? " is-saved" : ""}`}
+              onClick={() => onToggleSave(post._id)}
+              aria-pressed={saved}
+              aria-label={saved ? "Remove from saved" : "Save"}
+            >
+              {saved ? <FaBookmark /> : <FaRegBookmark />}
+            </button>
+          </div>
+        </div>
+      </article>
+    );
+  }
+);
 NewsCard.displayName = "NewsCard";
 
 // ---------------------------------------------------------------------------
@@ -327,6 +465,7 @@ const SwipeFeed = () => {
   const { location: locationParam, slug } = useParams();
   const routerLocation = useRouterLocation();
   const { location: contextLocation } = useLocation();
+  const [auth] = useAuth();
 
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
@@ -336,6 +475,19 @@ const SwipeFeed = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [targetPostId, setTargetPostId] = useState(null);
 
+  // Per-post like/comment/save state, keyed by post id. Kept separate from
+  // `posts` itself (rather than mutated in place) so liking one card only
+  // ever produces a new object for *that* card's entry — every other
+  // NewsCard's props stay referentially identical and skip re-rendering.
+  const [engagement, setEngagement] = useState({});
+  const engagementRef = useRef({});
+  useEffect(() => {
+    engagementRef.current = engagement;
+  }, [engagement]);
+
+  const [activeCommentPost, setActiveCommentPost] = useState(null);
+  const isCommentSheetOpen = !!activeCommentPost;
+
   const containerRef = useRef(null);
   const observer = useRef();
   const isScrolling = useRef(false);
@@ -343,6 +495,8 @@ const SwipeFeed = () => {
   const initialLoadDone = useRef(false);
   const scrollTimeoutRef = useRef(null);
   const scrollAttempted = useRef(false);
+  const inFlightLikes = useRef(new Set());
+  const inFlightSaves = useRef(new Set());
 
   // Priority: URL param > location context > default
   const effectiveLocation =
@@ -388,6 +542,136 @@ const SwipeFeed = () => {
     () => (posts.length > 0 ? insertAdsIntoPosts(posts, getCityAds()) : []),
     [posts, insertAdsIntoPosts, getCityAds]
   );
+
+  // Seed engagement entries for any newly-arrived posts (initial load or
+  // pagination) without touching entries that already exist — an already
+  // optimistically-updated like must never be clobbered back to its
+  // server-fetched starting value just because the page re-fetched.
+  useEffect(() => {
+    if (!posts.length) return;
+    setEngagement((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      posts.forEach((p) => {
+        if (!next[p._id]) {
+          changed = true;
+          const { liked, likeCount } = getInitialLikeState(p, auth?.user?._id);
+          next[p._id] = {
+            liked,
+            likeCount,
+            commentCount: getInitialCommentCount(p),
+            saved: !!p.isSaved,
+          };
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [posts, auth?.user?._id]);
+
+  // Like / unlike — same endpoint contract as BlogDetail.jsx's LikeButton
+  // (POST to like, DELETE to unlike, likes stored as an array of user ids).
+  const toggleLike = useCallback(
+    (postId) => {
+      if (!auth?.user) {
+        toast.error("Login to like posts");
+        return;
+      }
+      if (inFlightLikes.current.has(postId)) return;
+      inFlightLikes.current.add(postId);
+
+      const prevEntry = engagementRef.current[postId] || {
+        liked: false,
+        likeCount: 0,
+        commentCount: 0,
+        saved: false,
+      };
+      const nextLiked = !prevEntry.liked;
+
+      setEngagement((prev) => ({
+        ...prev,
+        [postId]: {
+          ...prevEntry,
+          liked: nextLiked,
+          likeCount: Math.max(0, prevEntry.likeCount + (nextLiked ? 1 : -1)),
+        },
+      }));
+
+      const method = prevEntry.liked ? "delete" : "post";
+      API[method](`/post/${postId}/like`)
+        .catch((err) => {
+          console.error("Like failed:", err);
+          setEngagement((prev) => ({ ...prev, [postId]: prevEntry }));
+          toast.error("Couldn't update like, please try again");
+        })
+        .finally(() => {
+          inFlightLikes.current.delete(postId);
+        });
+    },
+    [auth?.user]
+  );
+
+  // Save / unsave — same endpoint BlogDetail's handleSave already uses.
+  const toggleSave = useCallback(
+    (postId) => {
+      if (!auth?.user) {
+        toast.error("Login to save articles");
+        return;
+      }
+      if (inFlightSaves.current.has(postId)) return;
+      inFlightSaves.current.add(postId);
+
+      const prevEntry = engagementRef.current[postId] || {
+        liked: false,
+        likeCount: 0,
+        commentCount: 0,
+        saved: false,
+      };
+      const nextSaved = !prevEntry.saved;
+
+      setEngagement((prev) => ({
+        ...prev,
+        [postId]: { ...prevEntry, saved: nextSaved },
+      }));
+
+      const request = prevEntry.saved
+        ? API.delete(`/post/${postId}/save`)
+        : API.post(`/post/${postId}/save`);
+
+      request
+        .then(() => {
+          toast.success(nextSaved ? "Saved for later" : "Removed from saved");
+        })
+        .catch((err) => {
+          console.error("Save failed:", err);
+          setEngagement((prev) => ({ ...prev, [postId]: prevEntry }));
+          toast.error("Failed to update save status");
+        })
+        .finally(() => {
+          inFlightSaves.current.delete(postId);
+        });
+    },
+    [auth?.user]
+  );
+
+  // Comments stay lazy: nothing about a post's comments is ever fetched
+  // until the user actually opens the sheet for that specific card.
+  const openComments = useCallback((post) => {
+    setActiveCommentPost(post);
+  }, []);
+
+  const closeComments = useCallback(() => {
+    setActiveCommentPost(null);
+  }, []);
+
+  // The comment sheet reports back only the delta/exact count for the
+  // one post it's open on — every other card's commentCount is untouched.
+  const handleCommentCountChange = useCallback((postId, exactCount) => {
+    setEngagement((prev) => {
+      const prevEntry = prev[postId];
+      if (!prevEntry) return prev;
+      return { ...prev, [postId]: { ...prevEntry, commentCount: exactCount } };
+    });
+  }, []);
 
   // Smooth scroll to a given index in combinedItems.
 const goToIndex = useCallback(
@@ -711,6 +995,10 @@ const goToIndex = useCallback(
               isActive={currentIndex === index}
               cardRef={isLast ? lastPostRef : null}
               onShare={handleShare}
+              engagement={engagement[post._id]}
+              onToggleLike={toggleLike}
+              onOpenComments={openComments}
+              onToggleSave={toggleSave}
             />
           );
         })}
@@ -734,6 +1022,14 @@ const goToIndex = useCallback(
           <FaInstagram />
         </a>
       </div>
+
+      <CommentSheet
+        isOpen={isCommentSheetOpen}
+        post={activeCommentPost}
+        auth={auth}
+        onClose={closeComments}
+        onCommentCountChange={handleCommentCountChange}
+      />
     </>
   );
 };

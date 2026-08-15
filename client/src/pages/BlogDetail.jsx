@@ -2018,9 +2018,11 @@ import {
   FaChevronDown,
   FaRegComment,
   FaRegHeart,
-  FaPaperPlane
+  FaPaperPlane,
+  FaLayerGroup
 } from "react-icons/fa";
 import { useAuth } from "../context/auth";
+import { useLocation } from "../context/LocationContext";
 import MiniCard from "../Components/MiniCard";
 import EditorContent from "../Components/EditorContent";
 import LikeButton from "../Components/LikeButton";
@@ -2169,7 +2171,7 @@ const ReadingProgressBar = ({ progress, show }) => {
 };
 
 /* ================= ENHANCED FLOATING ACTIONS ================= */
-const FloatingActions = ({ postId, onCommentClick, onShare, onSave, isSaved }) => {
+const FloatingActions = ({ postId, onCommentClick, onShare, onSave, isSaved, swipeFeedLink }) => {
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
 
@@ -2214,6 +2216,21 @@ const FloatingActions = ({ postId, onCommentClick, onShare, onSave, isSaved }) =
         >
           <FaShareAlt size={20} />
         </Button>
+        {swipeFeedLink && (
+          <>
+            <span className="floating-actions-divider" aria-hidden="true" />
+            <Button
+              as={Link}
+              to={swipeFeedLink}
+              variant="link"
+              className="text-primary p-2"
+              title="Open swipe feed"
+              aria-label="Open swipe feed"
+            >
+              <FaLayerGroup size={20} />
+            </Button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -2946,6 +2963,7 @@ const CommentItem = ({ comment }) => {
 export default function BlogDetail() {
   const { slug } = useParams();
   const [auth] = useAuth();
+  const { location: cityLocation } = useLocation();
 
   // Core states
   const [post, setPost] = useState(null);
@@ -3186,6 +3204,14 @@ export default function BlogDetail() {
     }, 100);
   };
 
+  // Two flavors of the same deep link: one that drops the reader back
+  // into the feed exactly on this post (used by the persistent floating
+  // action bar, so leaving mid-read always resumes right here), and one
+  // that starts fresh from the top (used by the "suggestions" CTA, where
+  // continuing to swipe is the whole point).
+  const swipeFeedLinkHere = `/feed/${cityLocation || "kota"}/${post?.slug || slug}`;
+  const swipeFeedLinkFresh = `/feed/${cityLocation || "kota"}`;
+
   const handleRemovePost = (postId) => {
     setPosts(prev => prev.filter(p => p._id !== postId));
   };
@@ -3258,8 +3284,8 @@ export default function BlogDetail() {
 
       <Container className="py-4 blog-detail-container">
         {/* Breadcrumb */}
-        <nav aria-label="breadcrumb" className="mb-4">
-          <ol className="breadcrumb bg-light rounded-pill px-3 py-2">
+        <nav aria-label="breadcrumb" className="mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <ol className="breadcrumb bg-light rounded-pill px-3 py-2 mb-0">
             <li className="breadcrumb-item">
               <Link to="/" className="text-decoration-none text-dark">
                 <FaArrowLeft className="me-2" />
@@ -3270,11 +3296,17 @@ export default function BlogDetail() {
               {post.title.substring(0, 30)}...
             </li>
           </ol>
+
+          <Link to={swipeFeedLinkFresh} className="swipe-feed-pill">
+            <FaLayerGroup className="me-2" />
+            Swipe Feed
+          </Link>
         </nav>
 
         <Row className="g-4">
           {/* Main Content */}
           <Col lg={12}>
+            <div className="reading-column">
             {/* Article Header */}
             <div className="mb-4">
               <div className="d-flex flex-wrap gap-2 mb-3">
@@ -3462,14 +3494,15 @@ export default function BlogDetail() {
                 )}
               </div>
             </section>
+            </div>
           </Col>
         </Row>
 
         {/* Kota District Posts Section */}
         <div className="container py-5 mt-4 border-top">
           <div className="mb-4 text-center">
-            <h2 className="fw-bold">Explore Kota District</h2>
-            <p className="text-muted">Discover more stories from across Kota</p>
+            <h2 className="fw-bold">More Stories You'll Love</h2>
+            <p className="text-muted">Keep exploring Kota district, or jump straight into the swipe feed</p>
           </div>
 
           <div className="row g-4">
@@ -3508,8 +3541,26 @@ export default function BlogDetail() {
               <p className="text-muted">No posts available in Kota district yet.</p>
             </div>
           )}
+
+          {/* Whenever the reader is done browsing suggestions, this is the
+              clear, unmissable way back into the swipe feed. */}
+          <div className="text-center pt-4 mt-4 border-top">
+            <Link to={swipeFeedLinkFresh} className="btn btn-primary rounded-pill px-4 py-2 fw-semibold">
+              <FaLayerGroup className="me-2" />
+              Continue in Swipe Feed
+            </Link>
+          </div>
         </div>
       </Container>
+
+      <FloatingActions
+        postId={post._id}
+        onCommentClick={scrollToComments}
+        onShare={sharePost}
+        onSave={handleSave}
+        isSaved={isSaved}
+        swipeFeedLink={swipeFeedLinkHere}
+      />
     </Layout>
   );
 }
