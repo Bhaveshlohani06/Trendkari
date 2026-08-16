@@ -276,6 +276,7 @@ const App = () => {
         <Route path="/category/:slug" element={<CategoryPosts />} />
         <Route path="/city/:location" element={<CityFeed />} />
         <Route path="/search" element={<SearchResultsPage />} />
+=<Route path="/user/:userId" element={<UserProfile />} />
         <Route path="/coverpage" element={<Cover />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<AboutUs />} />

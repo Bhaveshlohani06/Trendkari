@@ -225,8 +225,6 @@
 // export default SearchResultsPage;
 
 
-
-
 import { useEffect, useState } from "react";
 import { useSearchParams, useLocation, Link } from "react-router-dom";
 import { Search, Sparkles, FileText, User, Tag, ArrowRight } from "lucide-react";
@@ -264,7 +262,6 @@ const SearchResultsPage = () => {
       try {
         console.log(`[Frontend] Searching for: "${query}"`);
         
-        // Using GET /basic endpoint
         const response = await API.get(`/search/basic?query=${encodeURIComponent(query)}`);
         console.log('[Frontend] API Response:', response.data);
         
@@ -284,11 +281,9 @@ const SearchResultsPage = () => {
       } catch (err) {
         console.error('[Frontend] Search error:', err);
         
-        // Check if it's a network error
         if (err.code === 'ERR_NETWORK') {
           setError("Cannot connect to server. Please check if backend is running.");
         } else if (err.response) {
-          // Server responded with error
           setError(err.response.data?.error || err.response.data?.message || "Search failed");
         } else {
           setError("An unexpected error occurred");
@@ -452,7 +447,7 @@ const SearchResultsPage = () => {
               </section>
             )}
 
-            {/* USERS SECTION */}
+            {/* USERS SECTION - FIXED NAVIGATION */}
             {(activeTab === "all" || activeTab === "users") && users.length > 0 && (
               <section className="tk-results-section">
                 <h2><User size={18} /> Users</h2>
@@ -460,7 +455,7 @@ const SearchResultsPage = () => {
                   {users.map((user) => (
                     <Link
                       key={user._id}
-                      to={`/user/${user._id}`}
+                      to={`/user/${user._id}`}  // ← This will work if you add the route
                       className="tk-user-card"
                     >
                       <img
