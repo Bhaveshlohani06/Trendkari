@@ -106,7 +106,7 @@ const CreatePostModal = ({ show, onClose }) => {
 
 
             {/* Location */}
-            <select
+            {/* <select
               className="form-select mt-3"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
@@ -118,7 +118,7 @@ const CreatePostModal = ({ show, onClose }) => {
               <option value="kaithoon">कैथून</option>
               <option value="modak">मोड़क</option>
               <option value="rural-kota">ग्रामीण कोटा</option>
-            </select>
+            </select> */}
 
             {/* Category */}
             <select

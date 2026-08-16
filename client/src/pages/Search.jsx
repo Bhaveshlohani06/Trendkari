@@ -512,4 +512,4 @@ const SearchResultsPage = () => {
   );
 };
 
-export default SearchResultsPage;
+export default SearchResultsPage;  
