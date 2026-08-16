@@ -1,43 +1,11 @@
-// import express from "express";
-// import { registerNotificationToken } from "../controllers/notificationController.js";
-// import { sendTestPush } from "../controllers/notificationController.js";
-// import { sendBroadcastPush } from "../controllers/notificationController.js";
-// import { getNotifications } from "../controllers/notificationController.js";
-// import { requireSignIn } from "../middleware/authMiddleware.js";
-// import { getUserNotifications } from "../controllers/notificationController.js";
-// import { markNotificationRead } from "../controllers/notificationController.js";
-// // import { markAllRead } from "../controllers/notificationController.js"; 
-
-// const router = express.Router();
-
-// // POST /api/v1/notifications/register
-// router.post("/register", registerNotificationToken);
-// router.post("/test", sendTestPush);
-// router.post("/broadcast", sendBroadcastPush);
-
-// // 🔔 Fetch notifications for bell
-// // router.get("/", getNotifications);
-
-
-
-
-// router.get("/", requireSignIn, getUserNotifications);
-// router.patch("/read/:id", requireSignIn, markNotificationRead);
-// // router.patch("/read-all", requireSignIn, markAllRead);
-
-
-
-
-// export default router;
-
-
-
 // routes/notificationRoutes.js
 import express from "express";
 import { requireSignIn } from "../middleware/authMiddleware.js";
 
 import {
   registerNotificationToken,
+  unregisterNotificationToken,
+  getPushStatus,
   sendTestPush,
   sendBroadcastPush,
 
@@ -46,12 +14,21 @@ import {
   markAllSeen,
 } from "../controllers/notificationController.js";
 
-
-
 const router = express.Router();
 
 /* ================= PUSH (FCM) ================= */
-router.post("/register", registerNotificationToken);
+// CHANGE: /register now requires sign-in so the subscription is tied
+// to req.user, not a blindly-trusted body field. Same endpoint you
+// already had — just authenticated + upserts per user+device now.
+router.post("/register", requireSignIn, registerNotificationToken);
+
+// NEW: disable/remove push for this device.
+router.delete("/register", requireSignIn, unregisterNotificationToken);
+
+// NEW: used by the Sidebar on load to know whether THIS browser is
+// currently subscribed for the logged-in user.
+router.get("/status", requireSignIn, getPushStatus);
+
 router.post("/test", sendTestPush);
 router.post("/broadcast", sendBroadcastPush);
 
