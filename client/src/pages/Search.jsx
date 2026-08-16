@@ -232,7 +232,7 @@ import { useSearchParams, useLocation, Link } from "react-router-dom";
 import { Search, Sparkles, FileText, User, Tag, ArrowRight } from "lucide-react";
 import API from "../../utils/api.js";
 import Layout from "../Layout/Layout.jsx";
-import "../../css/SearchResults.css";
+import "../../css/SearchResult.css";
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
