@@ -591,8 +591,8 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const mainNavItems = [
     { icon: <FaHome />, label: 'Home', path: `/feed/${location || 'global'}` },
-    { icon: <FaRegCompass />, label: 'Explore', path: '/explore' },
-    { icon: <FaUser />, label: 'Profile', path: '/profile' },
+    { icon: <FaRegCompass />, label: 'Explore', path: '/explore' }
+    // { icon: <FaUser />, label: 'Profile', path: '/profile' },
     // { icon: <FaCog />, label: 'Settings', path: '/settings' }
   ];
 
@@ -649,7 +649,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               <div className="user-name">{auth.user.name}</div>
               <div className="user-location">
                 <HiOutlineLocationMarker className="me-1" size={14} />
-                {auth.user.location || 'Global'}
+                {auth.user.location || 'New Delhi'}
               </div>
             </div>
           </div>
