@@ -273,14 +273,6 @@ const Header = () => {
 
               <NotificationBell />
 
-              <button
-                type="button"
-                className="tk-icon-btn"
-                onClick={() => navigate("/about")}
-                aria-label="About Trendkari"
-              >
-                <User size={18} />
-              </button>
             </div>
           </>
         )}
