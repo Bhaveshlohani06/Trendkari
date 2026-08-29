@@ -597,7 +597,7 @@ const SwipeFeed = () => {
       }));
 
       const method = prevEntry.liked ? "delete" : "post";
-      API[method](`/post/${postId}/like`)
+      API[method](`/likes/${postId}`)
         .catch((err) => {
           console.error("Like failed:", err);
           setEngagement((prev) => ({ ...prev, [postId]: prevEntry }));
