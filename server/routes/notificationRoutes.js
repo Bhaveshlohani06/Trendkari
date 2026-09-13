@@ -20,7 +20,10 @@ const router = express.Router();
 // CHANGE: /register now requires sign-in so the subscription is tied
 // to req.user, not a blindly-trusted body field. Same endpoint you
 // already had — just authenticated + upserts per user+device now.
-router.post("/register", requireSignIn, registerNotificationToken);
+
+//router.post("/subscribe", registerNotificationToken);
+
+router.post("/register", registerNotificationToken);
 
 // NEW: disable/remove push for this device.
 router.delete("/register", requireSignIn, unregisterNotificationToken);

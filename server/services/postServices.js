@@ -112,6 +112,7 @@ import postModel from "../models/postmodel.js";
 import slugify from "slugify";
 import { generateSlug } from "../utils/slugify.js"; 
 import { postNews } from "./telegramService.js";
+import { broadcastPush } from "../helper/pushService.js"; 
 
 export const savePost = async (data) => {
   if (!data.title || !data.content) {
@@ -165,6 +166,19 @@ console.log("✅ Post saved:", post._id);
 await postNews(post);
 
 console.log("✅ Telegram posted");
+
+// 3. Trigger FCM Push Notification Broadcast
+  try {
+    await broadcastPush({
+      title: post.title,
+      body: post.content.substring(0, 100) + "...", // Short preview text
+      slug: post.slug,
+      image: post.image,
+    });
+    console.log("✅ Push notification broadcasted");
+  } catch (err) {
+    console.error("❌ Push notification failed:", err.message);
+  }
 
 return post;
 
