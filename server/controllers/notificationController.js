@@ -26,7 +26,7 @@ export const registerNotificationToken = async (req, res) => {
       token,
       city,
       area,
-      platform = "web",
+      platform = "android | ios | web",
       appVersion,
       deviceId,
     } = req.body;

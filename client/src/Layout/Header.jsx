@@ -236,7 +236,7 @@ const Header = () => {
               </nav> */}
             </div>
 
-            <div className="tk-header__center">
+            {/* <div className="tk-header__center">
               <div
                 className="tk-logo"
                 role="button"
@@ -248,7 +248,25 @@ const Header = () => {
               >
                 Trendkari
               </div>
-            </div>
+            </div> */}
+
+            <div className="tk-header__center">
+  <div
+    className="tk-logo"
+    role="button"
+    tabIndex={0}
+    onClick={goHome}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") goHome();
+    }}
+  >
+    <img
+      src="/pwa-192.png"
+      alt="Trendkari"
+      className="tk-logo__image"
+    />
+  </div>
+</div>
 
             <div className="tk-header__end">
               <button

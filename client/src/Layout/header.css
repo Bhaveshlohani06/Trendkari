@@ -52,6 +52,12 @@
   cursor: pointer;
   transition: color var(--tk-duration-fast, 0.15s) var(--tk-ease, ease);
 }
+.tk-logo__image {
+  width: 150px;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+}
 
 .tk-logo:hover {
   color: var(--tk-accent, #3b82f6);

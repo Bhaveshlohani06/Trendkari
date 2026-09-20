@@ -925,24 +925,45 @@ const goToIndex = useCallback(
     [loading, hasMore, fetchMorePosts, initializing]
   );
 
+  // const handleShare = async (e, post) => {
+  //   e.stopPropagation();
+  //   const url = `https://www.trendkari.in/feed/${effectiveLocation}/${post.slug}`;
+  //   try {
+  //     if (navigator.share) {
+  //       await navigator.share({
+  //         title: post.title,
+  //         text: `📰 ${post.title}\n\n👉 पूरी खबर पढ़ें`,
+  //         url,
+  //       });
+  //     } else {
+  //       await navigator.clipboard.writeText(url);
+  //       alert("लिंक कॉपी हो गया!");
+  //     }
+  //   } catch (err) {
+  //     console.error("Share failed:", err);
+  //   }
+  // };
+
   const handleShare = async (e, post) => {
-    e.stopPropagation();
-    const url = `https://www.trendkari.in/feed/${effectiveLocation}/${post.slug}`;
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: post.title,
-          text: `📰 ${post.title}\n\n👉 पूरी खबर पढ़ें`,
-          url,
-        });
-      } else {
-        await navigator.clipboard.writeText(url);
-        alert("लिंक कॉपी हो गया!");
-      }
-    } catch (err) {
-      console.error("Share failed:", err);
+  e.stopPropagation();
+
+  const url = `https://www.trendkari.in/feed/${effectiveLocation}/${post.slug}`;
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: post.title,
+        text: `📰 ${post.title}\n\n👉 पूरी खबर पढ़ें`,
+        url,
+      });
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert("लिंक कॉपी हो गया!");
     }
-  };
+  } catch (err) {
+    console.error("Share failed:", err);
+  }
+};
 
   if (initializing && posts.length === 0) {
     return (
