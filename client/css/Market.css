@@ -1,0 +1,294 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  --mandi-ink: #1c1b18;
+  --mandi-paper: #faf6ec;
+  --mandi-paper-2: #f1ead9;
+  --mandi-board: #1e3a2f;
+  --mandi-board-2: #24463a;
+  --mandi-chalk: #f4efe2;
+  --mandi-chalk-dim: rgba(244, 239, 226, 0.6);
+  --mandi-gold: #d9a441;
+  --mandi-gold-dark: #b9822c;
+  --mandi-leaf: #7fb56e;
+  --mandi-brick: #e08065;
+  --mandi-line: rgba(30, 58, 47, 0.16);
+}
+
+.mandi-page {
+  background: var(--mandi-paper);
+  min-height: 100%;
+  padding: 2.5rem 0 4rem;
+  color: var(--mandi-ink);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.mandi-shell {
+  max-width: 780px;
+}
+
+/* Masthead */
+.mandi-masthead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 2px solid var(--mandi-ink);
+  padding-bottom: 1.1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.mandi-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 700;
+  font-size: 2.1rem;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.mandi-title-en {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  color: rgba(28, 27, 24, 0.55);
+  margin-left: 0.6rem;
+  vertical-align: middle;
+}
+
+.mandi-subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.95rem;
+  color: rgba(28, 27, 24, 0.65);
+  max-width: 42ch;
+}
+
+.mandi-updated {
+  font-size: 0.82rem;
+  color: rgba(28, 27, 24, 0.55);
+  white-space: nowrap;
+  padding-bottom: 0.2rem;
+}
+
+/* Mandi tabs */
+.mandi-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.1rem;
+  padding-bottom: 0.2rem;
+}
+
+.mandi-tab {
+  flex: none;
+  border: 1px solid var(--mandi-ink);
+  background: transparent;
+  color: var(--mandi-ink);
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.mandi-tab:hover {
+  background: var(--mandi-paper-2);
+}
+
+.mandi-tab.is-active {
+  background: var(--mandi-board);
+  border-color: var(--mandi-board);
+  color: var(--mandi-chalk);
+}
+
+.mandi-tab:focus-visible {
+  outline: 2px solid var(--mandi-gold-dark);
+  outline-offset: 2px;
+}
+
+/* Controls */
+.mandi-controls {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.mandi-search {
+  flex: 1 1 280px;
+}
+
+.mandi-search-icon {
+  background: var(--mandi-paper-2);
+  border: 1px solid var(--mandi-line);
+  color: rgba(28, 27, 24, 0.6);
+}
+
+.mandi-search .form-control {
+  border: 1px solid var(--mandi-line);
+  background: #fff;
+}
+
+.mandi-search .form-control:focus {
+  border-color: var(--mandi-gold-dark);
+  box-shadow: 0 0 0 3px rgba(217, 164, 65, 0.25);
+}
+
+.mandi-sort {
+  flex: 0 0 220px;
+  border: 1px solid var(--mandi-line);
+}
+
+.mandi-sort:focus {
+  border-color: var(--mandi-gold-dark);
+  box-shadow: 0 0 0 3px rgba(217, 164, 65, 0.25);
+}
+
+/* Board */
+.mandi-board {
+  background: var(--mandi-board);
+  border-radius: 14px;
+  padding: 0.4rem 0;
+  box-shadow: 0 12px 30px rgba(30, 58, 47, 0.25);
+}
+
+.mandi-board-state {
+  color: var(--mandi-chalk);
+  padding: 2.2rem 1.5rem;
+  text-align: center;
+  font-size: 0.95rem;
+}
+
+.mandi-board-state.is-error {
+  color: #f4d9cf;
+}
+
+.mandi-retry {
+  margin-top: 0.75rem;
+  background: var(--mandi-gold);
+  border: none;
+  color: #1c1b18;
+  font-weight: 600;
+  padding: 0.4rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.mandi-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0.3rem 0;
+}
+
+.mandi-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1.2fr 1fr 0.9fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.4rem;
+  border-bottom: 1px solid rgba(244, 239, 226, 0.1);
+}
+
+.mandi-row:last-child {
+  border-bottom: none;
+}
+
+.mandi-row-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mandi-row-hi {
+  color: var(--mandi-chalk);
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mandi-row-en {
+  color: var(--mandi-chalk-dim);
+  font-size: 0.78rem;
+}
+
+.mandi-row-range {
+  color: var(--mandi-chalk-dim);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mandi-row-avg {
+  color: var(--mandi-gold);
+  font-weight: 700;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.mandi-row-unit {
+  color: var(--mandi-chalk-dim);
+  font-weight: 500;
+  font-size: 0.75rem;
+  margin-left: 0.15rem;
+}
+
+.mandi-row-trend {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.trend-up {
+  color: var(--mandi-leaf);
+}
+
+.trend-down {
+  color: var(--mandi-brick);
+}
+
+.trend-stable {
+  color: var(--mandi-chalk-dim);
+}
+
+/* Footnote */
+.mandi-footnote {
+  margin-top: 1.25rem;
+  font-size: 0.8rem;
+  color: rgba(28, 27, 24, 0.55);
+  max-width: 60ch;
+}
+
+/* Responsive */
+@media (max-width: 620px) {
+  .mandi-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "name avg"
+      "range trend";
+    row-gap: 0.35rem;
+  }
+  .mandi-row-name {
+    grid-area: name;
+  }
+  .mandi-row-avg {
+    grid-area: avg;
+    text-align: right;
+  }
+  .mandi-row-range {
+    grid-area: range;
+  }
+  .mandi-row-trend {
+    grid-area: trend;
+  }
+  .mandi-sort {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mandi-tab {
+    transition: none;
+  }
+}

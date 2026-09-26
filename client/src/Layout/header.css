@@ -50,7 +50,7 @@
    sized logos. Sidebar.css mirrors this block for .sidebar-logo-image —
    keep the two in sync if this changes. */
 :root {
-  --tk-logo-box-h: 36px;
+  --tk-logo-box-h: 48px;
   /* The dark-mode asset (logo-dark.png) ships with more transparent
      padding baked into the PNG than the light-mode asset (pwa-192.png),
      so at an identical box height it reads visibly smaller. This scales
@@ -579,7 +579,7 @@ body[data-theme="dark"],
   :root {
     /* Slightly smaller shared logo box on small screens — this affects
        the sidebar logo too, since it reads the same --tk-logo-box-h var. */
-    --tk-logo-box-h: 32px;
+    --tk-logo-box-h: 60px;
   }
   .notification-dropdown {
     width: calc(100vw - 24px);
