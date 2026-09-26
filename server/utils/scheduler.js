@@ -217,7 +217,7 @@ await sendEmail(
 
 
 export function startMarketJob() {
-  cron.schedule("* * * * *", async () => {
+  cron.schedule("* 6 * * *", async () => {
     console.log("⏰ Running Market Rates Job at ", new Date().toLocaleString());
 
     try {
