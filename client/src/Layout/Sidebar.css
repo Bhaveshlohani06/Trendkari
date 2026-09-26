@@ -14,6 +14,7 @@
   --active-text: #ffffff;
   --card-bg: #f8f9fa;
   --hover-bg: rgba(79, 70, 229, 0.08);
+  --active-shadow: rgba(79, 70, 229, 0.25);
 }
 
 .sidebar-offcanvas.dark {
@@ -29,9 +30,17 @@
   --active-text: #ffffff;
   --card-bg: #1e2a3e;
   --hover-bg: rgba(99, 102, 241, 0.15);
+  --active-shadow: rgba(99, 102, 241, 0.35);
 }
 
 /* Offcanvas Override */
+.sidebar-offcanvas.offcanvas {
+  /* Bootstrap's default is 0.3s ease-in-out; a touch faster and with an
+     eased-out curve reads as snappier without feeling abrupt. */
+  transition: transform 0.24s cubic-bezier(0.32, 0.72, 0, 1) !important;
+  box-shadow: 4px 0 24px -8px var(--shadow-color, rgba(0, 0, 0, 0.15));
+}
+
 .sidebar-offcanvas .offcanvas-header {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--border-color);
@@ -59,11 +68,14 @@
   border: none;
   color: var(--text-primary);
   padding: 0.5rem;
+  min-width: 40px;
+  min-height: 40px;
   border-radius: 8px;
-  transition: all 0.2s;
+  transition: background-color 0.2s, transform 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .close-btn:hover {
@@ -71,22 +83,57 @@
   transform: rotate(90deg);
 }
 
+.close-btn:focus-visible {
+  outline: 2px solid var(--active-bg);
+  outline-offset: 2px;
+}
+
 .brand-section {
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  gap: 0.15rem;
 }
 
-.brand-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--text-primary);
+/* ========== SIDEBAR LOGO ==========
+   Mirrors header.css's .tk-logo / .tk-logo__image sizing contract
+   (--tk-logo-box-h, --tk-logo-dark-scale) so the mark is the same visual
+   size and weight here as it is in the header — the two are meant to read
+   as one identity, not two separate logos. Keep this block's numbers in
+   sync with header.css if that file's logo sizing ever changes. */
+.sidebar-logo-wrap {
+  display: flex;
+  align-items: center;
+  height: var(--tk-logo-box-h, 36px);
+  width: fit-content;
   cursor: pointer;
-  transition: color 0.2s;
-  letter-spacing: -0.5px;
+  border-radius: 8px;
+  transition: opacity 0.2s ease;
 }
 
-.brand-title:hover {
-  color: var(--active-bg);
+.sidebar-logo-wrap:hover {
+  opacity: 0.9;
+}
+
+.sidebar-logo-wrap:focus-visible {
+  outline: 2px solid var(--active-bg);
+  outline-offset: 3px;
+}
+
+.sidebar-logo-image {
+  height: 100%;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  display: block;
+  transform: scale(var(--tk-logo-scale, 1));
+  transform-origin: left center;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.sidebar-offcanvas.dark .sidebar-logo-image {
+  --tk-logo-scale: var(--tk-logo-dark-scale, 1.16);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
 .brand-subtitle {
@@ -94,7 +141,7 @@
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  margin-top: 0.1rem;
+  margin-top: 0.05rem;
 }
 
 /* Sidebar Body */
@@ -214,7 +261,7 @@
   background: var(--active-bg);
   color: var(--active-text);
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 4px 12px var(--active-shadow);
 }
 
 .nav-link.active .nav-icon {
@@ -442,10 +489,6 @@
   
   .quick-actions-grid {
     grid-template-columns: 1fr 1fr;
-  }
-  
-  .brand-title {
-    font-size: 1.1rem;
   }
 }
 

@@ -1804,7 +1804,7 @@ const NotificationBell = () => {
     const handleNewNotification = (notif) => {
       console.log("New notification received:", notif);
       setNotifications(prev => [notif, ...prev]);
-    };
+    };  
 
     socket.on("new-notification", handleNewNotification);
 

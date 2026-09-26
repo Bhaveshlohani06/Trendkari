@@ -301,6 +301,7 @@ import {
   getToken,
   deleteToken,
   isSupported,
+  onMessage,
 } from "firebase/messaging";
 import API from "../utils/api";
  
@@ -430,10 +431,14 @@ export async function subscribeToPush(user) {
  
     const swRegistration = await registerServiceWorker();
  
+    // const token = await getToken(messaging, {
+    //   vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+    //   serviceWorkerRegistration: swRegistration,
+    // });
     const token = await getToken(messaging, {
-      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-      serviceWorkerRegistration: swRegistration,
-    });
+  vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
+  serviceWorkerRegistration: swRegistration,
+});
  
     if (!token) return { success: false, reason: "no-token" };
  
@@ -513,6 +518,27 @@ export async function getPushSyncState() {
   }
 }
  
+
+
+export const initForegroundNotifications = async () => {
+  const messaging = await getMessagingInstance();
+  if (!messaging) return; // unsupported browser — nothing to wire up
+ 
+  onMessage(messaging, (payload) => {
+    console.log("🔔 Foreground message:", payload);
+ 
+    if (Notification.permission === "granted") {
+      const { title, body } = payload.notification || {};
+ 
+      new Notification(title || "Trendkari", {
+        body: body || "New update available",
+        icon: "/icon-192.png",
+      });
+    }
+  });
+};
+ 
+
 /**
  * Backward-compat alias — your old `requestNotificationPermission(user)`
  * export may still be called elsewhere (e.g. right after login). Search
@@ -521,3 +547,5 @@ export async function getPushSyncState() {
  * Sidebar button.
  */
 export const requestNotificationPermission = subscribeToPush;
+
+

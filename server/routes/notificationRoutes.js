@@ -14,6 +14,8 @@ import {
   markAllSeen,
 } from "../controllers/notificationController.js";
 
+import { optionalAuth } from "../middleware/optionalAuth.js";
+
 const router = express.Router();
 
 /* ================= PUSH (FCM) ================= */
@@ -23,14 +25,16 @@ const router = express.Router();
 
 //router.post("/subscribe", registerNotificationToken);
 
-router.post("/register", registerNotificationToken);
+
+
+router.post("/register", optionalAuth, registerNotificationToken);
 
 // NEW: disable/remove push for this device.
 router.delete("/register", requireSignIn, unregisterNotificationToken);
 
 // NEW: used by the Sidebar on load to know whether THIS browser is
 // currently subscribed for the logged-in user.
-router.get("/status", requireSignIn, getPushStatus);
+router.get("/status", optionalAuth, getPushStatus);
 
 router.post("/test", sendTestPush);
 router.post("/broadcast", sendBroadcastPush);

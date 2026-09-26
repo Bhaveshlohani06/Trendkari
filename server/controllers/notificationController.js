@@ -143,34 +143,28 @@ export const unregisterNotificationToken = async (req, res) => {
  *
  * GET /api/v1/notifications/status?deviceId=xxxx
  */
+// notification.controller.js
 export const getPushStatus = async (req, res) => {
   try {
     const { deviceId } = req.query;
-    const userId = req.user?._id;
+    const userId = req.user?._id; // undefined for guests — that's fine now
 
     if (!deviceId) {
-      return res.status(400).json({
-        success: false,
-        message: "deviceId query param is required",
-      });
+      return res.status(400).json({ success: false, message: "deviceId query param is required" });
     }
 
-    const existing = await NotificationToken.findOne({
-      user: userId,
-      deviceId,
-      isValid: true,
-    }).lean();
+    // Logged-in: check the row tied to this user+device.
+    // Guest: check by deviceId alone, regardless of user.
+    const query = userId
+      ? { user: userId, deviceId, isValid: true }
+      : { deviceId, isValid: true };
 
-    res.status(200).json({
-      success: true,
-      subscribed: !!existing,
-    });
+    const existing = await NotificationToken.findOne(query).lean();
+
+    res.status(200).json({ success: true, subscribed: !!existing });
   } catch (err) {
     console.error("Push status error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 

@@ -42,11 +42,29 @@
   justify-content: flex-end;
 }
 
-/* ========== LOGO ========== */
+/* ========== LOGO ==========
+   Shared sizing contract: the header and sidebar both give the logo a
+   fixed-height box (--tk-logo-box-h) and render the image at 100% of that
+   box's height with object-fit: contain. That's what lets the mark read as
+   one identity moving between the two surfaces instead of two differently
+   sized logos. Sidebar.css mirrors this block for .sidebar-logo-image —
+   keep the two in sync if this changes. */
+:root {
+  --tk-logo-box-h: 36px;
+  /* The dark-mode asset (logo-dark.png) ships with more transparent
+     padding baked into the PNG than the light-mode asset (pwa-192.png),
+     so at an identical box height it reads visibly smaller. This scales
+     the rendered image up to compensate so perceived size matches Light
+     Mode. Re-measure and adjust if the source assets are ever re-exported
+     tightly cropped — at that point this should go back to 1. */
+  --tk-logo-dark-scale: 1.16;
+}
+
 .tk-logo {
   display: flex;
   align-items: center;
   justify-content: center;
+  height: var(--tk-logo-box-h);
   cursor: pointer;
   padding: 4px;
   border-radius: 8px;
@@ -57,25 +75,30 @@
   opacity: 0.9;
 }
 
+.tk-logo:focus-visible {
+  outline: 2px solid var(--tk-accent, #3b82f6);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
 /* Base image styling */
 .tk-logo__image {
   max-width: 150px;
-  max-height: 48px; /* Standardized height to prevent header bloat */
+  height: 100%; /* fills the fixed-height box so both themes share a box */
   width: auto;
-  height: auto;
   object-fit: contain;
   display: block;
-  transition: filter 0.2s ease;
+  transform: scale(var(--tk-logo-scale, 1));
+  transform-origin: center;
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
 
 /* Adjustments specifically when dark mode is active */
 .dark .tk-logo__image,
 [data-theme="dark"] .tk-logo__image {
-    max-width: 150px;
-
-  /* Fixes dark logos that lack sufficient contrast or margin offset */
-  max-height: 48px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  --tk-logo-scale: var(--tk-logo-dark-scale);
+  /* Fixes dark logos that lack sufficient contrast against a dark surface */
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
 /* ========== ICON BUTTONS ========== */
@@ -552,6 +575,11 @@ body[data-theme="dark"],
   }
   .tk-header__end {
     gap: 0;
+  }
+  :root {
+    /* Slightly smaller shared logo box on small screens — this affects
+       the sidebar logo too, since it reads the same --tk-logo-box-h var. */
+    --tk-logo-box-h: 32px;
   }
   .notification-dropdown {
     width: calc(100vw - 24px);

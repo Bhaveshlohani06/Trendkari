@@ -217,5 +217,6 @@ export const initForegroundNotifications = async () => {
  */
 export const requestNotificationPermission = async (user) => {
   const result = await subscribeToPush(user);
-  return result.success; // preserves old boolean-ish truthy return shape
+ // return result.success; // preserves old boolean-ish truthy return shape
+return subscribeToPush(user); 
 };

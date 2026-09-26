@@ -556,6 +556,12 @@ const Sidebar = ({ isOpen, onClose }) => {
   const { theme, toggleTheme } = useTheme();
   const push = usePushNotifications(auth?.user);
 
+  // Same source paths and light/dark branching as Header.jsx, so the mark
+  // in the drawer is the identical asset the user just saw in the header —
+  // this is what makes it read as one logo rather than two.
+  const isDarkMode = theme === "dark";
+  const logoSrc = isDarkMode ? "/logo-dark.png" : "/pwa-192.png";
+
   const handlePushToggle = async () => {
     if (push.subscribed) {
       await push.disable();
@@ -617,15 +623,16 @@ const Sidebar = ({ isOpen, onClose }) => {
           </button>
           <div className="brand-section">
             <div
-              className="brand-title"
+              className="sidebar-logo-wrap"
               role="button"
               tabIndex={0}
               onClick={goHome}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') goHome();
+                if (e.key === 'Enter' || e.key === ' ') goHome();
               }}
+              aria-label="Trendkari Home"
             >
-              Trendkari
+              <img src={logoSrc} alt="Trendkari" className="sidebar-logo-image" />
             </div>
             <div className="brand-subtitle">
               <FaGlobe className="me-1" size={12} />

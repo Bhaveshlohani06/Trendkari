@@ -182,7 +182,8 @@ import Users from "./Components/Users";
 import {
   initForegroundNotifications,
   requestNotificationPermission
-} from "../src/notification.js";
+} from "./firebase.js";
+
 
 import EditPost from "./Components/forms/Editpost";
 import Market from "./pages/Market.jsx";
@@ -215,6 +216,40 @@ const RouteChangeTracker = () => {
 //     ReactGA.initialize(TRACKING_ID);
 //   }, []);
 
+// const App = () => {
+//   useEffect(() => {
+//     ReactGA.initialize(TRACKING_ID);
+//   }, []);
+
+//   const notificationInitialized = useRef(false);
+
+//   useEffect(() => {
+//     if (notificationInitialized.current) return;
+
+//     notificationInitialized.current = true;
+
+//     // requestNotificationPermission();
+//     useEffect(() => {
+//     if (notificationInitialized.current) return;
+
+//     notificationInitialized.current = true;
+
+//     // Trigger push subscription & token registration automatically on app mount
+//     requestNotificationPermission({ city: "Kota" })
+//       .then((res) => {
+//         if (res.success) {
+//           console.log("✅ FCM Token registered successfully via React Web!");
+//         } else {
+//           console.warn("⚠️ FCM Token subscription result:", res.reason);
+//         }
+//       })
+//       .catch((err) => console.error("Error subscribing to push:", err));
+
+//   //   initForegroundNotifications();
+//   // }, []);
+//     initForegroundNotifications();
+//   }, []);
+
 const App = () => {
   useEffect(() => {
     ReactGA.initialize(TRACKING_ID);
@@ -227,9 +262,20 @@ const App = () => {
 
     notificationInitialized.current = true;
 
-    // requestNotificationPermission();
+    // Trigger push subscription & token registration automatically on app mount
+    requestNotificationPermission({ city: "Kota" })
+      .then((res) => {
+        if (res?.success) {
+          console.log("✅ FCM Token registered successfully via React Web!");
+        } else {
+          console.warn("⚠️ FCM Token subscription result:", res?.reason);
+        }
+      })
+      .catch((err) => console.error("Error subscribing to push:", err));
+
     initForegroundNotifications();
   }, []);
+
 
   return (
     <>
