@@ -216,39 +216,66 @@ await sendEmail(
 // }
 
 
+// export function startMarketJob() {
+//   cron.schedule("* 9 * * *", async () => { // every day at 9 AM
+//     console.log("⏰ Running Market Rates Job at ", new Date().toLocaleString());
+
+//     try {
+//       const mandis = await Mandi.find({}); // ✅ REQUIRED
+
+//       console.log("Mandis count:", mandis.length);
+
+//       for (const mandi of mandis) {
+//         console.log("Mandi object:", mandi);
+
+//         if (!mandi) {
+//           console.log("❌ Mandi is undefined");
+//           continue;
+//         }
+
+//         if (!mandi.khetiwadi_id) {
+//           console.log(`❌ Missing khetiwadi_id for ${mandi.name}`);
+//           continue;
+//         }
+
+//         await fetchMandiRates(mandi); // ✅ PASS mandi here
+//       }
+
+//       console.log("✅ Market rates updated successfully");
+
+//     } catch (err) {
+//       console.error("❌ Error in market job:", err.message);
+//     }
+//   });
+// }
+
+
 export function startMarketJob() {
-  cron.schedule("* 9 * * *", async () => { // every day at 9 AM
-    console.log("⏰ Running Market Rates Job at ", new Date().toLocaleString());
+  // Runs once, at 9:00 AM India time — locked to IST regardless of what
+  // timezone the server's OS itself is set to (Render defaults to UTC).
+  cron.schedule(
+    "15 9 * * *",
+    async () => {
+      console.log("⏰ Running Market Rates Job at", new Date().toLocaleString());
+      try {
+        const mandis = await Mandi.find({});
+        console.log("Mandis count:", mandis.length);
 
-    try {
-      const mandis = await Mandi.find({}); // ✅ REQUIRED
-
-      console.log("Mandis count:", mandis.length);
-
-      for (const mandi of mandis) {
-        console.log("Mandi object:", mandi);
-
-        if (!mandi) {
-          console.log("❌ Mandi is undefined");
-          continue;
+        for (const mandi of mandis) {
+          if (!mandi?.khetiwadi_id) {
+            console.log(`❌ Missing khetiwadi_id for ${mandi?.name}`);
+            continue;
+          }
+          await fetchMandiRates(mandi);
         }
 
-        if (!mandi.khetiwadi_id) {
-          console.log(`❌ Missing khetiwadi_id for ${mandi.name}`);
-          continue;
-        }
-
-        await fetchMandiRates(mandi); // ✅ PASS mandi here
+        console.log("✅ Market rates updated successfully");
+      } catch (err) {
+        console.error("❌ Error in market job:", err.message);
       }
-
-      console.log("✅ Market rates updated successfully");
-
-    } catch (err) {
-      console.error("❌ Error in market job:", err.message);
-    }
-  });
+    },
+    { timezone: "Asia/Kolkata" }
+  );
 }
-
-
 
  
