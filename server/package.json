@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "server": "nodemon src/server.js",
-        "start": "node server.js",
-      "postinstall": "npx puppeteer browsers install chrome"
+        "start": "node server.js"
 
   },
   "keywords": [],

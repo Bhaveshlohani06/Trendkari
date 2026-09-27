@@ -254,7 +254,7 @@ export function startMarketJob() {
   // Runs once, at 9:00 AM India time — locked to IST regardless of what
   // timezone the server's OS itself is set to (Render defaults to UTC).
   cron.schedule(
-    "25 9 * * *",
+    "30 9 * * *",
     async () => {
       console.log("⏰ Running Market Rates Job at", new Date().toLocaleString());
       try {
