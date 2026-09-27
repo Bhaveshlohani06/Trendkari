@@ -20,26 +20,46 @@
 
 
 
-import express from 'express';
-import { requireSignIn } from '../middleware/authMiddleware.js';
+// import express from 'express';
+// import { requireSignIn } from '../middleware/authMiddleware.js';
 
+// import {
+//   basicSearch,
+//   autocomplete,
+//   advancedSearch,
+//   advancedSmartSearch
+// } from '../controllers/searchController.js';
+
+// const router = express.Router();
+
+// // ✅ Public
+// router.get('/basic', basicSearch);
+// router.get('/autocomplete', autocomplete);
+
+// // ✅ Protected
+// router.get('/advanced', requireSignIn, advancedSearch);
+
+// // 🚀 AI SMART SEARCH
+// router.post('/ai-search', advancedSmartSearch);
+
+// export default router;
+
+
+import express from "express";
 import {
   basicSearch,
   autocomplete,
   advancedSearch,
-  advancedSmartSearch
-} from '../controllers/searchController.js';
-
+  advancedSmartSearch,
+  streamAIAnswer,
+} from "../controllers/searchController.js";
+ 
 const router = express.Router();
-
-// ✅ Public
-router.get('/basic', basicSearch);
-router.get('/autocomplete', autocomplete);
-
-// ✅ Protected
-router.get('/advanced', requireSignIn, advancedSearch);
-
-// 🚀 AI SMART SEARCH
-router.post('/ai-search', advancedSmartSearch);
-
+ 
+router.get("/basic", basicSearch);
+router.get("/autocomplete", autocomplete);
+router.post("/advanced", advancedSearch);
+router.post("/ai-search", advancedSmartSearch); // one round trip, full answer
+router.post("/stream", streamAIAnswer);         // SSE, answer streams in
+ 
 export default router;

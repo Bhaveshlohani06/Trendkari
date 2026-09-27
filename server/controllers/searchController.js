@@ -1217,218 +1217,516 @@
 // };
 
 
+// import Post from "../models/postmodel.js";
+// import User from "../models/usermodel.js";
+// import Category from "../models/categorymodel.js";
+
+// const PUBLISHED_STATUS = "approved";
+
+// /**
+//  * Improved cleanQuery that properly handles both English and Devanagari
+//  * Only escapes regex special characters, preserves Unicode
+//  */
+// const cleanQuery = (str) => {
+//   if (!str) return "";
+//   // Remove leading/trailing whitespace
+//   str = str.trim();
+//   // Escape regex special chars but preserve Unicode (Devanagari)
+//   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// };
+
+// /**
+//  * Create regex that works for both English and Hindi
+//  * Uses case-insensitive for English, preserves Devanagari
+//  */
+// const createSearchRegex = (searchTerm) => {
+//   if (!searchTerm) return null;
+  
+//   // Clean the search term
+//   const cleaned = cleanQuery(searchTerm);
+  
+//   // For Devanagari, we don't want case-insensitive (it's not applicable)
+//   // For English/Roman, we want case-insensitive
+//   const hasDevanagari = /[\u0900-\u097F]/.test(searchTerm);
+  
+//   if (hasDevanagari) {
+//     // Devanagari search - exact match (no case sensitivity needed)
+//     return new RegExp(cleaned);
+//   } else {
+//     // English/Roman search - case insensitive
+//     return new RegExp(cleaned, 'i');
+//   }
+// };
+
+// /**
+//  * Search with bilingual support
+//  */
+// export const performBasicSearch = async (query) => {
+//   const searchTerm = (query || "").trim();
+//   if (!searchTerm) return { posts: [], users: [], categories: [] };
+
+//   // Create regex that works for both scripts
+//   const searchRegex = createSearchRegex(searchTerm);
+  
+//   // Create token-based search for multi-word queries
+//   const wordTokens = searchTerm.split(/\s+/).filter(Boolean);
+//   const tokenRegex = wordTokens.length > 1 
+//     ? new RegExp(wordTokens.map(t => cleanQuery(t)).join('|'), wordTokens.some(t => /[\u0900-\u097F]/.test(t)) ? '' : 'i')
+//     : null;
+
+//   // Build OR conditions for posts
+//   const postOrConditions = [
+//     { title: searchRegex },
+//     { slug: searchRegex },
+//     { tags: searchRegex },
+//     { description: searchRegex },
+//   ];
+  
+//   // Add token-based search if multiple words
+//   if (tokenRegex) {
+//     postOrConditions.push({ slug: tokenRegex });
+//     postOrConditions.push({ title: tokenRegex });
+//     postOrConditions.push({ description: tokenRegex });
+//     postOrConditions.push({ tags: tokenRegex });
+//   }
+
+//   let posts = [];
+//   try {
+//     // Try text search first (if text index exists)
+//     posts = await Post.find({
+//       $and: [
+//         { status: PUBLISHED_STATUS },
+//         { $or: postOrConditions }
+//       ]
+//     })
+//       .populate("author", "name avatar")
+//       .populate("category", "name slug")
+//       .sort({ createdAt: -1 })
+//       .limit(20);
+      
+//     console.log(`[search] Found ${posts.length} posts for "${searchTerm}"`);
+//   } catch (err) {
+//     console.error("[search] Query failed:", err.message);
+//     console.error(err.stack);
+    
+//     // Fallback: simpler query without some conditions
+//     try {
+//       posts = await Post.find({
+//         status: PUBLISHED_STATUS,
+//         $or: [
+//           { title: searchRegex },
+//           { description: searchRegex },
+//           { tags: searchRegex }
+//         ]
+//       })
+//         .populate("author", "name avatar")
+//         .populate("category", "name slug")
+//         .sort({ createdAt: -1 })
+//         .limit(20);
+        
+//       console.log(`[search] Fallback found ${posts.length} posts`);
+//     } catch (fallbackErr) {
+//       console.error("[search] Fallback also failed:", fallbackErr.message);
+//       posts = [];
+//     }
+//   }
+
+//   // Search users with bilingual support
+//   let users = [];
+//   try {
+//     users = await User.find({
+//       $or: [
+//         { name: searchRegex },
+//         { username: searchRegex },
+//         { bio: searchRegex }
+//       ]
+//     })
+//       .select("name avatar bio followersCount")
+//       .limit(10);
+      
+//     console.log(`[search] Found ${users.length} users`);
+//   } catch (err) {
+//     console.error("[search] User query failed:", err.message);
+//   }
+
+//   // Search categories with bilingual support
+//   let categories = [];
+//   try {
+//     categories = await Category.find({
+//       $or: [
+//         { name: searchRegex },
+//         { slug: searchRegex }
+//       ]
+//     }).limit(10);
+    
+//     console.log(`[search] Found ${categories.length} categories`);
+//   } catch (err) {
+//     console.error("[search] Category query failed:", err.message);
+//   }
+
+//   return { posts, users, categories };
+// };
+
+// // ✅ BASIC SEARCH
+// export const basicSearch = async (req, res) => {
+//   try {
+//     const { query } = req.query;
+//     if (!query) {
+//       return res.status(400).json({ error: "Query required" });
+//     }
+
+//     const results = await performBasicSearch(query);
+//     return res.json({ 
+//       success: true, 
+//       results,
+//       query 
+//     });
+//   } catch (err) {
+//     console.error("Basic search error:", err);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+// // ✅ AUTOCOMPLETE
+// export const autocomplete = async (req, res) => {
+//   try {
+//     const { q } = req.query;
+//     if (!q || q.trim().length < 2) {
+//       return res.json({ suggestions: [] });
+//     }
+
+//     const results = await performBasicSearch(q);
+
+//     const suggestions = [
+//       ...results.posts.map((p) => ({ 
+//         type: "post", 
+//         text: p.title, 
+//         slug: p.slug 
+//       })),
+//       ...results.categories.map((c) => ({ 
+//         type: "category", 
+//         text: c.name, 
+//         slug: c.slug 
+//       })),
+//       ...results.users.map((u) => ({ 
+//         type: "user", 
+//         text: u.name, 
+//         id: u._id 
+//       })),
+//     ];
+
+//     return res.json({ suggestions: suggestions.slice(0, 8) });
+//   } catch (err) {
+//     console.error("Autocomplete error:", err);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+// // ✅ ADVANCED SEARCH
+// export const advancedSearch = async (req, res) => {
+//   try {
+//     const query = req.body?.query || req.query?.query;
+//     if (!query) {
+//       return res.status(400).json({ error: "Query required" });
+//     }
+
+//     const results = await performBasicSearch(query);
+//     return res.json({ success: true, results });
+//   } catch (err) {
+//     console.error("Advanced search error:", err);
+//     return res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+// // ✅ SMART SEARCH
+// export const advancedSmartSearch = async (req, res) => {
+//   try {
+//     const { query } = req.body;
+//     if (!query) {
+//       return res.status(400).json({ error: "Query required" });
+//     }
+
+//     const results = await performBasicSearch(query);
+
+//     return res.json({
+//       type: "search",
+//       source: "database",
+//       query,
+//       results,
+//       message: `Found ${results.posts.length} posts, ${results.users.length} users, and ${results.categories.length} categories`,
+//     });
+//   } catch (err) {
+//     console.error("Smart search error:", err);
+//     return res.status(500).json({
+//       error: "Internal server error",
+//       message: "Search failed. Please try again.",
+//     });
+//   }
+// };
+
+
 import Post from "../models/postmodel.js";
 import User from "../models/usermodel.js";
 import Category from "../models/categorymodel.js";
+import CropPrice from "../models/Cropmodel.js";
+import Mandi from "../models/Mandimodel.js";
+import {
+  hasAIConfigured,
+  buildContextForAI,
+  streamAnthropicAnswer,
+  getAnthropicAnswer,
+} from "../services/searchService.js";
 
 const PUBLISHED_STATUS = "approved";
 
 /**
- * Improved cleanQuery that properly handles both English and Devanagari
- * Only escapes regex special characters, preserves Unicode
+ * Escapes regex special chars but preserves Unicode (Devanagari).
  */
 const cleanQuery = (str) => {
   if (!str) return "";
-  // Remove leading/trailing whitespace
-  str = str.trim();
-  // Escape regex special chars but preserve Unicode (Devanagari)
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return str.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
 
 /**
- * Create regex that works for both English and Hindi
- * Uses case-insensitive for English, preserves Devanagari
+ * Case-insensitive for Latin script, case-sensitive (not applicable) for
+ * Devanagari — this is what makes the same search box work for both.
  */
 const createSearchRegex = (searchTerm) => {
   if (!searchTerm) return null;
-  
-  // Clean the search term
   const cleaned = cleanQuery(searchTerm);
-  
-  // For Devanagari, we don't want case-insensitive (it's not applicable)
-  // For English/Roman, we want case-insensitive
   const hasDevanagari = /[\u0900-\u097F]/.test(searchTerm);
-  
-  if (hasDevanagari) {
-    // Devanagari search - exact match (no case sensitivity needed)
-    return new RegExp(cleaned);
-  } else {
-    // English/Roman search - case insensitive
-    return new RegExp(cleaned, 'i');
+  return hasDevanagari ? new RegExp(cleaned) : new RegExp(cleaned, "i");
+};
+
+/**
+ * Pulls just the first clean line out of a scraped crop_name
+ * ("चना\nBrown gram\nचार्ट देखें\n→" -> "चना").
+ */
+const firstCropNameLine = (raw = "") => {
+  const lines = raw
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .filter((l) => !/देखें|view chart|^→$|^-+$/i.test(l));
+  return lines[0] || raw;
+};
+
+const performCropSearch = async (searchRegex, tokenRegex) => {
+  try {
+    const orConditions = [{ crop_name: searchRegex }];
+    if (tokenRegex) orConditions.push({ crop_name: tokenRegex });
+
+    const grouped = await CropPrice.aggregate([
+      { $match: { $or: orConditions } },
+      { $sort: { date: -1 } },
+      {
+        $group: {
+          _id: { crop_name: "$crop_name", mandi: "$mandi" },
+          price_min: { $first: "$price_min" },
+          price_max: { $first: "$price_max" },
+          price_avg: { $first: "$price_avg" },
+          trend: { $first: "$trend" },
+          unit: { $first: "$unit" },
+          date: { $first: "$date" },
+        },
+      },
+      { $sort: { date: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "mandis",
+          localField: "_id.mandi",
+          foreignField: "_id",
+          as: "mandiInfo",
+        },
+      },
+      { $unwind: { path: "$mandiInfo", preserveNullAndEmptyArrays: true } },
+    ]);
+
+    return grouped.map((g) => ({
+      crop_name: g._id.crop_name,
+      price_min: g.price_min,
+      price_max: g.price_max,
+      price_avg: g.price_avg,
+      trend: g.trend,
+      unit: g.unit,
+      date: g.date,
+      mandi: g.mandiInfo
+        ? { name: g.mandiInfo.name, khetiwadi_id: g.mandiInfo.khetiwadi_id }
+        : null,
+    }));
+  } catch (err) {
+    console.error("[search] Crop query failed:", err.message);
+    return [];
+  }
+};
+
+const performMandiSearch = async (searchRegex) => {
+  try {
+    return await Mandi.find({
+      $or: [
+        { name: searchRegex },
+        { city: searchRegex },
+        { district: searchRegex },
+      ],
+    })
+      .select("name city district state khetiwadi_id")
+      .limit(6);
+  } catch (err) {
+    console.error("[search] Mandi query failed:", err.message);
+    return [];
   }
 };
 
 /**
- * Search with bilingual support
+ * Core retrieval — bilingual search across posts, users, categories, crop
+ * prices, and mandis themselves. This is the single source of truth every
+ * endpoint below builds on, so any entity you add here shows up everywhere
+ * (autocomplete, basic search, and the AI answer's context) for free.
  */
 export const performBasicSearch = async (query) => {
   const searchTerm = (query || "").trim();
-  if (!searchTerm) return { posts: [], users: [], categories: [] };
+  if (!searchTerm) {
+    return { posts: [], users: [], categories: [], crops: [], mandis: [] };
+  }
 
-  // Create regex that works for both scripts
   const searchRegex = createSearchRegex(searchTerm);
-  
-  // Create token-based search for multi-word queries
   const wordTokens = searchTerm.split(/\s+/).filter(Boolean);
-  const tokenRegex = wordTokens.length > 1 
-    ? new RegExp(wordTokens.map(t => cleanQuery(t)).join('|'), wordTokens.some(t => /[\u0900-\u097F]/.test(t)) ? '' : 'i')
-    : null;
+  const tokenRegex =
+    wordTokens.length > 1
+      ? new RegExp(
+          wordTokens.map((t) => cleanQuery(t)).join("|"),
+          wordTokens.some((t) => /[\u0900-\u097F]/.test(t)) ? "" : "i"
+        )
+      : null;
 
-  // Build OR conditions for posts
   const postOrConditions = [
     { title: searchRegex },
     { slug: searchRegex },
     { tags: searchRegex },
     { description: searchRegex },
   ];
-  
-  // Add token-based search if multiple words
   if (tokenRegex) {
-    postOrConditions.push({ slug: tokenRegex });
-    postOrConditions.push({ title: tokenRegex });
-    postOrConditions.push({ description: tokenRegex });
-    postOrConditions.push({ tags: tokenRegex });
+    postOrConditions.push(
+      { slug: tokenRegex },
+      { title: tokenRegex },
+      { description: tokenRegex },
+      { tags: tokenRegex }
+    );
   }
 
   let posts = [];
   try {
-    // Try text search first (if text index exists)
     posts = await Post.find({
-      $and: [
-        { status: PUBLISHED_STATUS },
-        { $or: postOrConditions }
-      ]
+      $and: [{ status: PUBLISHED_STATUS }, { $or: postOrConditions }],
     })
       .populate("author", "name avatar")
       .populate("category", "name slug")
       .sort({ createdAt: -1 })
       .limit(20);
-      
-    console.log(`[search] Found ${posts.length} posts for "${searchTerm}"`);
   } catch (err) {
-    console.error("[search] Query failed:", err.message);
-    console.error(err.stack);
-    
-    // Fallback: simpler query without some conditions
+    console.error("[search] Post query failed:", err.message);
     try {
       posts = await Post.find({
         status: PUBLISHED_STATUS,
-        $or: [
-          { title: searchRegex },
-          { description: searchRegex },
-          { tags: searchRegex }
-        ]
+        $or: [{ title: searchRegex }, { description: searchRegex }, { tags: searchRegex }],
       })
         .populate("author", "name avatar")
         .populate("category", "name slug")
         .sort({ createdAt: -1 })
         .limit(20);
-        
-      console.log(`[search] Fallback found ${posts.length} posts`);
     } catch (fallbackErr) {
-      console.error("[search] Fallback also failed:", fallbackErr.message);
+      console.error("[search] Fallback post query also failed:", fallbackErr.message);
       posts = [];
     }
   }
 
-  // Search users with bilingual support
   let users = [];
   try {
     users = await User.find({
-      $or: [
-        { name: searchRegex },
-        { username: searchRegex },
-        { bio: searchRegex }
-      ]
+      $or: [{ name: searchRegex }, { username: searchRegex }, { bio: searchRegex }],
     })
       .select("name avatar bio followersCount")
       .limit(10);
-      
-    console.log(`[search] Found ${users.length} users`);
   } catch (err) {
     console.error("[search] User query failed:", err.message);
   }
 
-  // Search categories with bilingual support
   let categories = [];
   try {
     categories = await Category.find({
-      $or: [
-        { name: searchRegex },
-        { slug: searchRegex }
-      ]
+      $or: [{ name: searchRegex }, { slug: searchRegex }],
     }).limit(10);
-    
-    console.log(`[search] Found ${categories.length} categories`);
   } catch (err) {
     console.error("[search] Category query failed:", err.message);
   }
 
-  return { posts, users, categories };
+  const [crops, mandis] = await Promise.all([
+    performCropSearch(searchRegex, tokenRegex),
+    performMandiSearch(searchRegex),
+  ]);
+
+  console.log(
+    `[search] "${searchTerm}" -> ${posts.length} posts, ${users.length} users, ` +
+      `${categories.length} categories, ${crops.length} crop rates, ${mandis.length} mandis`
+  );
+
+  return { posts, users, categories, crops, mandis };
 };
 
-// ✅ BASIC SEARCH
+// ✅ BASIC SEARCH — fast, no AI. What the results page uses for its tabs.
 export const basicSearch = async (req, res) => {
   try {
     const { query } = req.query;
-    if (!query) {
-      return res.status(400).json({ error: "Query required" });
-    }
+    if (!query) return res.status(400).json({ error: "Query required" });
 
     const results = await performBasicSearch(query);
-    return res.json({ 
-      success: true, 
-      results,
-      query 
-    });
+    return res.json({ success: true, results, query });
   } catch (err) {
     console.error("Basic search error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// ✅ AUTOCOMPLETE
+// ✅ AUTOCOMPLETE — also fast, no AI. Powers the header's dropdown.
 export const autocomplete = async (req, res) => {
   try {
     const { q } = req.query;
-    if (!q || q.trim().length < 2) {
-      return res.json({ suggestions: [] });
-    }
+    if (!q || q.trim().length < 2) return res.json({ suggestions: [] });
 
     const results = await performBasicSearch(q);
 
     const suggestions = [
-      ...results.posts.map((p) => ({ 
-        type: "post", 
-        text: p.title, 
-        slug: p.slug 
+      ...results.posts.map((p) => ({ type: "post", text: p.title, slug: p.slug })),
+      ...results.categories.map((c) => ({ type: "category", text: c.name, slug: c.slug })),
+      ...results.users.map((u) => ({ type: "user", text: u.name, id: u._id })),
+      ...results.crops.map((c) => ({
+        type: "crop",
+        text: firstCropNameLine(c.crop_name),
+        mandi: c.mandi?.khetiwadi_id || null,
+        mandiName: c.mandi?.name || null,
+        price: c.price_avg,
+        unit: c.unit,
       })),
-      ...results.categories.map((c) => ({ 
-        type: "category", 
-        text: c.name, 
-        slug: c.slug 
-      })),
-      ...results.users.map((u) => ({ 
-        type: "user", 
-        text: u.name, 
-        id: u._id 
+      ...results.mandis.map((m) => ({
+        type: "mandi",
+        text: m.name,
+        khetiwadi_id: m.khetiwadi_id,
       })),
     ];
 
-    return res.json({ suggestions: suggestions.slice(0, 8) });
+    return res.json({ suggestions: suggestions.slice(0, 10) });
   } catch (err) {
     console.error("Autocomplete error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-// ✅ ADVANCED SEARCH
+// ✅ ADVANCED SEARCH — same retrieval, POST-friendly for longer queries.
 export const advancedSearch = async (req, res) => {
   try {
     const query = req.body?.query || req.query?.query;
-    if (!query) {
-      return res.status(400).json({ error: "Query required" });
-    }
+    if (!query) return res.status(400).json({ error: "Query required" });
 
     const results = await performBasicSearch(query);
     return res.json({ success: true, results });
@@ -1438,22 +1736,35 @@ export const advancedSearch = async (req, res) => {
   }
 };
 
-// ✅ SMART SEARCH
+// ✅ SMART SEARCH — one round trip: results + a full (non-streamed) AI
+// answer. Used by the header's quick-submit flow, which navigates
+// immediately with everything already in hand.
 export const advancedSmartSearch = async (req, res) => {
   try {
     const { query } = req.body;
-    if (!query) {
-      return res.status(400).json({ error: "Query required" });
-    }
+    if (!query) return res.status(400).json({ error: "Query required" });
 
     const results = await performBasicSearch(query);
+
+    let answer = null;
+    if (hasAIConfigured()) {
+      const context = buildContextForAI(results);
+      if (context.trim()) {
+        try {
+          answer = await getAnthropicAnswer({ query, context });
+        } catch (err) {
+          console.error("[search] AI answer failed, degrading gracefully:", err.message);
+        }
+      }
+    }
 
     return res.json({
       type: "search",
       source: "database",
       query,
       results,
-      message: `Found ${results.posts.length} posts, ${results.users.length} users, and ${results.categories.length} categories`,
+      answer,
+      message: `Found ${results.posts.length} posts, ${results.users.length} users, ${results.categories.length} categories, ${results.crops.length} crop rates, and ${results.mandis.length} mandis`,
     });
   } catch (err) {
     console.error("Smart search error:", err);
@@ -1461,5 +1772,53 @@ export const advancedSmartSearch = async (req, res) => {
       error: "Internal server error",
       message: "Search failed. Please try again.",
     });
+  }
+};
+
+// ✅ STREAMING AI ANSWER — Server-Sent Events. Sends structured results
+// first (so the UI can render sources immediately), then streams the
+// answer token-by-token as it's generated. If no API key is configured,
+// sends a single "unavailable" event and ends cleanly — the frontend
+// treats that exactly like "no AI answer for this query", nothing breaks.
+export const streamAIAnswer = async (req, res) => {
+  const query = req.body?.query || req.query?.query;
+  if (!query) return res.status(400).json({ error: "Query required" });
+
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders?.();
+
+  const send = (event, data) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+
+  try {
+    const results = await performBasicSearch(query);
+    send("sources", results);
+
+    if (!hasAIConfigured()) {
+      send("unavailable", { reason: "AI answer not configured" });
+      return res.end();
+    }
+
+    const context = buildContextForAI(results);
+    if (!context.trim()) {
+      send("unavailable", { reason: "No matching context" });
+      return res.end();
+    }
+
+    await streamAnthropicAnswer({
+      query,
+      context,
+      onToken: (chunk) => send("token", { chunk }),
+    });
+
+    send("done", {});
+    res.end();
+  } catch (err) {
+    console.error("[search] Stream error:", err.message);
+    send("error", { message: "AI answer unavailable" });
+    res.end();
   }
 };
